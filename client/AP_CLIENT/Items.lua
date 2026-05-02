@@ -54,6 +54,12 @@ function Items.Receive(items, ap_client, silent)
         if not ok then
             log.info("[Items] failed to resolve item name: " .. tostring(err))
         end
+        -- Guard against APClientPP's unresolved-id sentinel. The data
+        -- package can be incomplete during the first slot_connect on a
+        -- freshly-opened socket (same root cause as the post-Reset-Scripts
+        -- gotcha in CLAUDE.md). Without this, "Unknown" enters Items.held
+        -- and renders in the tracker forever.
+        if name == "Unknown" then name = nil end
         if name then
             local is_new
             if name == "Victory" then

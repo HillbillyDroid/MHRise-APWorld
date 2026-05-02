@@ -1,4 +1,4 @@
-# MH Rise Archipelago Randomizer
+# Monster Hunter Rise Archipelago Randomizer
 
 An [Archipelago](https://archipelago.gg/) (AP) multiworld randomizer for
 **Monster Hunter Rise + Sunbreak**.
