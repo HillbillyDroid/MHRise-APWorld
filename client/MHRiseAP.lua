@@ -1,0 +1,157 @@
+if reframework:get_game_name() ~= "mhrise" then
+    return
+end
+
+log.info("[MHRiseAP] Loading...")
+
+AP_REF = require("AP_REF/core")
+AP_REF.APGameName = "Monster Hunter Rise"
+
+local Lookups = require("AP_CLIENT/Lookups")
+local Items = require("AP_CLIENT/Items")
+local Monsters = require("AP_CLIENT/Monsters")
+local Weapons = require("AP_CLIENT/Weapons")
+local Tracker = require("AP_CLIENT/Tracker")
+
+local function log_info(msg) log.info("[MHRiseAP] " .. msg) end
+
+-- Catch-up suppression window: AP delivers all already-received items
+-- in a batch (or several rapid batches) immediately after slot_connect.
+-- We update Items.held silently during this window so chat doesn't get
+-- flooded with one "[AP] Received: X" per held license.
+local items_silent_until = 0
+local CATCHUP_WINDOW_SECONDS = 2.0
+
+local function send_chat(text)
+    local chatman = sdk.get_managed_singleton("snow.gui.ChatManager")
+    if not chatman then return end
+    chatman:setChatNetworkInfomation(tostring(text), 0, 0, 3, false)
+end
+
+AP_REF.on_socket_connected = function()
+    log_info("Socket connected to " .. tostring(AP_REF.APHost))
+end
+
+AP_REF.on_socket_error = function(err)
+    log_info("Socket error: " .. tostring(err))
+end
+
+AP_REF.on_socket_disconnected = function()
+    log_info("Socket disconnected")
+    Lookups.Reset()
+    Items.Reset()
+    Tracker.Reset()
+end
+
+AP_REF.on_room_info = function()
+    log_info("Room info received, awaiting slot connect")
+end
+
+AP_REF.on_slot_connected = function(slot_data)
+    log_info("Slot connected.")
+    -- Suppress per-item chat for the immediate catch-up batch. Anything
+    -- arriving more than CATCHUP_WINDOW_SECONDS later is a real-time
+    -- reward and gets announced normally.
+    items_silent_until = os.clock() + CATCHUP_WINDOW_SECONDS
+    local ok, err = Lookups.Load(slot_data)
+    if not ok then
+        log_info("Lookups.Load failed: " .. tostring(err))
+        return
+    end
+    log_info(string.format(
+        "Loaded %d monster mappings. starter=%s goal=%s",
+        (function() local n = 0 for _ in pairs(Lookups.item_name_to_em_type) do n = n + 1 end return n end)(),
+        tostring(Lookups.starting_monster),
+        tostring(Lookups.goal_monster)
+    ))
+    Tracker.visible = true
+    if Weapons.enabled and Weapons.starting_weapon then
+        send_chat(string.format("[AP] Connected. Starter: %s. Goal: %s. Weapon: %s.",
+            tostring(Lookups.starting_monster),
+            tostring(Lookups.goal_monster),
+            tostring(Weapons.starting_weapon)))
+    else
+        send_chat(string.format("[AP] Connected. Starter: %s. Goal: %s.",
+            tostring(Lookups.starting_monster), tostring(Lookups.goal_monster)))
+    end
+end
+
+AP_REF.on_slot_refused = function(reasons)
+    log_info("Slot refused: " .. table.concat(reasons or {}, ", "))
+end
+
+AP_REF.on_items_received = function(items)
+    local silent = os.clock() < items_silent_until
+    local n = Items.Receive(items, AP_REF.APClient, silent)
+    log_info(string.format("Items received: %d resolved (Victory=%s, silent=%s)",
+        n, tostring(Items.has_victory), tostring(silent)))
+    if Items.has_victory and AP_REF.APClient then
+        local ok = pcall(function()
+            AP_REF.APClient:StatusUpdate(AP_REF.AP.ClientStatus.GOAL)
+        end)
+        if ok and not silent then send_chat("[AP] Victory sent.") end
+    end
+end
+
+AP_REF.on_location_checked = function(locations)
+    log_info("Locations checked confirmed: " .. tostring(#locations))
+    -- The `locations` payload shape is opaque (passthrough from
+    -- apclientpp). It's typically a list of integer location IDs, but
+    -- has been seen as a list of {location=...} tables on some
+    -- builds. Try the common shapes; bail silently on unknowns.
+    for _, loc in ipairs(locations or {}) do
+        local id = (type(loc) == "number") and loc
+                or (type(loc) == "table" and (loc.location or loc.id))
+                or tonumber(tostring(loc))
+        if id then Tracker.NoteLocationChecked(id) end
+    end
+end
+
+AP_REF.on_print = function(msg)
+    log_info("[server] " .. tostring(msg))
+end
+
+-- Surface "we sent X to PlayerY" events to in-game chat. AP delivers
+-- structured messages via on_print_json with extra={type=..., item=...,
+-- receiving=...}. ItemSend events where the source slot is us and the
+-- receiving slot is someone else are the ones to announce.
+AP_REF.on_print_json = function(msg, extra)
+    if type(extra) ~= "table" then return end
+    if extra.type ~= "ItemSend" then return end
+    local item = extra.item
+    if type(item) ~= "table" then return end
+    local client = AP_REF.APClient
+    if not client then return end
+    local own_slot = client:get_player_number()
+    local source_slot = tonumber(item.player)
+    local receiving_slot = tonumber(extra.receiving)
+    if source_slot ~= own_slot then return end          -- not from us
+    if receiving_slot == own_slot then return end       -- to ourselves (dedup'd elsewhere)
+    local item_name = "?"
+    local recipient = "?"
+    pcall(function()
+        local item_id = tonumber(item.item)
+        if item_id then
+            item_name = client:get_item_name(item_id, client:get_player_game(receiving_slot)) or item_name
+        end
+    end)
+    pcall(function()
+        if receiving_slot then
+            recipient = client:get_player_alias(receiving_slot) or recipient
+        end
+    end)
+    send_chat(string.format("[AP] Sent %s to %s.", item_name, recipient))
+end
+
+Monsters.InstallHook()
+
+re.on_frame(function()
+    Tracker.Draw()
+end)
+
+re.on_draw_ui(function()
+    local changed, val = imgui.checkbox("Show MH Rise Tracker", Tracker.visible)
+    if changed then Tracker.visible = val end
+end)
+
+log.info("[MHRiseAP] Loaded.")
