@@ -50,6 +50,6 @@ disclaimer.
 
 ## License
 
-[MIT](LICENSE.md). Copyright SolomonW. The bundled
+[MIT](LICENSE.md). The bundled
 `lua-apclientpp.dll` carries its own license at
 [client/lua-apclientpp-license.txt](client/lua-apclientpp-license.txt).
