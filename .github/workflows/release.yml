@@ -1,0 +1,91 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Verify tag matches archipelago.json world_version
+        run: |
+          tag_version="${GITHUB_REF_NAME#v}"
+          json_version="$(python -c "import json; print(json.load(open('ap_world/archipelago.json'))['world_version'])")"
+          echo "Git tag version:        $tag_version"
+          echo "archipelago.json version: $json_version"
+          if [ "$tag_version" != "$json_version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match ap_world/archipelago.json world_version $json_version. Bump world_version (or retag) before releasing."
+            exit 1
+          fi
+
+      - name: Build mhrise.apworld
+        run: python ap_world/build_apworld.py
+
+      - name: Build mhrise-client.zip
+        run: |
+          python <<'PY'
+          import zipfile
+          from pathlib import Path
+
+          # Explicit allow-list. Top-level files land at the game install
+          # root; reframework/ files land under reframework/autorun/.
+          ROOT_FILES = [
+              "client/lua-apclientpp.dll",
+              "client/lua-apclientpp-license.txt",
+          ]
+          AUTORUN_FILES = [
+              "client/MHRiseAP.lua",
+              "client/AP_REF/core.lua",
+              "client/AP_CLIENT/Items.lua",
+              "client/AP_CLIENT/Lookups.lua",
+              "client/AP_CLIENT/Monsters.lua",
+              "client/AP_CLIENT/Session.lua",
+              "client/AP_CLIENT/Tracker.lua",
+              "client/AP_CLIENT/Weapons.lua",
+          ]
+
+          out = Path("mhrise-client.zip")
+          if out.exists():
+              out.unlink()
+
+          with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zf:
+              for src in ROOT_FILES:
+                  p = Path(src)
+                  if not p.is_file():
+                      raise SystemExit(f"missing required file: {src}")
+                  zf.write(p, p.name)
+              for src in AUTORUN_FILES:
+                  p = Path(src)
+                  if not p.is_file():
+                      raise SystemExit(f"missing required file: {src}")
+                  arcname = "reframework/autorun/" + str(p.relative_to("client")).replace("\\", "/")
+                  zf.write(p, arcname)
+
+          print("Wrote", out)
+          for n in zipfile.ZipFile(out).namelist():
+              print("  ", n)
+          PY
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            mhrise.apworld
+            mhrise-client.zip
