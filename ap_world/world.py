@@ -6,7 +6,9 @@ for why we ship the EmType map this way rather than via a static file)."""
 
 from __future__ import annotations
 
+import json
 import logging
+import os
 from collections.abc import Mapping
 from typing import Any
 
@@ -17,6 +19,10 @@ from . import options as mhrise_options  # rename due to a name conflict with Wo
 from .data.monsters import MONSTERS
 from .data.weapons import WEAPONS
 from .web_world import MHRiseWebWorld
+
+_MANIFEST_PATH = os.path.join(os.path.dirname(__file__), "archipelago.json")
+with open(_MANIFEST_PATH, "r", encoding="utf-8") as _f:
+    WORLD_VERSION = json.load(_f)["world_version"]
 
 
 class MHRiseWorld(World):
@@ -139,6 +145,7 @@ class MHRiseWorld(World):
         }
 
         slot_data: dict[str, Any] = {
+            "world_version": WORLD_VERSION,
             "monster_em_type_map": em_type_map,
             "include_sunbreak": bool(self.options.include_sunbreak.value),
             "starting_monster": self.starting_monster["name"],

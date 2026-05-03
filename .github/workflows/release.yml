@@ -20,14 +20,16 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Verify tag matches archipelago.json world_version
+      - name: Verify tag, archipelago.json, and client versions all match
         run: |
           tag_version="${GITHUB_REF_NAME#v}"
           json_version="$(python -c "import json; print(json.load(open('ap_world/archipelago.json'))['world_version'])")"
+          lua_version="$(python -c "import re; print(re.search(r'APWORLD_VERSION\s*=\s*\"([^\"]+)\"', open('client/MHRiseAP.lua').read()).group(1))")"
           echo "Git tag version:        $tag_version"
-          echo "archipelago.json version: $json_version"
-          if [ "$tag_version" != "$json_version" ]; then
-            echo "::error::Tag $GITHUB_REF_NAME does not match ap_world/archipelago.json world_version $json_version. Bump world_version (or retag) before releasing."
+          echo "archipelago.json:       $json_version"
+          echo "client/MHRiseAP.lua:    $lua_version"
+          if [ "$tag_version" != "$json_version" ] || [ "$tag_version" != "$lua_version" ]; then
+            echo "::error::Version drift. tag=$tag_version json=$json_version lua=$lua_version. All three must match — bump archipelago.json world_version and client/MHRiseAP.lua APWORLD_VERSION before tagging."
             exit 1
           fi
 
