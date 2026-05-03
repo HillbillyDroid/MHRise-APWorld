@@ -148,14 +148,16 @@ def create_all_items(world: MHRiseWorld) -> None:
     assert spare >= 1, "spare-slot invariant broken (need ≥1 slot beyond licenses)"
 
     # Weapon licenses (when enabled). Starter is always precollected,
-    # never truncated. The other 13 are shuffled and as many as fit go
-    # into the pool — when monster_count is small, we drop the rest.
+    # never truncated. The non-starter pool is drawn from
+    # `world.weapon_pool` (the weapon_pool option's resolved subset),
+    # shuffled and as many as fit go into the pool — when
+    # monster_count is small or weapon_pool is small, we drop the rest.
     if bool(world.options.include_weapons.value):
         starting_weapon_name = world.starting_weapon["name"]
         precollected.append(create_item_with_correct_classification(
             world, weapon_license_item_name(world.starting_weapon)))
         non_starter_weapons = [
-            w for w in WEAPONS if w["name"] != starting_weapon_name
+            w for w in world.weapon_pool if w["name"] != starting_weapon_name
         ]
         world.random.shuffle(non_starter_weapons)
         weapons_to_add = non_starter_weapons[:spare]

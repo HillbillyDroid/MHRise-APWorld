@@ -10,7 +10,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from Options import DefaultOnToggle, PerGameCommonOptions, Range, Toggle
+from Options import DefaultOnToggle, OptionSet, PerGameCommonOptions, Range, Toggle
+
+from .data.weapons import WEAPONS
+
+_WEAPON_NAMES = {w["name"] for w in WEAPONS}
 
 
 class IncludeSunbreak(DefaultOnToggle):
@@ -39,6 +43,26 @@ class IncludeWeapons(DefaultOnToggle):
     display_name = "Include Weapons"
 
 
+class WeaponPool(OptionSet):
+    """Restrict which weapon-type licenses are eligible for the pool
+    (and for the precollected starter weapon). Defaults to all 14
+    weapons. To play with a smaller set, list the weapon names you
+    want — e.g.:
+
+        weapon_pool:
+          - Long Sword
+          - Bow
+          - Switch Axe
+
+    Must contain at least one valid weapon name. Names are
+    case-sensitive and must match the entries in `data/weapons.py`.
+    No effect when `include_weapons` is disabled."""
+
+    display_name = "Weapon Pool"
+    valid_keys = _WEAPON_NAMES
+    default = _WEAPON_NAMES
+
+
 class MonsterCount(Range):
     """Number of monsters randomly drawn into the world. Determines how
     many hunts are randomized. Clamped to the available pool size at
@@ -56,4 +80,5 @@ class MHRiseOptions(PerGameCommonOptions):
     include_sunbreak: IncludeSunbreak
     include_risen: IncludeRisen
     include_weapons: IncludeWeapons
+    weapon_pool: WeaponPool
     monster_count: MonsterCount

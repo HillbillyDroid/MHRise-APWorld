@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
-import os
+import pkgutil
 from collections.abc import Mapping
 from typing import Any
 
@@ -20,9 +20,15 @@ from .data.monsters import MONSTERS
 from .data.weapons import WEAPONS
 from .web_world import MHRiseWebWorld
 
-_MANIFEST_PATH = os.path.join(os.path.dirname(__file__), "archipelago.json")
-with open(_MANIFEST_PATH, "r", encoding="utf-8") as _f:
-    WORLD_VERSION = json.load(_f)["world_version"]
+# Read world_version from the manifest via pkgutil so this works whether
+# the apworld is loaded from an unpacked source tree or from inside a
+# .apworld zip (custom_worlds/). `os.path.join + open()` would only work
+# in the unpacked case — inside a zip, `__file__` points into the
+# archive and is not a real filesystem path.
+_MANIFEST_BYTES = pkgutil.get_data(__package__, "archipelago.json")
+if _MANIFEST_BYTES is None:
+    raise RuntimeError("archipelago.json missing from apworld package")
+WORLD_VERSION = json.loads(_MANIFEST_BYTES.decode("utf-8"))["world_version"]
 
 
 class MHRiseWorld(World):
@@ -59,6 +65,16 @@ class MHRiseWorld(World):
     # weapon whose license is precollected so the player can hunt from
     # t=0. None when weapons are disabled.
     starting_weapon: dict | None = None
+
+    # Populated by generate_early when include_weapons is enabled.
+    # Subset of WEAPONS allowed by the weapon_pool option — drives
+    # starter pick and the non-starter weapon licenses placed in the
+    # itempool. Excluded weapons are absent from the pool entirely;
+    # the client's slot_data still ships the full enum->name map so
+    # the soft gate naturally filters hunts wielding excluded weapons
+    # (player never receives those licenses, so Items.held never
+    # contains them).
+    weapon_pool: list[dict]
 
     # Populated by generate_early. The randomly-chosen subset of monsters
     # this seed actually uses — drives location creation, item pool,
@@ -112,7 +128,20 @@ class MHRiseWorld(World):
         self.seed_monsters = [self.starting_monster, self.goal_monster] + rest
 
         if bool(self.options.include_weapons.value):
-            self.starting_weapon = self.random.choice(WEAPONS)
+            allowed_weapon_names = set(self.options.weapon_pool.value)
+            if not allowed_weapon_names:
+                raise ValueError(
+                    "weapon_pool must contain at least one weapon name "
+                    "when include_weapons is enabled."
+                )
+            self.weapon_pool = [
+                w for w in WEAPONS if w["name"] in allowed_weapon_names
+            ]
+            assert self.weapon_pool, (
+                "weapon_pool resolved to empty after filtering — "
+                "OptionSet.valid_keys should have caught unknown names."
+            )
+            self.starting_weapon = self.random.choice(self.weapon_pool)
 
     def create_regions(self) -> None:
         regions.create_and_connect_regions(self)
