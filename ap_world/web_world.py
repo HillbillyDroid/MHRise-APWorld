@@ -23,6 +23,6 @@ class MHRiseWebWorld(WebWorld):
     tutorials = [setup_en]
 
     # Not set: option_groups / options_presets. The option surface is
-    # small enough (4 options) that the website's default flat list is
+    # small enough that the website's default flat list is
     # fine. Add them here if the option count grows or we want named
     # preset configurations on the YAML generator page.
