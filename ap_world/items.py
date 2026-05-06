@@ -81,6 +81,12 @@ class MHRiseItem(Item):
 def create_item_with_correct_classification(world: MHRiseWorld, name: str) -> MHRiseItem:
     if name == FILLER_ITEM_NAME:
         classification = ItemClassification.filler
+    elif name == license_item_name(world.goal_monster):
+        # Goal license uses skip_balancing so AP's progression balancer
+        # won't pull it forward into early spheres to relieve another
+        # player's BK risk. Receiving the goal license ends the run, so
+        # an early swap collapses pacing.
+        classification = ItemClassification.progression_skip_balancing
     else:
         # Licenses are progression — each one gates the player's access to
         # its monster's hunt locations. Victory is also progression by

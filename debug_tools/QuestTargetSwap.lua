@@ -118,21 +118,17 @@ local function mutate_quest_data(qd)
     overwrite_em_array(boss_arr, "_BossEmType")
 end
 
--- args layout for setupQuestEnemy() (no params):
---   args[1] = method-table junk
---   args[2] = `this` (QuestManager)
-local function pre_hook(args)
-    local qm_ptr = args[2]
-    if qm_ptr == nil then log_info("pre: args[2] (this) nil"); return end
-    local qm = sdk.to_managed_object(qm_ptr)
-    if not qm then log_info("pre: to_managed_object(this) failed"); return end
-    local qd = nil
-    pcall(function() qd = qm:call("getActiveQuestData") end)
-    if not qd then
-        log_info("pre: getActiveQuestData returned nil")
-        return
-    end
-    mutate_quest_data(qd)
+-- DIAGNOSTIC: pre-hook does nothing but log "fired" with a count.
+-- If the game crashes on quest start without this line ever being
+-- logged, the act of installing the hook on setupQuestEnemy is
+-- itself destabilizing on this build (same failure shape as the
+-- earlier makeQuestTargetData_Normal experiment). If the line IS
+-- logged and then the crash follows, the hook itself is fine and
+-- something else broke.
+local pre_hook_fire_count = 0
+local function pre_hook(_args)
+    pre_hook_fire_count = pre_hook_fire_count + 1
+    log_info("pre: setupQuestEnemy fired #" .. pre_hook_fire_count)
 end
 
 local function post_hook(_retval) end

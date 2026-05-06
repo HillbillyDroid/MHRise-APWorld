@@ -24,7 +24,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from BaseClasses import Location
+from BaseClasses import Location, LocationProgressType
 
 from .items import ALL_CURATED_MONSTERS
 
@@ -74,3 +74,11 @@ def create_all_locations(world: MHRiseWorld) -> None:
             location_map[name] = LOCATION_NAME_TO_ID[name]
 
     origin.add_locations(location_map, MHRiseLocation)
+
+    # Both goal-monster hunt locations are EXCLUDED so AP fill never
+    # places progression/useful items at them. (2/2) is then locked with
+    # Victory in items.place_victory; place_locked_item bypasses the
+    # progress_type flag, so the lock still works. Hunting the goal ends
+    # the run — anything stranded at goal (1/2) would be unreachable.
+    for name in hunt_location_names(world.goal_monster):
+        world.get_location(name).progress_type = LocationProgressType.EXCLUDED
