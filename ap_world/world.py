@@ -97,7 +97,7 @@ class MHRiseWorld(World):
                 "[MHRise] monster_count=%d clamped to %d (available pool size)",
                 requested, n,
             )
-        assert n >= 2, "monster_count Range should enforce min=2"
+        assert n >= 3, "monster_count Range should enforce min=3"
 
         # Pick starter first from the full available pool, then goal from
         # the elder-dragons (minus starter, in case the starter happens

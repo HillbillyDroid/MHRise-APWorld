@@ -78,6 +78,9 @@ class MHRiseItem(Item):
     game = "Monster Hunter Rise"
 
 
+_WEAPON_LICENSE_NAMES = frozenset(weapon_license_item_name(w) for w in WEAPONS)
+
+
 def create_item_with_correct_classification(world: MHRiseWorld, name: str) -> MHRiseItem:
     if name == FILLER_ITEM_NAME:
         classification = ItemClassification.filler
@@ -87,10 +90,18 @@ def create_item_with_correct_classification(world: MHRiseWorld, name: str) -> MH
         # player's BK risk. Receiving the goal license ends the run, so
         # an early swap collapses pacing.
         classification = ItemClassification.progression_skip_balancing
+    elif name in _WEAPON_LICENSE_NAMES:
+        # Weapon licenses are soft-gated client-side only (no apworld
+        # rules reference them). Marking them progression makes fill
+        # treat them as gating items competing for reachable locations,
+        # which over-constrains placement at low monster_count and
+        # produces FillError. `useful` keeps them prioritized for
+        # placement without entering the progression-balancing math.
+        classification = ItemClassification.useful
     else:
-        # Licenses are progression — each one gates the player's access to
-        # its monster's hunt locations. Victory is also progression by
-        # convention (it's the goal item).
+        # Monster licenses are progression — each one gates the player's
+        # access to its monster's hunt locations. Victory is also
+        # progression by convention (it's the goal item).
         classification = ItemClassification.progression
     return MHRiseItem(name, classification, ITEM_NAME_TO_ID[name], world.player)
 
@@ -125,12 +136,16 @@ def create_all_items(world: MHRiseWorld) -> None:
     - N-1 monster licenses (the starter's license is precollected).
     - "Spare" slots = N. Filled, in priority order, by:
       1. The starter weapon license (precollected if weapons enabled).
-      2. Up to 13 random non-starter weapon licenses (if weapons
-         enabled). If more than 13 spare slots remain, use all 13;
-         if fewer, use a random subset that fits.
+      2. Up to (spare - 1) random non-starter weapon licenses (if
+         weapons enabled), capped at 13. The (spare - 1) cap reserves
+         at least one slot for Poogie filler so AP's excluded-location
+         fill has something to draw from — the goal monster's two
+         hunt locations are EXCLUDED (see locations.py), and AP's
+         excluded fill only consumes filler items (not `useful` like
+         weapon licenses, not `progression` like monster licenses).
       3. Poogie filler for any leftover slots.
 
-    Spare ≥ 2 is guaranteed by the option floor of monster_count=2.
+    Spare ≥ 3 is guaranteed by the option floor of monster_count=3.
     """
     place_victory(world)
 
@@ -158,6 +173,13 @@ def create_all_items(world: MHRiseWorld) -> None:
     # `world.weapon_pool` (the weapon_pool option's resolved subset),
     # shuffled and as many as fit go into the pool — when
     # monster_count is small or weapon_pool is small, we drop the rest.
+    #
+    # Reserve 1 spare slot for filler so that the goal monster's (1/2)
+    # location (marked EXCLUDED in locations.py) can be filled. AP's
+    # excluded-location fill pulls from the filler pool only —
+    # `useful`-classified weapon licenses don't qualify, so without a
+    # reserved filler the gen fails with "Not enough filler items for
+    # excluded locations".
     if bool(world.options.include_weapons.value):
         starting_weapon_name = world.starting_weapon["name"]
         precollected.append(create_item_with_correct_classification(
@@ -166,7 +188,8 @@ def create_all_items(world: MHRiseWorld) -> None:
             w for w in world.weapon_pool if w["name"] != starting_weapon_name
         ]
         world.random.shuffle(non_starter_weapons)
-        weapons_to_add = non_starter_weapons[:spare]
+        weapon_budget = max(spare - 1, 0)
+        weapons_to_add = non_starter_weapons[:weapon_budget]
         for weapon in weapons_to_add:
             itempool.append(create_item_with_correct_classification(
                 world, weapon_license_item_name(weapon)))

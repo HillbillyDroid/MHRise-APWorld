@@ -21,7 +21,7 @@ nothing from Archipelago's perspective.
 
 A random subset of large monsters is drawn into the world at generation
 time. The size of this subset is set by the `MonsterCount` option
-(default 15, range 2–72). Two option toggles control which monsters are
+(default 15, range 3–72). Two option toggles control which monsters are
 eligible:
 
 - `IncludeSunbreak` (default **on**) — adds the Sunbreak roster.

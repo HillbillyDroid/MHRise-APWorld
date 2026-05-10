@@ -105,7 +105,7 @@ Rise" YAML. The available options are:
 - `IncludeRisen` (default off) — include the five Risen elder dragons.
 - `IncludeWeapons` (default on) — add weapon-type licenses to the pool
   and require the current weapon's license to land checks.
-- `MonsterCount` (range 2–72, default 15) — number of monsters drawn
+- `MonsterCount` (range 3–72, default 15) — number of monsters drawn
   into the world.
 
 Drop the YAML into `<Archipelago install>/Players/`, run

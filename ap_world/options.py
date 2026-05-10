@@ -67,10 +67,11 @@ class MonsterCount(Range):
     """Number of monsters randomly drawn into the world. Determines how
     many hunts are randomized. Clamped to the available pool size at
     generation time (max 32 with Sunbreak off, 72 with Sunbreak on).
-    Min 2 — need a distinct starter and goal."""
+    Min 3 — at N=2 the spare-slot budget is too tight to fit weapon
+    licenses without overrunning available locations."""
 
     display_name = "Monster Count"
-    range_start = 2
+    range_start = 3
     range_end = 72
     default = 15
 
