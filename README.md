@@ -22,7 +22,8 @@ different audience:
 
 - **`ap_world/`** — Python Archipelago world. Generates the multiworld.
   Built into `mhrise.apworld` via `python ap_world/build_apworld.py`.
-  Only the seed host needs this.
+  Only the seed host needs this. **Requires Archipelago 0.6.7 or
+  higher** — generation will fail on older versions.
 - **`client/`** — REFramework Lua plugin (plus the bundled
   `lua-apclientpp.dll`). Runs in-game and talks to the AP server over
   websocket. Every player needs this installed in their game folder.

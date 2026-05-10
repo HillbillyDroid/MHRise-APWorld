@@ -38,8 +38,12 @@ Both are published on this project's releases page.
 - **[REFramework](https://github.com/praydog/REFramework)** — the
   modding framework the client runs inside. Required for every player.
 - **[Archipelago](https://github.com/ArchipelagoMW/Archipelago/releases)**
-  — required only for the person generating the seed. Players
-  connecting to an existing room don't need it.
+  **0.6.7 or higher** — required only for the person generating the
+  seed. Players connecting to an existing room don't need it.
+
+> **Archipelago 0.6.7+ is required for seed generation.** The apworld
+> uses the rule builder API introduced in 0.6.7. Generating with an
+> older version will fail.
 
 ## For everyone: installing the client
 
