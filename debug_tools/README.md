@@ -70,3 +70,20 @@ substring match would hit the cap instantly with useless output).
    `snow.QuestManager:setQuestFail(...)`.
 3. Tree search `EmTypes` → matches `snow.enemy.EnemyDef.EmTypes` and
    the individual enum field rows on it.
+
+## Other plugins in this folder
+
+- **`QuestTargetSwap.lua`** — in-progress quest-monster swap
+  experiment. See `QUEST.md` for the full running notes.
+- **`QuestCatalogDump.lua`** — one-shot dumper for the in-memory
+  quest catalog (gh issue #11). Iterates
+  `QuestManager._normalQuestData._Param` and
+  `._nomalQuestDataKohaku._Param`, dumps per-quest identifying +
+  monster fields to `<install>/reframework/data/mhrise_quest_catalog.json`.
+  Trigger: REFramework overlay button "MHRise Quest Catalog Dump".
+  Needs a save loaded (the QuestManager singleton isn't populated
+  before that). Feeds `convert_quest_catalog.py`.
+- **`convert_quest_catalog.py`** — offline converter; turns the JSON
+  above into `ap_world/data/quests.py` (572 quests + the four
+  in-game enums). Run with `AP_GAME_INSTALL=<path>` set, or pass
+  the JSON path as the first arg. Re-run after a DLC patch.
