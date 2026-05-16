@@ -16,13 +16,22 @@
 -- (NOT QuestData wrappers — first-run gotcha that surfaced as
 -- "every quest skipped"). Per-element fields like _QuestNo,
 -- _BossEmType, _TgtEmType, _MapNo etc. live on the element
--- directly, no get_RawNormal indirection. The translated title
--- lives on the outer QuestData and would need
--- QuestManager.getQuestData(quest_no):call("getQuestText", ...) —
--- attempted once, returned nil for all 572 entries in observed
--- runs (likely needs quest-counter UI context), dropped. The
--- `_DbgName` field is non-localized Japanese dev text but
--- adequate for human-readable curation; quest_no is the real key.
+-- directly, no get_RawNormal indirection.
+--
+-- Localized titles: the translated title lives on the outer
+-- QuestData. First attempt called
+-- `getQuestText(QuestText.TITLE, nil)` and got nil for all 572
+-- entries — the nil for the QuestIdentifier struct arg likely
+-- failed overload resolution. Current attempt re-fetches via
+-- QuestManager.getQuestData(quest_no) and calls
+-- `getQuestText(0, QuestManager._QuestIdentifier, false)` using
+-- the live identifier struct off the manager itself. Falls back
+-- to `getQuestTextCore` (the underlying 4-arg form RiseQuestLoader
+-- hooks directly) if the public form fails. If both still return
+-- nil after this, the localization tables probably need the
+-- quest-counter UI opened once before dumping — try that, then
+-- re-run. `_DbgName` (Japanese dev text) is the unconditional
+-- fallback so dumps remain useful even when localization fails.
 -- Result dumped to
 -- <install>/reframework/data/mhrise_quest_catalog.json.
 --
@@ -59,6 +68,113 @@ local state = {
 }
 
 local function log_info(msg) log.info(LOG_TAG .. msg) end
+
+-- Cache for the localized-title resolver. Populated lazily on first
+-- use because the QuestManager singleton + QuestData type def aren't
+-- available at script-load time.
+local name_resolver = {
+    initialized = false,
+    quest_manager = nil,
+    get_quest_data_int = nil,        -- QuestManager.getQuestData(System.Int32)
+    get_quest_text = nil,             -- QuestData.getQuestText(QuestText, QuestIdentifier, bool)
+    get_quest_text_core = nil,        -- QuestData.getQuestTextCore(QuestText, QuestIdentifier, bool, bool)
+    quest_identifier = nil,           -- live QuestManager._QuestIdentifier struct
+    diag = { tried = 0, ok_main = 0, ok_core = 0, both_nil = 0 },
+}
+
+local function init_name_resolver(quest_manager)
+    if name_resolver.initialized then return end
+    name_resolver.initialized = true
+
+    name_resolver.quest_manager = quest_manager
+    pcall(function()
+        name_resolver.quest_identifier = quest_manager:get_field("_QuestIdentifier")
+    end)
+
+    local qm_td = sdk.find_type_definition("snow.QuestManager")
+    if qm_td then
+        pcall(function()
+            name_resolver.get_quest_data_int = qm_td:get_method("getQuestData(System.Int32)")
+        end)
+    end
+
+    local qd_td = sdk.find_type_definition("snow.quest.QuestData")
+    if qd_td then
+        pcall(function()
+            name_resolver.get_quest_text = qd_td:get_method(
+                "getQuestText(snow.quest.QuestText, snow.LobbyManager.QuestIdentifier, System.Boolean)")
+        end)
+        pcall(function()
+            name_resolver.get_quest_text_core = qd_td:get_method(
+                "getQuestTextCore(snow.quest.QuestText, snow.LobbyManager.QuestIdentifier, System.Boolean, System.Boolean)")
+        end)
+    end
+
+    log_info(string.format("name resolver init: qd_int=%s gqt=%s gqtc=%s qid=%s",
+        tostring(name_resolver.get_quest_data_int ~= nil),
+        tostring(name_resolver.get_quest_text ~= nil),
+        tostring(name_resolver.get_quest_text_core ~= nil),
+        tostring(name_resolver.quest_identifier ~= nil)))
+end
+
+-- QuestText.TITLE = 0 (per snow.quest.QuestText enum dump in QUEST.md).
+local QUEST_TEXT_TITLE = 0
+
+local function coerce_string(v)
+    if v == nil then return nil end
+    if type(v) == "string" then return (#v > 0) and v or nil end
+    -- managed System.String case: try ToString-ish accessors
+    local s = nil
+    pcall(function() if v.get_Chars then s = tostring(v) end end)
+    if type(s) == "string" and #s > 0 then return s end
+    pcall(function() s = v:call("ToString") end)
+    if type(s) == "string" and #s > 0 then return s end
+    return nil
+end
+
+local function resolve_quest_name(quest_no)
+    if not name_resolver.initialized then return nil end
+    if not name_resolver.get_quest_data_int then return nil end
+
+    name_resolver.diag.tried = name_resolver.diag.tried + 1
+
+    local quest_data = nil
+    pcall(function()
+        quest_data = name_resolver.get_quest_data_int:call(
+            name_resolver.quest_manager, quest_no)
+    end)
+    if not quest_data then return nil end
+
+    local qid = name_resolver.quest_identifier
+    local name = nil
+
+    if name_resolver.get_quest_text then
+        pcall(function()
+            name = name_resolver.get_quest_text:call(
+                quest_data, QUEST_TEXT_TITLE, qid, false)
+        end)
+        name = coerce_string(name)
+        if name then
+            name_resolver.diag.ok_main = name_resolver.diag.ok_main + 1
+            return name
+        end
+    end
+
+    if name_resolver.get_quest_text_core then
+        pcall(function()
+            name = name_resolver.get_quest_text_core:call(
+                quest_data, QUEST_TEXT_TITLE, qid, false, false)
+        end)
+        name = coerce_string(name)
+        if name then
+            name_resolver.diag.ok_core = name_resolver.diag.ok_core + 1
+            return name
+        end
+    end
+
+    name_resolver.diag.both_nil = name_resolver.diag.both_nil + 1
+    return nil
+end
 
 local function safe_str(v)
     local ok, s = pcall(tostring, v)
@@ -109,17 +225,19 @@ local function extract_quest(param_obj, source_tag)
     row.target_em_type = read_em_slot0(tgt_arr)
     row.boss_em_type = read_em_slot0(boss_arr)
 
-    -- _DbgName is Japanese dev-time text but the only human-readable
-    -- identifier reachable without quest-counter UI context. Real
-    -- localized titles via QuestData.getQuestText were attempted and
-    -- returned nil for every entry — likely the call needs the
-    -- QuestCounter context populated. quest_no is the actual key
-    -- we'll use downstream; dbg_name is for catalog-curation review.
+    -- _DbgName is Japanese dev-time text but reachable without
+    -- quest-counter UI context. Always populated as a fallback.
     pcall(function()
         local s = param_obj:get_field("_DbgName")
         if type(s) == "string" then row.dbg_name = s
         elseif s and s.read_wstring then row.dbg_name = s:read_wstring(0) end
     end)
+
+    -- Localized title (English when game is in English). Best-effort
+    -- — nil if QuestManager.getQuestData lookup fails or the engine
+    -- hasn't loaded the relevant message tables yet. See header
+    -- comment for the workaround (open quest counter, re-run).
+    row.name = resolve_quest_name(row.quest_no)
 
     return row
 end
@@ -192,6 +310,8 @@ local function run_dump()
         return
     end
 
+    init_name_resolver(quest_manager)
+
     local catalog = {}
     local normal_extracted, normal_skipped, normal_err =
         walk_param_array(quest_manager, "_normalQuestData", "normal", catalog)
@@ -210,6 +330,13 @@ local function run_dump()
         push(string.format("kohaku: %d quests, %d skipped",
             kohaku_extracted, kohaku_skipped))
     end
+
+    push(string.format(
+        "names: tried=%d ok_main=%d ok_core=%d both_nil=%d",
+        name_resolver.diag.tried,
+        name_resolver.diag.ok_main,
+        name_resolver.diag.ok_core,
+        name_resolver.diag.both_nil))
 
     local payload = {
         source = "QuestCatalogDump.lua",

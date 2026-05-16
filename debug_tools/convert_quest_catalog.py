@@ -225,6 +225,8 @@ def convert(catalog_path: Path) -> None:
         kept.append({
             "quest_no": q["quest_no"],
             "source": q["source"],
+            "name": q.get("name"),
+            "dbg_name": q.get("dbg_name"),
             "quest_type": q.get("quest_type"),
             "quest_level": q.get("quest_level"),
             "enemy_level": q.get("enemy_level"),
@@ -290,6 +292,11 @@ Dropped (boss_em_type not resolvable in MONSTERS/APEX/SMALL): {n_dropped}
 Fields per entry:
 - quest_no: in-game quest identifier (the key)
 - source: "normal" (base game / HR hub) or "kohaku" (Sunbreak / MR)
+- name: localized quest title (game's current language at dump time;
+  English when dumped from an English client). None if the dumper
+  couldn't resolve it for this entry.
+- dbg_name: Japanese dev-time name from the in-game _DbgName field.
+  Stable fallback when `name` is None.
 - quest_type: QuestType flag
 - quest_level: QuestLevel enum
 - enemy_level: EnemyLv enum
@@ -333,6 +340,8 @@ from typing import Any
         body_lines.append("    {")
         body_lines.append(f'        "quest_no": {q["quest_no"]!r},')
         body_lines.append(f'        "source": {q["source"]!r},')
+        body_lines.append(f'        "name": {q["name"]!r},')
+        body_lines.append(f'        "dbg_name": {q["dbg_name"]!r},')
         body_lines.append(f'        "quest_type": {qt},')
         body_lines.append(f'        "quest_level": {ql},')
         body_lines.append(f'        "enemy_level": {el},')

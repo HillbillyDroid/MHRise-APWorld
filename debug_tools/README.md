@@ -80,6 +80,13 @@ substring match would hit the cap instantly with useless output).
   `QuestManager._normalQuestData._Param` and
   `._nomalQuestDataKohaku._Param`, dumps per-quest identifying +
   monster fields to `<install>/reframework/data/mhrise_quest_catalog.json`.
+  Also resolves the localized quest title by re-fetching each entry
+  via `QuestManager.getQuestData(quest_no)` and calling
+  `getQuestText(TITLE, QuestManager._QuestIdentifier, false)` — the
+  game's current language at dump time (set the client to English
+  before dumping if you want English `name` strings). `_DbgName`
+  (Japanese dev text) is written unconditionally as `dbg_name` so
+  output remains useful even when localization resolution fails.
   Trigger: REFramework overlay button "MHRise Quest Catalog Dump".
   Needs a save loaded (the QuestManager singleton isn't populated
   before that). Feeds `convert_quest_catalog.py`.

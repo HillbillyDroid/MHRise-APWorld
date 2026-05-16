@@ -13,6 +13,11 @@ Dropped (boss_em_type not resolvable in MONSTERS/APEX/SMALL): 0
 Fields per entry:
 - quest_no: in-game quest identifier (the key)
 - source: "normal" (base game / HR hub) or "kohaku" (Sunbreak / MR)
+- name: localized quest title (game's current language at dump time;
+  English when dumped from an English client). None if the dumper
+  couldn't resolve it for this entry.
+- dbg_name: Japanese dev-time name from the in-game _DbgName field.
+  Stable fallback when `name` is None.
 - quest_type: QuestType flag
 - quest_level: QuestLevel enum
 - enemy_level: EnemyLv enum
@@ -85,6 +90,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315100,
         "source": 'kohaku',
+        "name": 'Uninvited Guest',
+        "dbg_name": '静寂を切り裂くもの',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -100,6 +107,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315101,
         "source": 'kohaku',
+        "name": 'A Sinking Feeling',
+        "dbg_name": 'お船様の露払い',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -115,6 +124,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315102,
         "source": 'kohaku',
+        "name": 'Need a Hunter, ASAP!',
+        "dbg_name": '可及的速やかに狩猟を',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -130,6 +141,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315103,
         "source": 'kohaku',
+        "name": 'You Had Me at Poofy',
+        "dbg_name": '木陰の水獣ウォッチング',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -145,6 +158,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315104,
         "source": 'kohaku',
+        "name": 'Catnap Ruined',
+        "dbg_name": '大社跡の相撲大会？',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -160,6 +175,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315107,
         "source": 'kohaku',
+        "name": "Buggin' Out!",
+        "dbg_name": 'そろりと現る虫たち',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -175,6 +192,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315108,
         "source": 'kohaku',
+        "name": 'Reap What You Saw',
+        "dbg_name": 'お手本は鎌鼬竜',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -190,6 +209,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315109,
         "source": 'kohaku',
+        "name": 'It Could be Worse...',
+        "dbg_name": '火、恐れるに足りず',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -205,6 +226,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315110,
         "source": 'kohaku',
+        "name": 'The Red Rolling Terror',
+        "dbg_name": '迫り転がる赤い玉',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -220,6 +243,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315111,
         "source": 'kohaku',
+        "name": 'Barroth to a Great Start',
+        "dbg_name": 'あの身にまとう泥が決め手',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -235,6 +260,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315112,
         "source": 'kohaku',
+        "name": '[REDACTED]',
+        "dbg_name": '密林のポイズンカーペット',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -250,6 +277,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315113,
         "source": 'kohaku',
+        "name": 'BRRRR Plus ZZZzzz Equals?',
+        "dbg_name": 'ブルブルウトウト',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -265,6 +294,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315122,
         "source": 'kohaku',
+        "name": 'The Good, the Bad, and Lagombi',
+        "dbg_name": 'ウルクスス、白いです',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -280,6 +311,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315123,
         "source": 'kohaku',
+        "name": 'The Jungle Guidebook',
+        "dbg_name": '密林のガイドブック',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -295,6 +328,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315160,
         "source": 'kohaku',
+        "name": 'Supply Line Shell Game',
+        "dbg_name": '安全な素材仕入れの巻',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -310,6 +345,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315180,
         "source": 'kohaku',
+        "name": 'A Tour of the Ruins',
+        "dbg_name": '大社跡の探索ツアー',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -325,6 +362,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315181,
         "source": 'kohaku',
+        "name": 'A Tour of the Islands',
+        "dbg_name": '寒冷群島の探索ツアー',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -340,6 +379,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315182,
         "source": 'kohaku',
+        "name": 'A Tour of the Plains',
+        "dbg_name": '砂原の探索ツアー',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -355,6 +396,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315183,
         "source": 'kohaku',
+        "name": 'A Tour of the Jungle',
+        "dbg_name": '密林の探索ツアー',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -370,6 +413,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315190,
         "source": 'kohaku',
+        "name": 'Tetranadon Blockade',
+        "dbg_name": '河童蛙の通せん坊',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -385,6 +430,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315200,
         "source": 'kohaku',
+        "name": 'Sour Grapes',
+        "dbg_name": '腹ペコ天狗の小騒動',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -400,6 +447,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315201,
         "source": 'kohaku',
+        "name": "The Queen's Garden",
+        "dbg_name": '女王様のたたずむ庭',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -415,6 +464,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315202,
         "source": 'kohaku',
+        "name": 'The Alabaster Devourer',
+        "dbg_name": 'ただ喰らう白き化生',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -430,6 +481,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315203,
         "source": 'kohaku',
+        "name": 'Somnacanth Sleep Aid',
+        "dbg_name": '安眠快眠イソネ枕',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -445,6 +498,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315204,
         "source": 'kohaku',
+        "name": 'Poison Drops in the Sand',
+        "dbg_name": '砂塵に潜む毒々',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -460,6 +515,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315205,
         "source": 'kohaku',
+        "name": 'Rumble in the Jungle',
+        "dbg_name": '迅雷、止めを知らず',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -475,6 +532,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315206,
         "source": 'kohaku',
+        "name": 'Pent-Up Frustrations',
+        "dbg_name": '不気味な岩壁',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -490,6 +549,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315207,
         "source": 'kohaku',
+        "name": 'Messed Up Situation',
+        "dbg_name": '泥の底より来たる者',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -505,6 +566,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315208,
         "source": 'kohaku',
+        "name": 'Shrine Ruined',
+        "dbg_name": '大社跡の大喧嘩',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -520,6 +583,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315209,
         "source": 'kohaku',
+        "name": "Now That's What I Call Great!",
+        "dbg_name": '鳥竜の三連星',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -535,6 +600,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315211,
         "source": 'kohaku',
+        "name": 'Plant Probe Pests',
+        "dbg_name": '水辺の邪魔者',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -550,6 +617,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315212,
         "source": 'kohaku',
+        "name": 'A Fond Fur-Well',
+        "dbg_name": '忘れじの花を君に',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -565,6 +634,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315214,
         "source": 'kohaku',
+        "name": 'In Pursuit of the Khezuit',
+        "dbg_name": '純白のフルフルフルーツ',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -580,6 +651,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315215,
         "source": 'kohaku',
+        "name": 'Skulking Among the Sand',
+        "dbg_name": '砂山の陰に潜むモノ達',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -595,6 +668,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315216,
         "source": 'kohaku',
+        "name": 'BZZZZZ or ZZZZzzzz Pt. 2',
+        "dbg_name": 'ニョロニョロorウネウネ？',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -610,6 +685,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315219,
         "source": 'kohaku',
+        "name": 'A Shocking, Sloppy Synthesis',
+        "dbg_name": '泥と雷の波状攻撃',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -625,6 +702,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315220,
         "source": 'kohaku',
+        "name": 'The Assault of the Scarlet Tengu',
+        "dbg_name": '緋色天狗の来攻',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -640,6 +719,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315224,
         "source": 'kohaku',
+        "name": 'Bird Wyvern Jamboree',
+        "dbg_name": '鳥竜夜会へようこそ',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -655,6 +736,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315260,
         "source": 'kohaku',
+        "name": 'Pinecone Pelting Panic',
+        "dbg_name": '松ぼっくりで滋養強壮？\u3000の巻',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -670,6 +753,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315261,
         "source": 'kohaku',
+        "name": 'A Dangerous Dare ♪',
+        "dbg_name": '刺激的な肝試し♪',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -685,6 +770,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315280,
         "source": 'kohaku',
+        "name": 'A Tour of the Forest',
+        "dbg_name": '水没林の探索ツアー',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -700,6 +787,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315290,
         "source": 'kohaku',
+        "name": "Provoking an Anjanath's Wrath",
+        "dbg_name": 'ヤブをつついて蛮顎竜を出す',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -715,6 +804,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315300,
         "source": 'kohaku',
+        "name": 'Pollution Problems',
+        "dbg_name": 'ガブガミドクドク',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -730,6 +821,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315301,
         "source": 'kohaku',
+        "name": 'Trial of the Almudron',
+        "dbg_name": '泥翁竜の試練',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -745,6 +838,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315302,
         "source": 'kohaku',
+        "name": 'My Ceanataur Gently Weeps',
+        "dbg_name": '音を断ち切る鎌',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -760,6 +855,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315303,
         "source": 'kohaku',
+        "name": 'White Knight on Ice',
+        "dbg_name": '氷上の白騎士',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -775,6 +872,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315304,
         "source": 'kohaku',
+        "name": 'Oh, My Garsh Harag',
+        "dbg_name": '雪鬼獣の服が欲しいの',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -790,6 +889,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315305,
         "source": 'kohaku',
+        "name": 'Nocturnal Nuisances',
+        "dbg_name": '迷惑千万、密林のならず者たち',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -805,6 +906,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315306,
         "source": 'kohaku',
+        "name": 'Shadow in the Jungle',
+        "dbg_name": '密林に潜む暗殺者',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -820,6 +923,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315307,
         "source": 'kohaku',
+        "name": 'A Sandy Spider Nest',
+        "dbg_name": '砂原巡る蜘蛛の巣',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -835,6 +940,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315308,
         "source": 'kohaku',
+        "name": 'Purging Hatred',
+        "dbg_name": '幸福の願いには怨念を',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -850,6 +957,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315309,
         "source": 'kohaku',
+        "name": 'A Tale of Two Titans',
+        "dbg_name": '歌姫と大男の恋物語！？',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -865,6 +974,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315310,
         "source": 'kohaku',
+        "name": 'Rock, Razor, Pincers',
+        "dbg_name": '盾と鎌でハサミ討ち！',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -880,6 +991,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315313,
         "source": 'kohaku',
+        "name": 'A Keen-Eyed Observation',
+        "dbg_name": '鋭い視線の牙竜調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -895,6 +1008,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315314,
         "source": 'kohaku',
+        "name": 'Soft or Spotty?',
+        "dbg_name": '柔らかさか斑模様か',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -910,6 +1025,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315315,
         "source": 'kohaku',
+        "name": 'The Hot and Cold Treatment',
+        "dbg_name": '冷たいの熱いの投げニャいで！',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -925,6 +1042,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315316,
         "source": 'kohaku',
+        "name": "In His Master's Footsteps",
+        "dbg_name": '先輩狩人は背中で語る',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -940,6 +1059,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315317,
         "source": 'kohaku',
+        "name": 'Freedom from a Frigid Future!',
+        "dbg_name": 'ビショヒエでスヤスヤは嫌！',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -955,6 +1076,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315318,
         "source": 'kohaku',
+        "name": 'Garangolm Gone Mad',
+        "dbg_name": '暴走せし剛力の怪物',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -970,6 +1093,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315321,
         "source": 'kohaku',
+        "name": 'Shady Activity',
+        "dbg_name": '刹那往く二つ影',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -985,6 +1110,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315323,
         "source": 'kohaku',
+        "name": 'Stitching a Wintry Wardrobe',
+        "dbg_name": '白雪映えるドレス作り',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -1000,6 +1127,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315325,
         "source": 'kohaku',
+        "name": 'Troublemaker Trio',
+        "dbg_name": '水没林の暴れん坊トリオ',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -1015,6 +1144,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315326,
         "source": 'kohaku',
+        "name": 'The Mother of All Medicines!?',
+        "dbg_name": 'たどり着いた神薬！？',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -1030,6 +1161,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315327,
         "source": 'kohaku',
+        "name": 'Desert Lost and Found',
+        "dbg_name": '砂中の落とし物捜索隊',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -1045,6 +1178,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315360,
         "source": 'kohaku',
+        "name": 'Studying Starvation Effects',
+        "dbg_name": '飢餓がもたらす能力低下の考察',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -1060,6 +1195,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315361,
         "source": 'kohaku',
+        "name": 'Tempering the Fierce',
+        "dbg_name": '猛き炎に訪れる試練',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -1075,6 +1212,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315380,
         "source": 'kohaku',
+        "name": 'A Tour of the Citadel',
+        "dbg_name": '城塞高地の探索ツアー',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -1090,6 +1229,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315390,
         "source": 'kohaku',
+        "name": 'Keep it Busy',
+        "dbg_name": '凍える海から手招くもの',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -1105,6 +1246,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315400,
         "source": 'kohaku',
+        "name": 'Citadel Security',
+        "dbg_name": '城塞高地の護衛者',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1120,6 +1263,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315401,
         "source": 'kohaku',
+        "name": "A Mizutsune's Appeal",
+        "dbg_name": '泡狐竜のあのヒラヒラ',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1135,6 +1280,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315402,
         "source": 'kohaku',
+        "name": 'Dust Devil Despot',
+        "dbg_name": '砂塵に潜む暴君',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1150,6 +1297,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315403,
         "source": 'kohaku',
+        "name": 'King of the Crumbling Castle',
+        "dbg_name": '朽ちたる城に、王は眠る',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1165,6 +1314,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315404,
         "source": 'kohaku',
+        "name": 'Pincers Versus Pyro',
+        "dbg_name": '鎌と火炎の危険度問題',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1180,6 +1331,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315406,
         "source": 'kohaku',
+        "name": 'Sacrilegious Thunder Wolf',
+        "dbg_name": '神なき社の雷狼竜',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1195,6 +1348,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315407,
         "source": 'kohaku',
+        "name": 'A Thousand Scales of Dread',
+        "dbg_name": '千刃、襲来',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1210,6 +1365,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315408,
         "source": 'kohaku',
+        "name": 'Hot Mud in Your Eye',
+        "dbg_name": 'ドロはドロでも熱いドロドロ',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1225,6 +1382,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315409,
         "source": 'kohaku',
+        "name": 'White Knight, Armored Warrior',
+        "dbg_name": '婦人に人気の白騎士と鎧武者',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1240,6 +1399,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315411,
         "source": 'kohaku',
+        "name": 'Troublemaking Trio Pt. 2',
+        "dbg_name": '大社跡の荒くれトリオ',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1255,6 +1416,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315412,
         "source": 'kohaku',
+        "name": 'Tears for Temnocerans',
+        "dbg_name": '泣きっ面にヒバキ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1270,6 +1433,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315413,
         "source": 'kohaku',
+        "name": 'Quit Spooking My Lunch!',
+        "dbg_name": 'ボクの釣り場を荒らさニャいで',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1285,6 +1450,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315414,
         "source": 'kohaku',
+        "name": 'Twin Sparks in the Dark',
+        "dbg_name": '双雷、夜陰を照らす',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1300,6 +1467,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315415,
         "source": 'kohaku',
+        "name": 'Monju Mashup!',
+        "dbg_name": 'モンジュにハンター！？',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1315,6 +1484,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315416,
         "source": 'kohaku',
+        "name": 'Jade Membrane, Sapphire Claws',
+        "dbg_name": '翠玉の電膜、青玉の鎌爪',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1330,6 +1501,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315417,
         "source": 'kohaku',
+        "name": 'Thousand Cuts, Totally Crushed',
+        "dbg_name": '千に切り裂き、微塵につぶす',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1345,6 +1518,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315418,
         "source": 'kohaku',
+        "name": 'Dark Wings, Dark Work',
+        "dbg_name": '黒き衣を纏う竜',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1360,6 +1535,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315419,
         "source": 'kohaku',
+        "name": 'Absolute Power',
+        "dbg_name": '絶対強者',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1375,6 +1552,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315420,
         "source": 'kohaku',
+        "name": 'A Mighty Need',
+        "dbg_name": '噴煙うずまく妃の御前',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1390,6 +1569,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315421,
         "source": 'kohaku',
+        "name": 'Spooky Citadel!?',
+        "dbg_name": '城塞高地に悪霊のウワサ！？',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1405,6 +1586,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315422,
         "source": 'kohaku',
+        "name": 'Wicked Wyvern Trilogy',
+        "dbg_name": '我ら荒野の三凶竜',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1420,6 +1603,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315423,
         "source": 'kohaku',
+        "name": 'Buddy Rescue Operation',
+        "dbg_name": 'ヒエヒエビリビリボカンボカン',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1435,6 +1620,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315425,
         "source": 'kohaku',
+        "name": 'Give a Girl Some Fluff!',
+        "dbg_name": 'モフモフさせて、今すぐに！',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1450,6 +1637,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315426,
         "source": 'kohaku',
+        "name": 'A Request From Your Superior',
+        "dbg_name": 'アニキからお願い',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1465,6 +1654,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315427,
         "source": 'kohaku',
+        "name": 'Power Struggle',
+        "dbg_name": '滾る後宮の権力あらそい',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1480,6 +1671,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315428,
         "source": 'kohaku',
+        "name": 'Impassioned Cavern Crawl',
+        "dbg_name": '燃える情熱！\u3000溶岩洞の試練',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1495,6 +1688,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315429,
         "source": 'kohaku',
+        "name": 'Howling Moon',
+        "dbg_name": '氷狼、月を振り返らず',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1510,6 +1705,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315460,
         "source": 'kohaku',
+        "name": 'Unavoidable Cold',
+        "dbg_name": '極寒からは逃げられないの巻',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1525,6 +1722,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315461,
         "source": 'kohaku',
+        "name": 'An Electrifying Grace',
+        "dbg_name": '美しくも激しい移動術？\u3000の巻',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1540,6 +1739,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315480,
         "source": 'kohaku',
+        "name": 'A Tour of the Caverns',
+        "dbg_name": '溶岩洞の探索ツアー',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1555,6 +1756,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315490,
         "source": 'kohaku',
+        "name": 'In Search of the Doctor',
+        "dbg_name": 'スゴウデ薬師の捜索',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1570,6 +1773,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315491,
         "source": 'kohaku',
+        "name": 'A Slumbering Jungle Espinas',
+        "dbg_name": '眠れる密林の棘竜',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -1585,6 +1790,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315500,
         "source": 'kohaku',
+        "name": 'Seismic Scares',
+        "dbg_name": '異常震域',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1600,6 +1807,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315501,
         "source": 'kohaku',
+        "name": 'Settle the Score!',
+        "dbg_name": 'オトモ思いの助太刀ねがい',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1615,6 +1824,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315502,
         "source": 'kohaku',
+        "name": 'Bazelgeuse Warning',
+        "dbg_name": '爆鱗注意報',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1630,6 +1841,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315503,
         "source": 'kohaku',
+        "name": 'Evil Forest',
+        "dbg_name": '危険な森林浴',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1645,6 +1858,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315504,
         "source": 'kohaku',
+        "name": 'Blade Cloaked in Darkness',
+        "dbg_name": '暗黒にまみれし凶刃',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1660,6 +1875,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315506,
         "source": 'kohaku',
+        "name": 'Beyond the Silence',
+        "dbg_name": 'しじまの向こう',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1675,6 +1892,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315507,
         "source": 'kohaku',
+        "name": 'Leave No Trace Behind',
+        "dbg_name": '霞のごとく消え去る者',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1690,6 +1909,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315508,
         "source": 'kohaku',
+        "name": 'Storm of The Kushala Daora',
+        "dbg_name": '鋼龍、嵐に舞う',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1705,6 +1926,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315509,
         "source": 'kohaku',
+        "name": 'The Frozen Dictator',
+        "dbg_name": '氷点下の支配者',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1720,6 +1943,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315510,
         "source": 'kohaku',
+        "name": 'Emperor of Flame',
+        "dbg_name": '煉獄の主、怒れる炎帝',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1735,6 +1960,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315511,
         "source": 'kohaku',
+        "name": 'Burn Brighter Than the Sun',
+        "dbg_name": '燃えさかる日輪より紅く',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1750,6 +1977,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315512,
         "source": 'kohaku',
+        "name": 'Bombs and Beams',
+        "dbg_name": '陸と空の超危険生物',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1765,6 +1994,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315523,
         "source": 'kohaku',
+        "name": 'Crimson Moonlight',
+        "dbg_name": '月光染めし紅',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1780,6 +2011,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315524,
         "source": 'kohaku',
+        "name": 'Hard & Soft Supreme',
+        "dbg_name": '剛と柔の極致',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1795,6 +2028,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315525,
         "source": 'kohaku',
+        "name": 'Life is Full of Ups and Downs',
+        "dbg_name": 'ウエもシタもこわいのニャ',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1810,6 +2045,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315560,
         "source": 'kohaku',
+        "name": 'Stats on Statuses, Stat!',
+        "dbg_name": '状態異常がもたらす影響の研究',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1825,6 +2062,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315561,
         "source": 'kohaku',
+        "name": 'With the Power of Friendship...',
+        "dbg_name": '絆を力に変えるうさ団子の巻',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1840,6 +2079,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315590,
         "source": 'kohaku',
+        "name": 'Dark Citadel, White Wheel',
+        "dbg_name": '黒の中の白',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1855,6 +2096,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315591,
         "source": 'kohaku',
+        "name": 'Gathering of the Qurio',
+        "dbg_name": 'キュリア集結',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -1870,6 +2113,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315600,
         "source": 'kohaku',
+        "name": "The Devil's Reincarnation",
+        "dbg_name": '悪魔の再来',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -1885,6 +2130,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315601,
         "source": 'kohaku',
+        "name": 'Spine-Tingling Divinity',
+        "dbg_name": '戦慄く神解',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -1900,6 +2147,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315602,
         "source": 'kohaku',
+        "name": 'Retribution',
+        "dbg_name": '逆巻く因果',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -1915,6 +2164,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315603,
         "source": 'kohaku',
+        "name": 'Pierce the Heavens',
+        "dbg_name": '羅刹激昂、天を衝く',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -1930,6 +2181,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315604,
         "source": 'kohaku',
+        "name": "Star at World's End",
+        "dbg_name": '終焉の天に星は燃ゆ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -1945,6 +2198,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315605,
         "source": 'kohaku',
+        "name": 'Back with a Vengeance',
+        "dbg_name": '宿怨の叫喚',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -1960,6 +2215,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315606,
         "source": 'kohaku',
+        "name": 'Spine-Tingling Divinity - Reprise',
+        "dbg_name": '戦慄く神解',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -1975,6 +2232,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315607,
         "source": 'kohaku',
+        "name": 'The Ultimate Fight?',
+        "dbg_name": '究極の大ゲンカ勃発？',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -1990,6 +2249,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315608,
         "source": 'kohaku',
+        "name": 'Bested by Bazelgeuse',
+        "dbg_name": '卑怯なり！\u3000爆鱗竜',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2005,6 +2266,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315609,
         "source": 'kohaku',
+        "name": 'Winds that Burn',
+        "dbg_name": '毒を以て、風を制す',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2020,6 +2283,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315610,
         "source": 'kohaku',
+        "name": 'Mystery Shrouded in Mist',
+        "dbg_name": '研究成果は霞に消えて',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2035,6 +2300,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315611,
         "source": 'kohaku',
+        "name": 'Bringing Back That Sparkle',
+        "dbg_name": 'あの輝きを取り戻して',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2050,6 +2317,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315612,
         "source": 'kohaku',
+        "name": 'Trials of Passion and Composure',
+        "dbg_name": '情熱と冷静の試練',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2065,6 +2334,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315613,
         "source": 'kohaku',
+        "name": 'Unreasonable Rage',
+        "dbg_name": '怒涛の理不尽',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2080,6 +2351,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315614,
         "source": 'kohaku',
+        "name": 'Unreasonable Rage',
+        "dbg_name": '怒涛の理不尽',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2095,6 +2368,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315615,
         "source": 'kohaku',
+        "name": 'Unreasonable Rage',
+        "dbg_name": '怒涛の理不尽',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2110,6 +2385,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315616,
         "source": 'kohaku',
+        "name": 'Unreasonable Rage',
+        "dbg_name": '怒涛の理不尽',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2125,6 +2402,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315617,
         "source": 'kohaku',
+        "name": 'Unreasonable Rage',
+        "dbg_name": '怒涛の理不尽',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2140,6 +2419,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315618,
         "source": 'kohaku',
+        "name": 'Unreasonable Rage',
+        "dbg_name": '怒涛の理不尽',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2155,6 +2436,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315619,
         "source": 'kohaku',
+        "name": 'Mysterious Glow',
+        "dbg_name": '奇しき輝き',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2170,6 +2453,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315620,
         "source": 'kohaku',
+        "name": 'Mysterious Glow',
+        "dbg_name": '奇しき輝き',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2185,6 +2470,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315621,
         "source": 'kohaku',
+        "name": 'Mysterious Glow',
+        "dbg_name": '奇しき輝き',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2200,6 +2487,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315622,
         "source": 'kohaku',
+        "name": 'Mysterious Glow',
+        "dbg_name": '奇しき輝き',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2215,6 +2504,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315623,
         "source": 'kohaku',
+        "name": 'Mysterious Glow',
+        "dbg_name": '奇しき輝き',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2230,6 +2521,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315624,
         "source": 'kohaku',
+        "name": 'Mysterious Glow',
+        "dbg_name": '奇しき輝き',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2245,6 +2538,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315625,
         "source": 'kohaku',
+        "name": 'Unbridled Mayhem',
+        "dbg_name": '抑えきれぬ凶騒曲',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2260,6 +2555,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315626,
         "source": 'kohaku',
+        "name": 'Dance of The Fierce Flame',
+        "dbg_name": '猛き炎の炎舞曲',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2275,6 +2572,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315627,
         "source": 'kohaku',
+        "name": 'Monster Mash',
+        "dbg_name": '破滅の音は彼方より響く',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2290,6 +2589,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315628,
         "source": 'kohaku',
+        "name": 'Four Beast Quartet',
+        "dbg_name": '異なる者達の四獣双曲',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2305,6 +2606,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315629,
         "source": 'kohaku',
+        "name": 'Raining Fire',
+        "dbg_name": '赤熱の爆鱗竜',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2320,6 +2623,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315630,
         "source": 'kohaku',
+        "name": 'A Single Beam of Moonlight',
+        "dbg_name": '一縷の月光',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2335,6 +2640,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315631,
         "source": 'kohaku',
+        "name": 'Explore the Unexplored',
+        "dbg_name": '秘境を目指して',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2350,6 +2657,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315632,
         "source": 'kohaku',
+        "name": 'The Invisible Predator',
+        "dbg_name": '不可視の迅竜',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2365,6 +2674,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315633,
         "source": 'kohaku',
+        "name": 'Advanced: The Gold Standard',
+        "dbg_name": '高難度：金の衝撃',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2380,6 +2691,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315634,
         "source": 'kohaku',
+        "name": 'Advanced: True King of the Skies',
+        "dbg_name": '高難度：真の空の王者は誰だ？',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2395,6 +2708,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315636,
         "source": 'kohaku',
+        "name": 'Advanced: In Pursuit of the Truth',
+        "dbg_name": '高難度：真実を追い求めて',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2410,6 +2725,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315637,
         "source": 'kohaku',
+        "name": 'What Sleeps in the Tower',
+        "dbg_name": '古塔を貫く一撃',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2425,6 +2742,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315638,
         "source": 'kohaku',
+        "name": 'A Mysterious Pale Flame',
+        "dbg_name": '白炎妖光',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2440,6 +2759,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315639,
         "source": 'kohaku',
+        "name": 'Advanced: Toxic Trio',
+        "dbg_name": '高難度：毒を以て薬と為す',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2455,6 +2776,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315640,
         "source": 'kohaku',
+        "name": 'Advanced: Edge of Madness',
+        "dbg_name": '高難度：紫電一閃',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2470,6 +2793,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315641,
         "source": 'kohaku',
+        "name": 'Advanced: Resplendent Silver',
+        "dbg_name": '高難度：優雅たる爵銀',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2485,6 +2810,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315642,
         "source": 'kohaku',
+        "name": 'Falling Into Chaos',
+        "dbg_name": '天を廻りて、冥界に堕つ',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2500,6 +2827,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315643,
         "source": 'kohaku',
+        "name": 'Advanced: Jungle Fervor',
+        "dbg_name": '高難度：恋路に水差す影ふたつ',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2515,6 +2844,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315644,
         "source": 'kohaku',
+        "name": 'Advanced: Espinaptime',
+        "dbg_name": '高難度：安眠を妨げないで！',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2530,6 +2861,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315645,
         "source": 'kohaku',
+        "name": 'Advanced: Scarlet Shindig',
+        "dbg_name": '高難度：月夜の舞踏会',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2545,6 +2878,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315646,
         "source": 'kohaku',
+        "name": 'Clashing Swords Upon the Rime',
+        "dbg_name": '冰冠のフラーズダルム',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2560,6 +2895,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315648,
         "source": 'kohaku',
+        "name": 'Advanced: Eternal Flame',
+        "dbg_name": '高難度：千差万別、炎の煌めき',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2575,6 +2912,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315649,
         "source": 'kohaku',
+        "name": 'Advanced: Trade Obstruction',
+        "dbg_name": '高難度：傍若無人に一太刀を',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2590,6 +2929,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315650,
         "source": 'kohaku',
+        "name": 'Legend Resurrected',
+        "dbg_name": '蘇る伝説',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2605,6 +2946,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315651,
         "source": 'kohaku',
+        "name": 'Advanced: Infestation Infiltration',
+        "dbg_name": '高難度：侵食による侵略',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2620,6 +2963,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315652,
         "source": 'kohaku',
+        "name": 'Advanced: Twisted Tag Team',
+        "dbg_name": '高難度：氷結のツープラトン',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2635,6 +2980,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315653,
         "source": 'kohaku',
+        "name": 'Advanced: Unflinching Walk',
+        "dbg_name": '高難度：爆炎に包まれる溶岩洞',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2650,6 +2997,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315654,
         "source": 'kohaku',
+        "name": 'Risen Chameleos',
+        "dbg_name": '傀異克服：オオナズチ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2665,6 +3014,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315655,
         "source": 'kohaku',
+        "name": 'Risen Kushala Daora',
+        "dbg_name": '傀異克服：クシャルダオラ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2680,6 +3031,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315656,
         "source": 'kohaku',
+        "name": 'Risen Teostra',
+        "dbg_name": '傀異克服：テオ・テスカトル',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2695,6 +3048,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315657,
         "source": 'kohaku',
+        "name": 'Risen Crimson Glow Valstrax',
+        "dbg_name": '傀異克服：奇しき赫耀のバルファルク',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2710,6 +3065,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315658,
         "source": 'kohaku',
+        "name": 'Risen Shagaru Magala',
+        "dbg_name": '傀異克服：シャガルマガラ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2725,6 +3082,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315659,
         "source": 'kohaku',
+        "name": 'Destructive Dragon Deity',
+        "dbg_name": '破滅の龍神 ウツシ以外',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2740,6 +3099,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315661,
         "source": 'kohaku',
+        "name": 'Sticky Secret Sticking Sauce',
+        "dbg_name": '粘り強さの秘訣とは？\u3000の巻',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2755,6 +3116,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315662,
         "source": 'kohaku',
+        "name": 'Advanced: Hail to the Fierce',
+        "dbg_name": '高難度：災厄を祓いし猛き炎',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2770,6 +3133,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315675,
         "source": 'kohaku',
+        "name": 'Hazard: The Hazy Shadow',
+        "dbg_name": '高難度：朧なり、その姿',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2785,6 +3150,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315676,
         "source": 'kohaku',
+        "name": 'Destructive Dragon Deity',
+        "dbg_name": '破滅の龍神 ウツシ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2800,6 +3167,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315677,
         "source": 'kohaku',
+        "name": 'Hazard: Primordial Pest',
+        "dbg_name": '烈禍襲来：キュララララララ！',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2815,6 +3184,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 325101,
         "source": 'kohaku',
+        "name": 'MR Arena 01',
+        "dbg_name": 'ＭＲ闘技大会０１',
         "quest_type": QuestType.ARENA,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Master,
@@ -2830,6 +3201,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 325201,
         "source": 'kohaku',
+        "name": 'MR Arena 02',
+        "dbg_name": 'ＭＲ闘技大会０２',
         "quest_type": QuestType.ARENA,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -2845,6 +3218,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 325301,
         "source": 'kohaku',
+        "name": 'MR Arena 03',
+        "dbg_name": 'ＭＲ闘技大会０３',
         "quest_type": QuestType.ARENA,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -2860,6 +3235,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 325401,
         "source": 'kohaku',
+        "name": 'MR Arena 04',
+        "dbg_name": 'ＭＲ闘技大会０４',
         "quest_type": QuestType.ARENA,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -2875,6 +3252,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 325501,
         "source": 'kohaku',
+        "name": 'MR Arena 05',
+        "dbg_name": 'ＭＲ闘技大会０５',
         "quest_type": QuestType.ARENA,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -2890,6 +3269,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 325601,
         "source": 'kohaku',
+        "name": 'MR Arena 06',
+        "dbg_name": 'ＭＲ闘技大会０６',
         "quest_type": QuestType.ARENA,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2905,6 +3286,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 335101,
         "source": 'kohaku',
+        "name": 'Switch Skill Swap',
+        "dbg_name": '新たな狩猟技術、疾替え',
         "quest_type": QuestType.TRAINING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.High,
@@ -2920,6 +3303,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385100,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Arzuros',
+        "dbg_name": '傀異調査：アオアシラ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2935,6 +3320,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385101,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Great Izuchi',
+        "dbg_name": '傀異調査：オサイズチ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2950,6 +3337,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385102,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Great Baggi',
+        "dbg_name": '傀異調査：ドスバギィ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2965,6 +3354,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385103,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Great Wroggi',
+        "dbg_name": '傀異調査：ドスフロギィ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2980,6 +3371,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385104,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Volvidon',
+        "dbg_name": '傀異調査：ラングロトラ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -2995,6 +3388,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385105,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Kulu-Ya-Ku',
+        "dbg_name": '傀異調査：クルルヤック',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3010,6 +3405,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385106,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Lagombi',
+        "dbg_name": '傀異調査：ウルクスス',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3025,6 +3422,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385201,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Aknosom',
+        "dbg_name": '傀異調査：アケノシルム',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3040,6 +3439,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385202,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Tetranadon',
+        "dbg_name": '傀異調査：ヨツミワドウ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3055,6 +3456,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385203,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Royal Ludroth',
+        "dbg_name": '傀異調査：ロアルドロス',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3070,6 +3473,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385204,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Daimyo Hermitaur',
+        "dbg_name": '傀異調査：ダイミョウザザミ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3085,6 +3490,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385205,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Barroth',
+        "dbg_name": '傀異調査：ボルボロス',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3100,6 +3507,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385206,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Basarios',
+        "dbg_name": '傀異調査：バサルモス',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3115,6 +3524,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385207,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Bishaten',
+        "dbg_name": '傀異調査：ビシュテンゴ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3130,6 +3541,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385208,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Khezu',
+        "dbg_name": '傀異調査：フルフル',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3145,6 +3558,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385301,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Blood Orange Bishaten',
+        "dbg_name": '傀異調査：ビシュテンゴ亜種',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3160,6 +3575,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385302,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Tobi-Kadachi',
+        "dbg_name": '傀異調査：トビカガチ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3175,6 +3592,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385303,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Rathian',
+        "dbg_name": '傀異調査：リオレイア',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3190,6 +3609,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385304,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Somnacanth',
+        "dbg_name": '傀異調査：イソネミクニ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3205,6 +3626,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385305,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Jyuratodus',
+        "dbg_name": '傀異調査：ジュラトドス',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3220,6 +3643,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385306,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Anjanath',
+        "dbg_name": '傀異調査：アンジャナフ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3235,6 +3660,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385307,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Pukei-Pukei',
+        "dbg_name": '傀異調査：プケプケ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3250,6 +3677,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385308,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Shogun Ceanataur',
+        "dbg_name": '傀異調査：ショウグンギザミ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3265,6 +3694,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385401,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Garangolm',
+        "dbg_name": '傀異調査：ガランゴルム',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3280,6 +3711,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385402,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Aurora Somnacanth',
+        "dbg_name": '傀異調査：イソネミクニ亜種',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3295,6 +3728,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385403,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Goss Harag',
+        "dbg_name": '傀異調査：ゴシャハギ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3310,6 +3745,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385404,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Magnamalo',
+        "dbg_name": '傀異調査：マガイマガド',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3325,6 +3762,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385405,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Rakna-Kadaki',
+        "dbg_name": '傀異調査：ヤツカダキ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3340,6 +3779,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385406,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Nargacuga',
+        "dbg_name": '傀異調査：ナルガクルガ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3355,6 +3796,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385407,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Barioth',
+        "dbg_name": '傀異調査：ベリオロス',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3370,6 +3813,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385408,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Almudron',
+        "dbg_name": '傀異調査：オロミドロ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3385,6 +3830,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385501,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Lunagaron',
+        "dbg_name": '傀異調査：ルナガロン',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3400,6 +3847,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385502,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Mizutsune',
+        "dbg_name": '傀異調査：タマミツネ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3415,6 +3864,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385503,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Diablos',
+        "dbg_name": '傀異調査：ディアブロス',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3430,6 +3881,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385504,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Rathalos',
+        "dbg_name": '傀異調査：リオレウス',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3445,6 +3898,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385505,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Astalos',
+        "dbg_name": '傀異調査：ライゼクス',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3460,6 +3915,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385506,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Zinogre',
+        "dbg_name": '傀異調査：ジンオウガ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3475,6 +3932,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385507,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Seregios',
+        "dbg_name": '傀異調査：セルレギオス',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3490,6 +3949,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385508,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Magma Almudron',
+        "dbg_name": '傀異調査：オロミドロ亜種',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3505,6 +3966,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385509,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Tigrex',
+        "dbg_name": '傀異調査：ティガレックス',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3520,6 +3983,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385601,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Espinas',
+        "dbg_name": '傀異調査：エスピナス',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3535,6 +4000,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385602,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Gore Magala',
+        "dbg_name": '傀異調査：ゴア・マガラ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3550,6 +4017,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385603,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Pyre Rakna-Kadaki',
+        "dbg_name": '傀異調査：ヤツカダキ亜種',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3565,6 +4034,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385604,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Rajang',
+        "dbg_name": '傀異調査：ラージャン',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3580,6 +4051,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385605,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Bazelgeuse',
+        "dbg_name": '傀異調査：バゼルギウス',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3595,6 +4068,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385701,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Furious Rajang',
+        "dbg_name": '傀異調査：激昂したラージャン',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3610,6 +4085,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385702,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Scorned Magnamalo',
+        "dbg_name": '傀異調査：怨嗟響めくマガイマガド',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3625,6 +4102,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385704,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Flaming Espinas',
+        "dbg_name": '傀異調査：エスピナス亜種',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3640,6 +4119,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385705,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Gold Rathian',
+        "dbg_name": '傀異調査：リオレイア希少種',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3655,6 +4136,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385706,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Silver Rathalos',
+        "dbg_name": '傀異調査：リオレウス希少種',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3670,6 +4153,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385708,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Seething Bazelgeuse',
+        "dbg_name": '傀異調査：紅蓮滾るバゼルギウス',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3685,6 +4170,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385801,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Chaotic Gore Magala',
+        "dbg_name": '傀異調査：渾沌に呻くゴア・マガラ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3700,6 +4187,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385802,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Chameleos',
+        "dbg_name": '傀異克服調査：オオナズチ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3715,6 +4204,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385803,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Kushala Daora',
+        "dbg_name": '傀異克服調査：クシャルダオラ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3730,6 +4221,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385804,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Teostra',
+        "dbg_name": '傀異克服調査：テオ・テスカトル',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3745,6 +4238,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385901,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Crimson Glow Valstrax',
+        "dbg_name": '傀異調査：バルファルク',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3760,6 +4255,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 385902,
         "source": 'kohaku',
+        "name": 'Anomaly Research: Shagaru Magala',
+        "dbg_name": '傀異調査：シャガルマガラ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3775,6 +4272,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 405200,
         "source": 'kohaku',
+        "name": 'Scarlet Tengu in the Shrine Ruins',
+        "dbg_name": '緋色天狗の大社詣で',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -3790,6 +4289,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 405300,
         "source": 'kohaku',
+        "name": 'A Rocky Rampage',
+        "dbg_name": '暴走する怪力の化身',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -3805,6 +4306,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 405400,
         "source": 'kohaku',
+        "name": 'Ice Wolf, Red Moon',
+        "dbg_name": '赤月に吼える氷狼',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -3820,6 +4323,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 405500,
         "source": 'kohaku',
+        "name": 'Witness by Moonlight',
+        "dbg_name": '月光の下',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -3835,6 +4340,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 405600,
         "source": 'kohaku',
+        "name": 'Proof of Courage',
+        "dbg_name": '勇気の証明',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3850,6 +4357,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 405601,
         "source": 'kohaku',
+        "name": 'The Sun Will Rise Again',
+        "dbg_name": '愛する故郷に、陽はまた昇る',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3865,6 +4374,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 405602,
         "source": 'kohaku',
+        "name": 'Harbinger of Destruction',
+        "dbg_name": '滅浄の裁き',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -3880,6 +4391,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455201,
         "source": 'kohaku',
+        "name": 'Operation Rathian',
+        "dbg_name": 'リオレイアの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -3895,6 +4408,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455202,
         "source": 'kohaku',
+        "name": 'Operation Bishaten',
+        "dbg_name": 'ビシュテンゴの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -3910,6 +4425,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455203,
         "source": 'kohaku',
+        "name": 'Operation Tobi-Kadachi',
+        "dbg_name": 'トビカガチの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -3925,6 +4442,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455204,
         "source": 'kohaku',
+        "name": 'Operation Khezu',
+        "dbg_name": 'フルフルの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -3940,6 +4459,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455205,
         "source": 'kohaku',
+        "name": 'Operation Blood Orange Bishaten',
+        "dbg_name": 'ビシュテンゴ亜種の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -3955,6 +4476,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455206,
         "source": 'kohaku',
+        "name": 'Operation Anjanath',
+        "dbg_name": 'アンジャナフの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -3970,6 +4493,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455301,
         "source": 'kohaku',
+        "name": 'Operation Barioth',
+        "dbg_name": 'ベリオロスの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -3985,6 +4510,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455302,
         "source": 'kohaku',
+        "name": 'Operation Almudron',
+        "dbg_name": 'オロミドロの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4000,6 +4527,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455303,
         "source": 'kohaku',
+        "name": 'Operation Garangolm',
+        "dbg_name": 'ガランゴルムの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4015,6 +4544,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455304,
         "source": 'kohaku',
+        "name": 'Operation Jungle Rumble',
+        "dbg_name": '密林のお祭り騒ぎの調査',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4030,6 +4561,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455305,
         "source": 'kohaku',
+        "name": 'Operation Swampy Suspects',
+        "dbg_name": '水没林の水難事故の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4045,6 +4578,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455306,
         "source": 'kohaku',
+        "name": 'Operation Hot Pursuit',
+        "dbg_name": '追う者と逃げる者の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4060,6 +4595,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455307,
         "source": 'kohaku',
+        "name": 'Operation Shogun Ceanataur',
+        "dbg_name": 'ショウグンギザミの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4075,6 +4612,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455308,
         "source": 'kohaku',
+        "name": 'Operation Nargacuga',
+        "dbg_name": 'ナルガクルガの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4090,6 +4629,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455309,
         "source": 'kohaku',
+        "name": 'Operation Cold Case',
+        "dbg_name": '寒冷群島の縄張り調査',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4105,6 +4646,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455310,
         "source": 'kohaku',
+        "name": 'Operation Aurora Somnacanth',
+        "dbg_name": 'イソネミクニ亜種の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4120,6 +4663,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455311,
         "source": 'kohaku',
+        "name": 'Operation Citadel Situation',
+        "dbg_name": '城塞高地の生息域調査',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4135,6 +4680,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455312,
         "source": 'kohaku',
+        "name": 'Operation Magnamalo',
+        "dbg_name": 'マガイマガドの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4150,6 +4697,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455313,
         "source": 'kohaku',
+        "name": 'Operation Double Basarios',
+        "dbg_name": 'バサルモス２頭の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4165,6 +4714,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455401,
         "source": 'kohaku',
+        "name": 'Operation Mizutsune',
+        "dbg_name": 'タマミツネの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -4180,6 +4731,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455402,
         "source": 'kohaku',
+        "name": 'Operation Rathalos',
+        "dbg_name": 'リオレウスの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -4195,6 +4748,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455403,
         "source": 'kohaku',
+        "name": 'Operation Purple Fire',
+        "dbg_name": '紫炎に燃える火竜の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -4210,6 +4765,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455404,
         "source": 'kohaku',
+        "name": 'Operation Sandy Situation',
+        "dbg_name": '砂原の危険生物調査',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -4225,6 +4782,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455405,
         "source": 'kohaku',
+        "name": 'Operation Frozen Rescue',
+        "dbg_name": '寒冷群島の遭難原因調査',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -4240,6 +4799,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455406,
         "source": 'kohaku',
+        "name": 'Operation Seregios',
+        "dbg_name": 'セルレギオスの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -4255,6 +4816,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455407,
         "source": 'kohaku',
+        "name": 'Operation Zinogre',
+        "dbg_name": 'ジンオウガの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -4270,6 +4833,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455408,
         "source": 'kohaku',
+        "name": 'Operation Astalos',
+        "dbg_name": 'ライゼクスの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -4285,6 +4850,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455409,
         "source": 'kohaku',
+        "name": 'Operation Espinas',
+        "dbg_name": 'エスピナスの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -4300,6 +4867,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455410,
         "source": 'kohaku',
+        "name": 'Operation Gore Magala',
+        "dbg_name": 'ゴア・マガラの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -4315,6 +4884,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455411,
         "source": 'kohaku',
+        "name": 'Operation Lunagaron',
+        "dbg_name": 'ルナガロンの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -4330,6 +4901,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455412,
         "source": 'kohaku',
+        "name": 'Operation Tigrex',
+        "dbg_name": 'ティガレックスの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -4345,6 +4918,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455413,
         "source": 'kohaku',
+        "name": 'Flooded Forest Probe',
+        "dbg_name": '水没林の大合戦調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -4360,6 +4935,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455414,
         "source": 'kohaku',
+        "name": 'Operation Pyre Rakna-Kadaki',
+        "dbg_name": 'ヤツカダキ亜種の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -4375,6 +4952,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455501,
         "source": 'kohaku',
+        "name": 'Operation Rajang',
+        "dbg_name": 'ラージャンの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -4390,6 +4969,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455502,
         "source": 'kohaku',
+        "name": 'Dangers in the Dark Desert',
+        "dbg_name": 'ウツシ教官への調査協力',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -4405,6 +4986,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455503,
         "source": 'kohaku',
+        "name": 'Operation Magma Region',
+        "dbg_name": '噴火する大地の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -4420,6 +5003,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455504,
         "source": 'kohaku',
+        "name": 'Operation Ogre Gore',
+        "dbg_name": '雷の王者と侵略者の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -4435,6 +5020,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455505,
         "source": 'kohaku',
+        "name": 'Operation Night Stalker',
+        "dbg_name": '夜を脅かす者たちの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -4450,6 +5037,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455506,
         "source": 'kohaku',
+        "name": 'Operation Fire Dweller',
+        "dbg_name": '熱源に住む者たちの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -4465,6 +5054,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455507,
         "source": 'kohaku',
+        "name": 'Operation Thunder-Clad',
+        "dbg_name": '雷を纏う者たちの調査',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -4480,6 +5071,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455508,
         "source": 'kohaku',
+        "name": 'Operation Double Garangolm',
+        "dbg_name": 'ガランゴルム２頭の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -4495,6 +5088,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455509,
         "source": 'kohaku',
+        "name": 'Operation Sandy Plains',
+        "dbg_name": '砂原に適応する者たち調査',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -4510,6 +5105,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455510,
         "source": 'kohaku',
+        "name": 'Operation Mermaid Tale',
+        "dbg_name": 'うたかたの人魚物語の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -4525,6 +5122,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455511,
         "source": 'kohaku',
+        "name": 'Operation Kushala Daora',
+        "dbg_name": 'クシャルダオラの調査',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -4540,6 +5139,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455512,
         "source": 'kohaku',
+        "name": 'Operation Bazelgeuse',
+        "dbg_name": 'バゼルギウスの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -4555,6 +5156,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455513,
         "source": 'kohaku',
+        "name": 'Operation Teostra',
+        "dbg_name": 'テオ・テスカトルの調査',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -4570,6 +5173,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455601,
         "source": 'kohaku',
+        "name": 'Operation Chameleos',
+        "dbg_name": 'オオナズチの調査',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4585,6 +5190,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455602,
         "source": 'kohaku',
+        "name": 'Operation Double Magnamalo',
+        "dbg_name": 'マガイマガド２頭の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4600,6 +5207,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455603,
         "source": 'kohaku',
+        "name": 'Operation Dancing Blades',
+        "dbg_name": 'ガレアス提督への調査協力',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4615,6 +5224,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455604,
         "source": 'kohaku',
+        "name": 'Operation Furious Golden Fur',
+        "dbg_name": '激昂せし金色の獣の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4630,6 +5241,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455605,
         "source": 'kohaku',
+        "name": 'Operation Foggy Jungle',
+        "dbg_name": '毒霧にむせぶ密林の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4645,6 +5258,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455606,
         "source": 'kohaku',
+        "name": "Operation T'd Off",
+        "dbg_name": '異常活性する砂原の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4660,6 +5275,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455607,
         "source": 'kohaku',
+        "name": 'Monkey-Crab Turf War',
+        "dbg_name": '猿と蟹のナワバリ調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4675,6 +5292,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455608,
         "source": 'kohaku',
+        "name": 'Operation Explosive Anger',
+        "dbg_name": '大激変する寒冷群島の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4690,6 +5309,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455609,
         "source": 'kohaku',
+        "name": 'Operation Dominion',
+        "dbg_name": '大社跡を支配する者の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4705,6 +5326,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455611,
         "source": 'kohaku',
+        "name": 'Operation Jungle Comet',
+        "dbg_name": '密林に降る赫き凶星の調査',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4720,6 +5343,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455612,
         "source": 'kohaku',
+        "name": 'Operation Wrath',
+        "dbg_name": '大社跡に眠る大怨霊の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4735,6 +5360,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455613,
         "source": 'kohaku',
+        "name": 'Advanced: Monster Hunter!',
+        "dbg_name": '高難度：モンスターハンター',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4750,6 +5377,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455614,
         "source": 'kohaku',
+        "name": 'Operation Seething Bazelgeuse',
+        "dbg_name": '紅蓮滾るバゼルギウスの調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4765,6 +5394,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455615,
         "source": 'kohaku',
+        "name": 'Operation Gold Rathian',
+        "dbg_name": 'リオレイア希少種の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4780,6 +5411,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455616,
         "source": 'kohaku',
+        "name": 'Operation Silver Rathalos',
+        "dbg_name": 'リオレウス希少種の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4795,6 +5428,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455617,
         "source": 'kohaku',
+        "name": 'Operation Lucent Nargacuga',
+        "dbg_name": 'ナルガクルガ希少種の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4810,6 +5445,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455618,
         "source": 'kohaku',
+        "name": 'Operation Flaming Espinas',
+        "dbg_name": 'エスピナス亜種の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4825,6 +5462,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 455619,
         "source": 'kohaku',
+        "name": 'Operation Violet Mizutsune',
+        "dbg_name": 'タマミツネ希少種の調査',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -4840,6 +5479,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465201,
         "source": 'kohaku',
+        "name": 'An Audience With the Queen',
+        "dbg_name": '空の女王への謁見',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -4855,6 +5496,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465202,
         "source": 'kohaku',
+        "name": 'Fruit Vs. Firearms',
+        "dbg_name": '交わし合う柿と銃火',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -4870,6 +5513,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465203,
         "source": 'kohaku',
+        "name": 'Flicker in the Night',
+        "dbg_name": '闇夜を奔る雷光',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Master,
@@ -4885,6 +5530,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465301,
         "source": 'kohaku',
+        "name": 'White Knight Vs. New Knight',
+        "dbg_name": '白騎士と新米騎士',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4900,6 +5547,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465302,
         "source": 'kohaku',
+        "name": 'Into the Jungle Deep',
+        "dbg_name": '岩屋に忍ぶ黒き影',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4915,6 +5564,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465303,
         "source": 'kohaku',
+        "name": 'Hunting is All the Rage',
+        "dbg_name": '狩りは絢爛怒涛に',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4930,6 +5581,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465304,
         "source": 'kohaku',
+        "name": 'Sisters Sally Forth',
+        "dbg_name": '王国騎士姉妹いざ出陣',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4945,6 +5598,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465305,
         "source": 'kohaku',
+        "name": 'Basarios Buzzkill',
+        "dbg_name": '集って来たるバサルモス',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4960,6 +5615,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465306,
         "source": 'kohaku',
+        "name": 'A Tough Lesson',
+        "dbg_name": 'どっしり居すわる剛纏獣',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4975,6 +5632,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465307,
         "source": 'kohaku',
+        "name": 'Passion Melts Ice',
+        "dbg_name": 'いだく熱意は凍土も溶かす',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -4990,6 +5649,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465308,
         "source": 'kohaku',
+        "name": 'A Muddy Revival',
+        "dbg_name": '泥振り払う刃風',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -5005,6 +5666,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465309,
         "source": 'kohaku',
+        "name": 'Enshrined Resentment',
+        "dbg_name": '怨念うずまく社にて',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Master,
@@ -5020,6 +5683,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465401,
         "source": 'kohaku',
+        "name": 'Moonlit Espinascapade',
+        "dbg_name": '月夜にまどろむ眠り竜',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -5035,6 +5700,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465402,
         "source": 'kohaku',
+        "name": 'Destructive Instructor',
+        "dbg_name": '城塞を荒らす暴君',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -5050,6 +5717,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465403,
         "source": 'kohaku',
+        "name": 'Rumbling Tummy, Rumbling Thunder',
+        "dbg_name": '木々焦がす稲妻',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -5065,6 +5734,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465404,
         "source": 'kohaku',
+        "name": 'Flooded Forest Feast',
+        "dbg_name": '爪音響く肝試し',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -5080,6 +5751,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465405,
         "source": 'kohaku',
+        "name": 'Dust off Those Hunting Boots',
+        "dbg_name": '舞うは熱砂か百刃か',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -5095,6 +5768,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465406,
         "source": 'kohaku',
+        "name": 'Cherry Blossoms in Battle',
+        "dbg_name": '揺れる草葉と桜の尾',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -5110,6 +5785,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465407,
         "source": 'kohaku',
+        "name": 'Not Your Average Picnic',
+        "dbg_name": '空を行く竜影',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -5125,6 +5802,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465408,
         "source": 'kohaku',
+        "name": 'An Ace Idea!',
+        "dbg_name": '水没林の師弟共闘',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -5140,6 +5819,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465409,
         "source": 'kohaku',
+        "name": 'Breaking the Ice',
+        "dbg_name": '相まみえるは氷狼',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -5155,6 +5836,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465410,
         "source": 'kohaku',
+        "name": 'Unknown Invader',
+        "dbg_name": '未知からの浸蝕',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Master,
@@ -5170,6 +5853,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465501,
         "source": 'kohaku',
+        "name": "Grabbin' Life by the Horns",
+        "dbg_name": '葉陰はらう金の獅子',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -5185,6 +5870,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465502,
         "source": 'kohaku',
+        "name": 'The Fire Still Burns',
+        "dbg_name": '龍炎纏うは炎の王',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -5200,6 +5887,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465503,
         "source": 'kohaku',
+        "name": 'Front Row Seat',
+        "dbg_name": '親睦深まる団体戦',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -5215,6 +5904,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465504,
         "source": 'kohaku',
+        "name": 'Burning Air, Trembling Earth',
+        "dbg_name": '天地に満ちる火炎と轟音',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -5230,6 +5921,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465505,
         "source": 'kohaku',
+        "name": 'Fire Vs. Fire',
+        "dbg_name": '爆鱗竜、飛翔',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -5245,6 +5938,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465506,
         "source": 'kohaku',
+        "name": 'The Flame that Burns Within',
+        "dbg_name": '炎に燃える狩猟魂',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -5260,6 +5955,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465507,
         "source": 'kohaku',
+        "name": 'A Cold Wind Blows',
+        "dbg_name": '冷風は吹きすさぶ',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Master,
@@ -5275,6 +5972,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465601,
         "source": 'kohaku',
+        "name": 'Invisible Threat',
+        "dbg_name": '気配なし姿なし',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -5290,6 +5989,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465602,
         "source": 'kohaku',
+        "name": 'Lava Caverns Litter Box',
+        "dbg_name": '武者共へ贈る手向け',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -5305,6 +6006,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465603,
         "source": 'kohaku',
+        "name": 'True Hunters',
+        "dbg_name": '狩猟が紡ぐもの',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -5320,6 +6023,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 465604,
         "source": 'kohaku',
+        "name": 'Rage That Never Dies',
+        "dbg_name": '怒りの念は消えること無く',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Master,
@@ -5335,6 +6040,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 101,
         "source": 'normal',
+        "name": 'A Tour of the Ruins',
+        "dbg_name": '大社跡の探索ツアー',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Village,
@@ -5350,6 +6057,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 102,
         "source": 'normal',
+        "name": 'Roly-poly Lanterns',
+        "dbg_name": '火玉ホオズキ8個の納品',
         "quest_type": QuestType.COLLECTS,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Village,
@@ -5365,6 +6074,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 103,
         "source": 'normal',
+        "name": 'Fungal Frustrations',
+        "dbg_name": '特産キノコ8個の納品',
         "quest_type": QuestType.COLLECTS,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Village,
@@ -5380,6 +6091,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 104,
         "source": 'normal',
+        "name": 'Impious Peons',
+        "dbg_name": 'ジャグラス8頭の討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Village,
@@ -5395,6 +6108,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 105,
         "source": 'normal',
+        "name": 'Help With Maintenance',
+        "dbg_name": 'イズチ8頭の討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Village,
@@ -5410,6 +6125,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 201,
         "source": 'normal',
+        "name": 'A Tour of the Islands',
+        "dbg_name": '寒冷群島の探索ツアー',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Village,
@@ -5425,6 +6142,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 202,
         "source": 'normal',
+        "name": 'Great Izuchi, Great Pain',
+        "dbg_name": 'オサイズチの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Village,
@@ -5440,6 +6159,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 203,
         "source": 'normal',
+        "name": 'Grizzly Glutton',
+        "dbg_name": 'アオアシラの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Village,
@@ -5455,6 +6176,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 204,
         "source": 'normal',
+        "name": 'Plump and Juicy',
+        "dbg_name": 'イカダガキ10個の納品',
         "quest_type": QuestType.COLLECTS,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Village,
@@ -5470,6 +6193,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 205,
         "source": 'normal',
+        "name": 'A Frosty Paradise',
+        "dbg_name": 'バギィ10頭の討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Village,
@@ -5485,6 +6210,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 206,
         "source": 'normal',
+        "name": 'Out Cold',
+        "dbg_name": 'ドスバギィの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Village,
@@ -5500,6 +6227,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 207,
         "source": 'normal',
+        "name": 'Rabid Rabbit',
+        "dbg_name": 'ウルクススの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Village,
@@ -5515,6 +6244,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 208,
         "source": 'normal',
+        "name": 'Case of the Creepy Crawlies',
+        "dbg_name": 'オルタロス or ブナハ計14頭の討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Village,
@@ -5530,6 +6261,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 209,
         "source": 'normal',
+        "name": 'Hmm, Not So Tasty...',
+        "dbg_name": 'ポポノタン3個の納品',
         "quest_type": QuestType.COLLECTS,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Village,
@@ -5545,6 +6278,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 301,
         "source": 'normal',
+        "name": 'A Tour of the Plains',
+        "dbg_name": '砂原の探索ツアー',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Village,
@@ -5560,6 +6295,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 302,
         "source": 'normal',
+        "name": 'A Tour of the Forest',
+        "dbg_name": '水没林の探索ツアー',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Village,
@@ -5575,6 +6312,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 303,
         "source": 'normal',
+        "name": 'Feathered Frenzy',
+        "dbg_name": 'アケノシルムの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Village,
@@ -5590,6 +6329,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 304,
         "source": 'normal',
+        "name": 'The Rampage Approaches',
+        "dbg_name": '緊急百竜クエスト（村）',
         "quest_type": QuestType.HYAKURYU,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Village,
@@ -5605,6 +6346,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 305,
         "source": 'normal',
+        "name": "Can't Stomach the Thought",
+        "dbg_name": 'ヨツミワドウの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Village,
@@ -5620,6 +6363,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 306,
         "source": 'normal',
+        "name": 'Walking on Eggshells',
+        "dbg_name": 'クルルヤックの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Village,
@@ -5635,6 +6380,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 307,
         "source": 'normal',
+        "name": "Fightin' Dirty",
+        "dbg_name": 'ボルボロスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Village,
@@ -5650,6 +6397,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 308,
         "source": 'normal',
+        "name": 'Obnoxious Lord, Noxious Monster',
+        "dbg_name": 'ドスフロギィの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Village,
@@ -5665,6 +6414,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 309,
         "source": 'normal',
+        "name": 'Spongy Oasis',
+        "dbg_name": 'ロアルドロスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Village,
@@ -5680,6 +6431,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 310,
         "source": 'normal',
+        "name": 'Supply Run',
+        "dbg_name": 'NPC依頼：伝統の団子素材6個の納品',
         "quest_type": QuestType.COLLECTS,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Village,
@@ -5695,6 +6448,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 311,
         "source": 'normal',
+        "name": 'Faceless Foe',
+        "dbg_name": 'フルフルの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Village,
@@ -5710,6 +6465,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 312,
         "source": 'normal',
+        "name": 'The Cactus Diet',
+        "dbg_name": '小玉サボテン10個の納品',
         "quest_type": QuestType.COLLECTS,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Village,
@@ -5725,6 +6482,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 313,
         "source": 'normal',
+        "name": 'A Sandy Cabal',
+        "dbg_name": 'ジャギィまたはジャギノス計14頭の討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Village,
@@ -5740,6 +6499,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 314,
         "source": 'normal',
+        "name": 'Breath of the Past',
+        "dbg_name": '素朴な彩水晶10個の納品',
         "quest_type": QuestType.COLLECTS,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Village,
@@ -5755,6 +6516,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 315,
         "source": 'normal',
+        "name": 'Ladies of the Lake',
+        "dbg_name": 'ルドロス10頭の討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Village,
@@ -5770,6 +6533,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 401,
         "source": 'normal',
+        "name": 'A Tour of the Caverns',
+        "dbg_name": '溶岩洞の探索ツアー',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Village,
@@ -5785,6 +6550,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 402,
         "source": 'normal',
+        "name": 'Monkey Wrench in Your Plans',
+        "dbg_name": 'ビシュテンゴの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Village,
@@ -5800,6 +6567,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 403,
         "source": 'normal',
+        "name": 'Special License Test 1',
+        "dbg_name": '集★２試験 アケノシルム×リオレイアの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Village,
@@ -5815,6 +6584,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 404,
         "source": 'normal',
+        "name": 'Infernal Lacrimosa',
+        "dbg_name": 'イソネミクニの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Village,
@@ -5830,6 +6601,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 405,
         "source": 'normal',
+        "name": 'Raging White-out',
+        "dbg_name": 'ベリオロスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Village,
@@ -5845,6 +6618,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 406,
         "source": 'normal',
+        "name": "The Queen's Procession",
+        "dbg_name": 'リオレイアの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Village,
@@ -5860,6 +6635,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 407,
         "source": 'normal',
+        "name": 'Streaking Shadow',
+        "dbg_name": 'トビカガチの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Village,
@@ -5875,6 +6652,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 408,
         "source": 'normal',
+        "name": 'A Song of Red and Fire',
+        "dbg_name": 'ラングロトラの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Village,
@@ -5890,6 +6669,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 409,
         "source": 'normal',
+        "name": 'Off Your Rocker',
+        "dbg_name": 'バサルモスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Village,
@@ -5905,6 +6686,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 410,
         "source": 'normal',
+        "name": 'Getting Back the Groceries',
+        "dbg_name": 'NPC依頼：秘伝の団子素材6個の納品',
         "quest_type": QuestType.COLLECTS,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Village,
@@ -5920,6 +6703,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 411,
         "source": 'normal',
+        "name": 'A Poisonous Project',
+        "dbg_name": 'プケプケの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Village,
@@ -5935,6 +6720,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 412,
         "source": 'normal',
+        "name": 'Deliver the Liver',
+        "dbg_name": 'モンスターのキモ5個の納品',
         "quest_type": QuestType.COLLECTS,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Village,
@@ -5950,6 +6737,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 413,
         "source": 'normal',
+        "name": 'So Hot, It Melts Iron',
+        "dbg_name": '燃石炭15個の納品',
         "quest_type": QuestType.COLLECTS,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Village,
@@ -5965,6 +6754,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 414,
         "source": 'normal',
+        "name": 'THE BEST Quest',
+        "dbg_name": 'ツケヒバキ10頭の討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Village,
@@ -5980,6 +6771,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 415,
         "source": 'normal',
+        "name": 'Third Wheel',
+        "dbg_name": '大連続 アオアシラ → ヨツミワドウ',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.Village,
@@ -5995,6 +6788,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 501,
         "source": 'normal',
+        "name": 'Comeuppance',
+        "dbg_name": 'マガイマガドの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Village,
@@ -6010,6 +6805,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 502,
         "source": 'normal',
+        "name": 'Special License Test 2',
+        "dbg_name": '集★３試験 大連続 オサイズチ→ビシュ→マガド',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Village,
@@ -6025,6 +6822,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 503,
         "source": 'normal',
+        "name": 'Wind Speed Wyvern',
+        "dbg_name": 'ナルガクルガの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Village,
@@ -6040,6 +6839,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 504,
         "source": 'normal',
+        "name": 'Electrifying Epiphany',
+        "dbg_name": 'ジンオウガの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Village,
@@ -6055,6 +6856,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 505,
         "source": 'normal',
+        "name": 'Nocturnal Tracker',
+        "dbg_name": 'アンジャナフの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Village,
@@ -6070,6 +6873,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 506,
         "source": 'normal',
+        "name": 'Waltzing by Moonlight',
+        "dbg_name": 'タマミツネの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Village,
@@ -6085,6 +6890,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 507,
         "source": 'normal',
+        "name": 'Rathalos Alert!',
+        "dbg_name": 'リオレウスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Village,
@@ -6100,6 +6907,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 508,
         "source": 'normal',
+        "name": 'The Secret Ingredient',
+        "dbg_name": 'NPC依頼：イソネミクニの捕獲',
         "quest_type": QuestType.CAPTURE,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Village,
@@ -6115,6 +6924,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 509,
         "source": 'normal',
+        "name": 'BZZZZZ or ZZZZzzzz',
+        "dbg_name": 'イソネミクニ×フルフルの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Village,
@@ -6130,6 +6941,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 510,
         "source": 'normal',
+        "name": 'Nosey Nuisances',
+        "dbg_name": 'クルル×アンジャナフの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Village,
@@ -6145,6 +6958,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 511,
         "source": 'normal',
+        "name": 'The Hottest Around',
+        "dbg_name": 'ヨツミ×ラングロトラの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.Village,
@@ -6160,6 +6975,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 601,
         "source": 'normal',
+        "name": 'Hermit of the Swamp',
+        "dbg_name": 'オロミドロの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Village,
@@ -6175,6 +6992,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 602,
         "source": 'normal',
+        "name": 'Special License Test 3',
+        "dbg_name": '集下位試験 大連続レウス→ジンオウガ→オロミドロ',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Village,
@@ -6190,6 +7009,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 603,
         "source": 'normal',
+        "name": "Advanced: The Veterans' Gala",
+        "dbg_name": 'NPC依頼：上位相当\u3000大連続\u3000ラージャン→バゼル→マガド',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -6205,6 +7026,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 604,
         "source": 'normal',
+        "name": 'Abominable Snow-beast',
+        "dbg_name": 'ゴシャハギの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Village,
@@ -6220,6 +7043,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 605,
         "source": 'normal',
+        "name": 'Thundering Voice',
+        "dbg_name": 'ティガレックスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Village,
@@ -6235,6 +7060,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 606,
         "source": 'normal',
+        "name": 'Twisted Desire',
+        "dbg_name": 'ディアブロスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Village,
@@ -6250,6 +7077,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 607,
         "source": 'normal',
+        "name": 'A Test of Courage',
+        "dbg_name": 'マガイマガド×ジンオウガの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Village,
@@ -6265,6 +7094,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 608,
         "source": 'normal',
+        "name": 'Like a Flash of Lightning',
+        "dbg_name": 'タマミツネ×トビカガチの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Village,
@@ -6280,6 +7111,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 609,
         "source": 'normal',
+        "name": 'King of the Sky, Bane of the Land',
+        "dbg_name": 'ティガ×レウスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.Village,
@@ -6295,6 +7128,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10101,
         "source": 'normal',
+        "name": 'A Tour of the Ruins',
+        "dbg_name": '大社跡の採集ツアー（下位）',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Low,
@@ -6310,6 +7145,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10102,
         "source": 'normal',
+        "name": 'A Tour of the Islands',
+        "dbg_name": '寒冷群島の採集ツアー（下位）',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Low,
@@ -6325,6 +7162,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10104,
         "source": 'normal',
+        "name": 'Shady Monster',
+        "dbg_name": 'アケノシルムの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Low,
@@ -6340,6 +7179,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10105,
         "source": 'normal',
+        "name": 'Tired and Feathered',
+        "dbg_name": 'クルルヤックの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Low,
@@ -6355,6 +7196,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10106,
         "source": 'normal',
+        "name": 'Jumped in the Frost Islands',
+        "dbg_name": 'オサイズチの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Low,
@@ -6370,6 +7213,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10107,
         "source": 'normal',
+        "name": 'No Cure for the Common Baggi',
+        "dbg_name": 'ドスバギィの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Low,
@@ -6385,6 +7230,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10108,
         "source": 'normal',
+        "name": "A Snowball's Chance...",
+        "dbg_name": 'ウルクススの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Low,
@@ -6400,6 +7247,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10109,
         "source": 'normal',
+        "name": 'Wroggi Place, Wroggi Time',
+        "dbg_name": 'ドスフロギィの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Low,
@@ -6415,6 +7264,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10110,
         "source": 'normal',
+        "name": 'A Grizzly Encounter',
+        "dbg_name": 'アオアシラの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Low,
@@ -6430,6 +7281,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10111,
         "source": 'normal',
+        "name": 'Off the Beaten Path',
+        "dbg_name": 'イズチまたはオルタロス計10頭の討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Low,
@@ -6445,6 +7298,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10112,
         "source": 'normal',
+        "name": 'Hot Topic Hooligans',
+        "dbg_name": 'スクアギルまたはブナハブラ計10頭の討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Low,
@@ -6460,6 +7315,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10201,
         "source": 'normal',
+        "name": 'A Tour of the Plains',
+        "dbg_name": '砂原の採集ツアー（下位）',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -6475,6 +7332,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10202,
         "source": 'normal',
+        "name": 'A Tour of the Forest',
+        "dbg_name": '水没林の採集ツアー（下位）',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -6490,6 +7349,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10203,
         "source": 'normal',
+        "name": 'Dead Ringer',
+        "dbg_name": 'ヨツミワドウの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -6505,6 +7366,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10204,
         "source": 'normal',
+        "name": 'I Want Off This Ride',
+        "dbg_name": 'ビシュテンゴの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -6520,6 +7383,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10205,
         "source": 'normal',
+        "name": 'Way of the Pukei',
+        "dbg_name": 'プケプケの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -6535,6 +7400,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10206,
         "source": 'normal',
+        "name": 'The Flooding Flooded Forest',
+        "dbg_name": 'ロアルドロスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -6550,6 +7417,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10207,
         "source": 'normal',
+        "name": 'So Muddy Hardheaded!',
+        "dbg_name": 'ボルボロスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -6565,6 +7434,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10208,
         "source": 'normal',
+        "name": 'A Pale Shadow',
+        "dbg_name": 'フルフルの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -6580,6 +7451,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10209,
         "source": 'normal',
+        "name": 'Reinventing the Wheel',
+        "dbg_name": 'ラングロトラの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -6595,6 +7468,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10210,
         "source": 'normal',
+        "name": 'Blasted Basarios!',
+        "dbg_name": 'バサルモスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -6610,6 +7485,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10211,
         "source": 'normal',
+        "name": 'The Path to Royalty',
+        "dbg_name": 'リオレイアの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -6625,6 +7502,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10212,
         "source": 'normal',
+        "name": 'Dawn of the Kestodon',
+        "dbg_name": 'ケストドンの討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -6640,6 +7519,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10213,
         "source": 'normal',
+        "name": 'Hide, Hide, Hide!',
+        "dbg_name": 'ジャグラスまたはルドロス計10頭の討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -6655,6 +7536,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10214,
         "source": 'normal',
+        "name": 'Bouncing Brawlers',
+        "dbg_name": 'ウルク×ヨツミワドウの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -6670,6 +7553,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10215,
         "source": 'normal',
+        "name": 'Fried and Baptized',
+        "dbg_name": '大連続 ロアル→レイア',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -6685,6 +7570,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10216,
         "source": 'normal',
+        "name": 'The Rampage Approaches',
+        "dbg_name": '緊急百竜クエスト（下位）',
         "quest_type": QuestType.HYAKURYU,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -6700,6 +7587,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10301,
         "source": 'normal',
+        "name": 'A Tour of the Caverns',
+        "dbg_name": '溶岩洞の採集ツアー（下位）',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6715,6 +7604,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10302,
         "source": 'normal',
+        "name": 'Hellfire',
+        "dbg_name": '緊急 マガイマガドの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6730,6 +7621,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10303,
         "source": 'normal',
+        "name": 'Beckoning Slumber',
+        "dbg_name": 'イソネミクニの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6745,6 +7638,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10304,
         "source": 'normal',
+        "name": 'The Blizzard Blender',
+        "dbg_name": 'ゴシャハギの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6760,6 +7655,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10305,
         "source": 'normal',
+        "name": 'Zigzagging Zapper',
+        "dbg_name": 'トビカガチの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6775,6 +7672,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10306,
         "source": 'normal',
+        "name": "Down 'n' Dirty",
+        "dbg_name": 'オロミドロの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6790,6 +7689,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10307,
         "source": 'normal',
+        "name": 'Bully of the Caverns',
+        "dbg_name": 'アンジャナフの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6805,6 +7706,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10308,
         "source": 'normal',
+        "name": 'Twilit Twin Stars',
+        "dbg_name": 'ナルガクルガの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6820,6 +7723,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10309,
         "source": 'normal',
+        "name": 'My Muse the Mizutsune',
+        "dbg_name": 'タマミツネの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6835,6 +7740,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10310,
         "source": 'normal',
+        "name": 'Champion of the Caverns',
+        "dbg_name": 'リオレウスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6850,6 +7757,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10311,
         "source": 'normal',
+        "name": 'Wavering Moon and Thunder',
+        "dbg_name": 'ジンオウガの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6865,6 +7774,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10312,
         "source": 'normal',
+        "name": 'White Knight vs. Hunter',
+        "dbg_name": 'ベリオロスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6880,6 +7791,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10313,
         "source": 'normal',
+        "name": 'A Friend in Need',
+        "dbg_name": 'ティガレックスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6895,6 +7808,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10314,
         "source": 'normal',
+        "name": 'A Few Bumps Along the Way',
+        "dbg_name": 'ディアブロスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6910,6 +7825,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10315,
         "source": 'normal',
+        "name": 'Tail to Tail',
+        "dbg_name": 'ビシュテンゴ×オロミドロの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6925,6 +7842,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10316,
         "source": 'normal',
+        "name": 'Beastly Chaos',
+        "dbg_name": '大連続 ティガ→ゴシャハギ',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6940,6 +7859,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10317,
         "source": 'normal',
+        "name": 'Disastrously Beautiful',
+        "dbg_name": '大連続 ボルボ→カガチ→マガド',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -6955,6 +7876,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10401,
         "source": 'normal',
+        "name": 'A Tour of the Ruins',
+        "dbg_name": '大社跡の採集ツアー（上位）',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -6970,6 +7893,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10402,
         "source": 'normal',
+        "name": 'A Tour of the Islands',
+        "dbg_name": '寒冷群島の採集ツアー（上位）',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -6985,6 +7910,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10403,
         "source": 'normal',
+        "name": 'The Blue Apex',
+        "dbg_name": 'ヌシアオアシラの狩猟（百竜）',
         "quest_type": QuestType.HYAKURYU,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7000,6 +7927,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10404,
         "source": 'normal',
+        "name": 'The Swirling Gale',
+        "dbg_name": 'オサイズチの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7015,6 +7944,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10405,
         "source": 'normal',
+        "name": 'Divine Comedy',
+        "dbg_name": 'アシラ×クルルの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7030,6 +7961,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10406,
         "source": 'normal',
+        "name": "Didn't Get the Memo",
+        "dbg_name": 'ドスバギィ２頭の狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7045,6 +7978,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10407,
         "source": 'normal',
+        "name": 'Dancing A-purr-ition',
+        "dbg_name": 'アケノシルムの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7060,6 +7995,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10408,
         "source": 'normal',
+        "name": 'The Frost Islands Arena',
+        "dbg_name": 'ヨツワミドウの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7075,6 +8012,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10409,
         "source": 'normal',
+        "name": 'Even Cute Things Have Fangs',
+        "dbg_name": 'ウルクススの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7090,6 +8029,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10410,
         "source": 'normal',
+        "name": 'Donning Toxicity',
+        "dbg_name": 'ドスフロギィの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7105,6 +8046,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10411,
         "source": 'normal',
+        "name": 'Night of the Khezu',
+        "dbg_name": 'フルフルの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7120,6 +8063,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10412,
         "source": 'normal',
+        "name": 'Dango Duty',
+        "dbg_name": 'NPC依頼：イズチまたはバギィ計10頭の討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7135,6 +8080,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10413,
         "source": 'normal',
+        "name": 'Totally Not Cool, Kulu!',
+        "dbg_name": 'NPC依頼：クルルヤック２頭の狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7150,6 +8097,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10414,
         "source": 'normal',
+        "name": 'Study the Sword & Shield',
+        "dbg_name": 'NPC依頼：アケノシルムの捕獲',
         "quest_type": QuestType.CAPTURE,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7165,6 +8114,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10415,
         "source": 'normal',
+        "name": 'Honing Your Hunting Horn',
+        "dbg_name": 'NPC依頼：大連続 オサイズチ→ヨツミ',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7180,6 +8131,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10416,
         "source": 'normal',
+        "name": 'Study the Switch Axe',
+        "dbg_name": 'NPC依頼：ウルクスス×フルフルの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7195,6 +8148,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10417,
         "source": 'normal',
+        "name": 'Learning the Light Bowgun',
+        "dbg_name": 'NPC依頼：ドスバギィ×ドスフロギィの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7210,6 +8165,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10418,
         "source": 'normal',
+        "name": 'Lost and Found',
+        "dbg_name": 'ジャグラスまたはブルファンゴの討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7225,6 +8182,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10419,
         "source": 'normal',
+        "name": 'Blue, Round, and Cute',
+        "dbg_name": 'アオアシラの捕獲',
         "quest_type": QuestType.CAPTURE,
         "quest_level": QuestLevel.QL4,
         "enemy_level": EnemyLv.High,
@@ -7240,6 +8199,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10501,
         "source": 'normal',
+        "name": 'A Tour of the Plains',
+        "dbg_name": '砂原の採集ツアー（上位）',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7255,6 +8216,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10502,
         "source": 'normal',
+        "name": 'A Tour of the Forest',
+        "dbg_name": '水没林の採集ツアー（上位）',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7270,6 +8233,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10503,
         "source": 'normal',
+        "name": 'The Restless Swamp',
+        "dbg_name": 'ジュラトドスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7285,6 +8250,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10504,
         "source": 'normal',
+        "name": 'Foul Play in the Forest',
+        "dbg_name": 'ロアルドロスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7300,6 +8267,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10505,
         "source": 'normal',
+        "name": 'Rise above the Mud',
+        "dbg_name": 'ボルボロスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7315,6 +8284,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10506,
         "source": 'normal',
+        "name": 'Bowled Over',
+        "dbg_name": 'ラングロトラ２頭の狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7330,6 +8301,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10507,
         "source": 'normal',
+        "name": 'Rotten Fruit',
+        "dbg_name": 'ビシュテンゴの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7345,6 +8318,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10508,
         "source": 'normal',
+        "name": 'Go Away, Pukei!',
+        "dbg_name": 'プケプケの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7360,6 +8335,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10509,
         "source": 'normal',
+        "name": 'Miner Problem',
+        "dbg_name": 'バサルモスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7375,6 +8352,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10510,
         "source": 'normal',
+        "name": 'Charmed by a Queen',
+        "dbg_name": 'リオレイアの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7390,6 +8369,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10511,
         "source": 'normal',
+        "name": 'Grasp the Great Sword',
+        "dbg_name": 'NPC依頼：ビシュテンゴ２頭の狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7405,6 +8386,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10512,
         "source": 'normal',
+        "name": 'Honing Your Hammer',
+        "dbg_name": 'NPC依頼：ボルボロス×プケプケの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7420,6 +8403,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10513,
         "source": 'normal',
+        "name": 'Learn the Lance',
+        "dbg_name": 'NPC依頼：リオレイアの捕獲',
         "quest_type": QuestType.CAPTURE,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7435,6 +8420,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10514,
         "source": 'normal',
+        "name": 'Charge Blade Coalescing',
+        "dbg_name": 'NPC依頼：大連続 ロアル→ジュラ',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7450,6 +8437,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10515,
         "source": 'normal',
+        "name": 'Hone Your Heavy Bowgun',
+        "dbg_name": 'NPC依頼：ラングロトラ×バサルモスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7465,6 +8454,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10516,
         "source": 'normal',
+        "name": 'Bad Review',
+        "dbg_name": 'リノプロスまたはケストドン計20頭の討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7480,6 +8471,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10517,
         "source": 'normal',
+        "name": 'Flooded Forest Fiasco',
+        "dbg_name": 'ルドロスまたはフロギィ計20頭の討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7495,6 +8488,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10518,
         "source": 'normal',
+        "name": 'Shadows Over the Frost',
+        "dbg_name": 'フルフル×ヨツワミドウの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL5,
         "enemy_level": EnemyLv.High,
@@ -7510,6 +8505,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10601,
         "source": 'normal',
+        "name": 'A Tour of the Caverns',
+        "dbg_name": '溶岩洞の採集ツアー（上位）',
         "quest_type": QuestType.TOUR,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7525,6 +8522,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10602,
         "source": 'normal',
+        "name": 'A Bewitching Dance',
+        "dbg_name": 'タマミツネの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7540,6 +8539,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10603,
         "source": 'normal',
+        "name": 'Serpent God of Wind',
+        "dbg_name": 'イブシマキヒコの狩猟（百竜）',
         "quest_type": QuestType.HYAKURYU,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7555,6 +8556,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10604,
         "source": 'normal',
+        "name": 'Skies Flash, Clouds Boom',
+        "dbg_name": 'ジンオウガの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7570,6 +8573,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10605,
         "source": 'normal',
+        "name": 'A Somniferous Elegy',
+        "dbg_name": 'イソネミクニの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7585,6 +8590,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10606,
         "source": 'normal',
+        "name": 'Sharpening Amber Fangs',
+        "dbg_name": 'ベリオロスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7600,6 +8607,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10607,
         "source": 'normal',
+        "name": 'Skies are Gray',
+        "dbg_name": 'トビカガチの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7615,6 +8624,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10608,
         "source": 'normal',
+        "name": 'Closer Than it Appears',
+        "dbg_name": 'アンジャナフの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7630,6 +8641,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10609,
         "source": 'normal',
+        "name": 'The Abyss Stares Back',
+        "dbg_name": 'ナルガクルガの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7645,6 +8658,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10610,
         "source": 'normal',
+        "name": 'Red Skies at Night',
+        "dbg_name": 'リオレウスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7660,6 +8675,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10611,
         "source": 'normal',
+        "name": 'Do It for the Dango!',
+        "dbg_name": 'NPC依頼：ジュラトドス×ナルガの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7675,6 +8692,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10612,
         "source": 'normal',
+        "name": 'Learn the Long Sword',
+        "dbg_name": 'NPC依頼：ジンオウガ×タマミツネの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7690,6 +8709,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10613,
         "source": 'normal',
+        "name": 'Dissect the Dual Blades',
+        "dbg_name": 'NPC依頼：アンジャナフ×リオレイアの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7705,6 +8726,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10614,
         "source": 'normal',
+        "name": 'Grasp the Gunlance',
+        "dbg_name": 'NPC依頼：ベリオロスの捕獲',
         "quest_type": QuestType.CAPTURE,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7720,6 +8743,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10615,
         "source": 'normal',
+        "name": 'Invoke the Insect Glaive',
+        "dbg_name": 'NPC依頼：イソネミクニ×アケノシルムの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7735,6 +8760,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10616,
         "source": 'normal',
+        "name": 'Be One with the Bow',
+        "dbg_name": 'NPC依頼：トビカガチ２頭の狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7750,6 +8777,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10617,
         "source": 'normal',
+        "name": 'The Lava Caverns Sweep',
+        "dbg_name": 'ウロコトルまたはツケヒバキ計10頭の討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7765,6 +8794,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10618,
         "source": 'normal',
+        "name": 'Showdown in the Arena',
+        "dbg_name": '大連続 アンジャ→ミツネ→ジンオウガ',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -7780,6 +8811,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10701,
         "source": 'normal',
+        "name": "Can't Kill It with Fire",
+        "dbg_name": 'ヤツカダキの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -7795,6 +8828,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10702,
         "source": 'normal',
+        "name": 'Serpent Goddess of Thunder',
+        "dbg_name": 'ナルハタタヒメの討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -7810,6 +8845,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10703,
         "source": 'normal',
+        "name": 'Ancient Illusion',
+        "dbg_name": 'オオナズチの討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -7825,6 +8862,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10704,
         "source": 'normal',
+        "name": 'The Steely Storm',
+        "dbg_name": 'クシャルダオラの討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -7840,6 +8879,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10705,
         "source": 'normal',
+        "name": 'The Emperor of Flame',
+        "dbg_name": 'テオ・テスカトルの討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -7855,6 +8896,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10706,
         "source": 'normal',
+        "name": 'The Allmother',
+        "dbg_name": 'イブシ×ナルハタの討伐',
         "quest_type": QuestType.SPECIAL,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -7870,6 +8913,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10707,
         "source": 'normal',
+        "name": 'The Crimson Glow',
+        "dbg_name": 'Ｓバルファルクの狩猟（初回用）',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -7885,6 +8930,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10708,
         "source": 'normal',
+        "name": "It's Gonna Get You!",
+        "dbg_name": 'ゴシャハギの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -7900,6 +8947,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10709,
         "source": 'normal',
+        "name": 'Clad in Hellfire',
+        "dbg_name": 'マガイマガドの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -7915,6 +8964,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10710,
         "source": 'normal',
+        "name": 'A Muddy Invitation',
+        "dbg_name": 'オロミドロの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -7930,6 +8981,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10711,
         "source": 'normal',
+        "name": 'Subterranean Disturbances',
+        "dbg_name": 'ディアブロスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -7945,6 +8998,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10712,
         "source": 'normal',
+        "name": 'A Resounding Roar',
+        "dbg_name": 'ティガレックスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -7960,6 +9015,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10713,
         "source": 'normal',
+        "name": 'Evil Afoot',
+        "dbg_name": 'ラージャンの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -7975,6 +9032,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10714,
         "source": 'normal',
+        "name": 'Seared Situation',
+        "dbg_name": 'マガイマガド×リオレウスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -7990,6 +9049,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10715,
         "source": 'normal',
+        "name": 'Ruckus in the Ruins',
+        "dbg_name": 'オロミドロ×タマミツネの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -8005,6 +9066,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10716,
         "source": 'normal',
+        "name": 'A Frosty Stalemate',
+        "dbg_name": 'ゴシャハギ×ヨツミの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -8020,6 +9083,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10717,
         "source": 'normal',
+        "name": 'Fought, Failed, Fired Up',
+        "dbg_name": 'ディア×ジャナフの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -8035,6 +9100,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10718,
         "source": 'normal',
+        "name": 'Occupational Hazards',
+        "dbg_name": 'ラージャン×ジンオウガの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -8050,6 +9117,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10719,
         "source": 'normal',
+        "name": 'Omnidirectional Threats',
+        "dbg_name": 'ヤツカダキ×フルフルの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -8065,6 +9134,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10720,
         "source": 'normal',
+        "name": 'A Whirlwind of a Stage',
+        "dbg_name": '大連続 カガチ×ナルガ→ティガ',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -8080,6 +9151,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10721,
         "source": 'normal',
+        "name": 'A Quartet of Horns',
+        "dbg_name": 'ディアブロス２頭の狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -8095,6 +9168,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10722,
         "source": 'normal',
+        "name": 'A Blaze Among Beasts',
+        "dbg_name": '大連続 レイア→ティガ→ヤツガタキ',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8110,6 +9185,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10723,
         "source": 'normal',
+        "name": 'May Fire Quell Fury',
+        "dbg_name": 'ラージャンの捕獲',
         "quest_type": QuestType.CAPTURE,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8125,6 +9202,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10725,
         "source": 'normal',
+        "name": 'The Evil Star from Beyond',
+        "dbg_name": 'Ｓバルファルクの狩猟',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8140,6 +9219,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10726,
         "source": 'normal',
+        "name": 'The Evil Star from Beyond',
+        "dbg_name": 'Ｓバルファルクの狩猟',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8155,6 +9236,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10727,
         "source": 'normal',
+        "name": 'The Evil Star from Beyond',
+        "dbg_name": 'Ｓバルファルクの狩猟',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8170,6 +9253,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10728,
         "source": 'normal',
+        "name": 'The Evil Star from Beyond',
+        "dbg_name": 'Ｓバルファルクの狩猟',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8185,6 +9270,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10729,
         "source": 'normal',
+        "name": 'Death From Above',
+        "dbg_name": 'バゼルギウスの狩猟（初回用）',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8200,6 +9287,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10730,
         "source": 'normal',
+        "name": 'Return of the Bazelgeuse',
+        "dbg_name": 'バゼルギウスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8215,6 +9304,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10731,
         "source": 'normal',
+        "name": 'Return of the Bazelgeuse',
+        "dbg_name": 'バゼルギウスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8230,6 +9321,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10733,
         "source": 'normal',
+        "name": 'Return of the Bazelgeuse',
+        "dbg_name": 'バゼルギウスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8245,6 +9338,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10734,
         "source": 'normal',
+        "name": 'Return of the Bazelgeuse',
+        "dbg_name": 'バゼルギウスの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8260,6 +9355,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10735,
         "source": 'normal',
+        "name": 'The Avaricious Apex Arzuros',
+        "dbg_name": 'ヌシ_アシラの討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8275,6 +9372,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10736,
         "source": 'normal',
+        "name": 'The Graceful Apex Rathian',
+        "dbg_name": 'ヌシ_リオレイアの討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8290,6 +9389,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10737,
         "source": 'normal',
+        "name": 'The Harlequin Apex Mizutsune',
+        "dbg_name": 'ヌシ_タマミツネの討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8305,6 +9406,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10738,
         "source": 'normal',
+        "name": 'The Fearsome Apex Rathalos',
+        "dbg_name": 'ヌシ_リオレウスの討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8320,6 +9423,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10739,
         "source": 'normal',
+        "name": 'The Devastating Apex Diablos',
+        "dbg_name": 'ヌシ_ディアブロスの討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8335,6 +9440,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10740,
         "source": 'normal',
+        "name": 'The Voltaic Apex Zinogre',
+        "dbg_name": 'ヌシ_ジンオウガの討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8350,6 +9457,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10741,
         "source": 'normal',
+        "name": 'Advanced: Dual Calamities',
+        "dbg_name": '高難度 マガド×バゼルの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8365,6 +9474,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10742,
         "source": 'normal',
+        "name": 'Advanced: Monsters in Ink',
+        "dbg_name": '高難度 ゴシャハギ×ティガ×ミツネの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8380,6 +9491,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10743,
         "source": 'normal',
+        "name": 'Advanced: Of Storm and Fire',
+        "dbg_name": '高難度 クシャル×テオの討伐',
         "quest_type": QuestType.KILL,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8395,6 +9508,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10744,
         "source": 'normal',
+        "name": 'Advanced: Scaredy-Cat',
+        "dbg_name": '高難度 ナズチ×ラージャンの討伐',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8410,6 +9525,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10745,
         "source": 'normal',
+        "name": 'Advanced: The Fallen Comet',
+        "dbg_name": '高難度 Sバルファルク×ヤツカダキの狩猟',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8425,6 +9542,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10746,
         "source": 'normal',
+        "name": 'Advanced: Proof of Power',
+        "dbg_name": '高難度 大連続 ディア×レウス→マガドの狩猟',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8440,6 +9559,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10747,
         "source": 'normal',
+        "name": 'Advanced: Those Crowned Apex',
+        "dbg_name": '大連続 ヌシミツネ→ヌシレウス→ヌシジンオウガの討伐',
         "quest_type": QuestType.BOSSRUSH,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8455,6 +9576,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10748,
         "source": 'normal',
+        "name": "Master Utsushi's Challenge Part 1",
+        "dbg_name": 'TU1補填クエスト\u3000２頭同時狩猟クエ\r\n\t\t\t\tオロミドロ×ジンオウガ',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8470,6 +9593,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10749,
         "source": 'normal',
+        "name": "Master Utsushi's Challenge Part 2",
+        "dbg_name": 'TU1補填クエスト\u3000２頭同時狩猟クエ\r\n\t\t\t\tゴシャ×ラージャン',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8485,6 +9610,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10750,
         "source": 'normal',
+        "name": "Master Utsushi's Challenge Part 3",
+        "dbg_name": 'TU1補填クエスト\u3000２頭同時狩猟クエ\r\n\t\t\t\tマガイマガド×ナルガクルガ',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8500,6 +9627,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10751,
         "source": 'normal',
+        "name": "Master Utsushi's Challenge Part 4",
+        "dbg_name": 'TU2補填クエスト\u3000２頭同時狩猟クエ\r\n\t\t\t\tティガレックス×アンジャナフ',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8515,6 +9644,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 10752,
         "source": 'normal',
+        "name": "Master Utsushi's Challenge Part 5",
+        "dbg_name": 'TU2補填クエスト\u3000２頭同時狩猟クエ\r\n\t\t\t\tヤツカダギ×リオレウス',
         "quest_type": QuestType.HUNTING,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8530,6 +9661,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 20101,
         "source": 'normal',
+        "name": 'Arena 01',
+        "dbg_name": '闘技大会01',
         "quest_type": QuestType.ARENA,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Low,
@@ -8545,6 +9678,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 20201,
         "source": 'normal',
+        "name": 'Arena 02',
+        "dbg_name": '闘技大会02',
         "quest_type": QuestType.ARENA,
         "quest_level": QuestLevel.QL2,
         "enemy_level": EnemyLv.Low,
@@ -8560,6 +9695,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 20301,
         "source": 'normal',
+        "name": 'Arena 03',
+        "dbg_name": '闘技大会03',
         "quest_type": QuestType.ARENA,
         "quest_level": QuestLevel.QL3,
         "enemy_level": EnemyLv.Low,
@@ -8575,6 +9712,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 20601,
         "source": 'normal',
+        "name": 'Arena 04',
+        "dbg_name": '闘技大会04',
         "quest_type": QuestType.ARENA,
         "quest_level": QuestLevel.QL6,
         "enemy_level": EnemyLv.High,
@@ -8590,6 +9729,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 20701,
         "source": 'normal',
+        "name": 'Arena 05',
+        "dbg_name": '闘技大会05',
         "quest_type": QuestType.ARENA,
         "quest_level": QuestLevel.QL7,
         "enemy_level": EnemyLv.High,
@@ -8605,6 +9746,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 20702,
         "source": 'normal',
+        "name": 'Arena 06',
+        "dbg_name": '闘技大会06',
         "quest_type": QuestType.ARENA,
         "quest_level": QuestLevel.QL7EX,
         "enemy_level": EnemyLv.High,
@@ -8620,6 +9763,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 30101,
         "source": 'normal',
+        "name": 'Back to Basics',
+        "dbg_name": '里・初回訓練クエスト',
         "quest_type": QuestType.TRAINING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Village,
@@ -8635,6 +9780,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 30102,
         "source": 'normal',
+        "name": 'Learning to Ride',
+        "dbg_name": '訓練クエスト（操竜）',
         "quest_type": QuestType.TRAINING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Village,
@@ -8650,6 +9797,8 @@ QUESTS: tuple[dict[str, Any], ...] = (
     {
         "quest_no": 30103,
         "source": 'normal',
+        "name": 'The Basics of Capturing Monsters',
+        "dbg_name": '訓練クエスト（捕獲）',
         "quest_type": QuestType.TRAINING,
         "quest_level": QuestLevel.QL1,
         "enemy_level": EnemyLv.Village,
