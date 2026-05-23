@@ -27,9 +27,8 @@ Lookups.em_type_to_item_name = {}
 -- (see Lookups.em_type_to_item_name above). JSON delivery naturally
 -- arrives string-keyed so this is just pass-through.
 Lookups.quest_swaps = {}     -- "quest_no" -> em_type (int)
-Lookups.quest_unlocks = {}   -- "quest_no" -> "Unlock: <name>" item name
 Lookups.quest_names = {}     -- "quest_no" -> display name
-Lookups.starting_quest = nil -- int (quest_no)
+Lookups.quest_locations = {} -- "quest_no" -> 1 (set membership)
 Lookups.goal_quest = nil     -- int (quest_no)
 
 function Lookups.Reset()
@@ -40,9 +39,8 @@ function Lookups.Reset()
     Lookups.item_name_to_em_type = {}
     Lookups.em_type_to_item_name = {}
     Lookups.quest_swaps = {}
-    Lookups.quest_unlocks = {}
     Lookups.quest_names = {}
-    Lookups.starting_quest = nil
+    Lookups.quest_locations = {}
     Lookups.goal_quest = nil
     -- Reset Weapons cache too — kept on the Weapons module rather than
     -- here so Lookups stays monster-focused, but cleared in lockstep.
@@ -69,9 +67,9 @@ end
 --
 -- QuestRando:
 --   quest_swaps:                {[quest_no_str]: em_type}
---   quest_unlocks:              {[quest_no_str]: "Unlock: <name>"}
 --   quest_names:                {[quest_no_str]: display name}
---   starting_quest:             int (quest_no)
+--   quest_locations:            {[quest_no_str]: 1}  (set membership —
+--                               quests that send AP Clear checks)
 --   goal_quest:                 int (quest_no)
 function Lookups.Load(slot_data)
     Lookups.Reset()
@@ -83,10 +81,10 @@ function Lookups.Load(slot_data)
     if mode == "quest_rando" then
         Lookups.mode = "quest_rando"
         local swaps = slot_data.quest_swaps
-        local unlocks = slot_data.quest_unlocks
+        local locations = slot_data.quest_locations
         local names = slot_data.quest_names
-        if type(swaps) ~= "table" or type(unlocks) ~= "table" then
-            return false, "quest_swaps / quest_unlocks missing"
+        if type(swaps) ~= "table" or type(locations) ~= "table" then
+            return false, "quest_swaps / quest_locations missing"
         end
         for k, v in pairs(swaps) do
             local em = type(v) == "number" and v or tonumber(v)
@@ -94,15 +92,14 @@ function Lookups.Load(slot_data)
                 Lookups.quest_swaps[tostring(k)] = em
             end
         end
-        for k, v in pairs(unlocks) do
-            Lookups.quest_unlocks[tostring(k)] = v
+        for k, _ in pairs(locations) do
+            Lookups.quest_locations[tostring(k)] = 1
         end
         if type(names) == "table" then
             for k, v in pairs(names) do
                 Lookups.quest_names[tostring(k)] = v
             end
         end
-        Lookups.starting_quest = tonumber(slot_data.starting_quest)
         Lookups.goal_quest = tonumber(slot_data.goal_quest)
 
         Lookups.connected = true

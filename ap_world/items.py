@@ -3,23 +3,22 @@
 Spans two modes (see options.py:Mode):
 - HuntAThon: one license item per curated monster. Hunting the monster
   sends checks; license soft-gates.
-- QuestRando: one "Unlock: <quest>" item per village quest (except the
-  goal). Hard-gates the village questboard.
+- QuestRando (swap-only design): no per-quest items in v1. The itempool
+  is filled with Poogie filler. Vanilla engine progression drives
+  village questboard visibility; AP randomization is purely the
+  boss-monster swap per village quest. Future work may layer rarity
+  licenses / crafting-material items here.
 
 IDs are static and known at module import time so the AP datapackage is
-stable across seeds AND across option/mode choices. A quest-unlock item
-has the same ID whether the seed uses QuestRando or HuntAThon.
+stable across seeds AND across option/mode choices.
 
 ID layout:
 - 1..N: monster license items. Order is `MONSTERS + APEX_MONSTERS +
        SMALL_MONSTERS`, so existing IDs are preserved if a future option
        merges Apex or Small into the active pool. event_id=0 -> id=1 to
        keep us off the AP-reserved id 0 sentinel.
-- 2000..2999: per-village-quest unlock items. One per `EnemyLv.Village`
-       entry in QUESTS, indexed by position in the village list (which
-       is itself stable: order in `data/quests.py`). Used only by
-       QuestRando mode but reserved unconditionally so HuntAThon doesn't
-       shift them.
+- 2000..2999: **RESERVED for future QuestRando item layers** (e.g.
+       rarity licenses, crafting-material AP items). Not used in v1.
 - 9001: Victory (delivered when the goal monster is hunted in HuntAThon
        or when Comeuppance clears in QuestRando).
 - 9100..9113: weapon license items (14 contiguous, indexed by WEAPONS
@@ -27,11 +26,6 @@ ID layout:
        don't collide with the monster range or the future Apex/Small
        reservations.
 - 9999: Poogie (filler).
-
-Names are slot-logical:
-- monster licenses: `f"{monster.name} License"`
-- quest unlocks: `f"Unlock: {quest.name}"` (falls back to `dbg_name` when
-  `name is None`).
 
 The Lua client receives the EmType / quest-id maps via slot_data on
 connect, so it never needs to read the master tables from disk.
@@ -57,7 +51,8 @@ if TYPE_CHECKING:
 # datapackage for existing seeds.
 ALL_CURATED_MONSTERS: tuple[dict, ...] = MONSTERS + APEX_MONSTERS + SMALL_MONSTERS
 
-# Village quests in declaration order. Stable for ID assignment.
+# Village quests in declaration order. Stable for downstream consumers
+# (locations.py builds Clear locations from this).
 VILLAGE_QUESTS: tuple[dict, ...] = tuple(
     q for q in QUESTS if q["enemy_level"] == EnemyLv.Village
 )
@@ -69,7 +64,6 @@ COMEUPPANCE_QUEST_NO = 501
 
 FILLER_ITEM_NAME = "Poogie"
 
-QUEST_UNLOCK_ID_BASE = 2000
 WEAPON_LICENSE_ID_BASE = 9100
 
 
@@ -80,11 +74,6 @@ def quest_display_name(quest: dict) -> str:
     return quest["name"] if quest["name"] is not None else quest["dbg_name"]
 
 
-def quest_unlock_item_name(quest: dict) -> str:
-    """AP item name for a village quest's unlock token."""
-    return f"Unlock: {quest_display_name(quest)}"
-
-
 ITEM_NAME_TO_ID: dict[str, int] = {}
 
 for _i, _monster in enumerate(ALL_CURATED_MONSTERS):
@@ -92,13 +81,6 @@ for _i, _monster in enumerate(ALL_CURATED_MONSTERS):
     assert _id != 0, "AP reserves item id 0 as invalid"
     _name = f"{_monster['name']} License"
     assert _name not in ITEM_NAME_TO_ID, f"duplicate license name {_name}"
-    ITEM_NAME_TO_ID[_name] = _id
-
-for _i, _quest in enumerate(VILLAGE_QUESTS):
-    _id = QUEST_UNLOCK_ID_BASE + _i
-    assert _id < 9000, "village quest count overflowed reserved range"
-    _name = quest_unlock_item_name(_quest)
-    assert _name not in ITEM_NAME_TO_ID, f"duplicate unlock name {_name}"
     ITEM_NAME_TO_ID[_name] = _id
 
 ITEM_NAME_TO_ID["Victory"] = 9001
@@ -125,7 +107,6 @@ class MHRiseItem(Item):
 
 
 _WEAPON_LICENSE_NAMES = frozenset(weapon_license_item_name(w) for w in WEAPONS)
-_QUEST_UNLOCK_NAMES = frozenset(quest_unlock_item_name(q) for q in VILLAGE_QUESTS)
 
 
 def create_item_with_correct_classification(world: MHRiseWorld, name: str) -> MHRiseItem:
@@ -144,13 +125,6 @@ def create_item_with_correct_classification(world: MHRiseWorld, name: str) -> MH
         # HuntAThon: the goal monster's license gates Victory. Same
         # skip-balancing logic as Victory itself.
         classification = ItemClassification.progression_skip_balancing
-    elif (
-        world.options.mode.value == Mode.option_quest_rando
-        and getattr(world, "goal_quest", None) is not None
-        and name == quest_unlock_item_name(world.goal_quest)
-    ):
-        # QuestRando: the goal quest's unlock gates Victory.
-        classification = ItemClassification.progression_skip_balancing
     elif name in _WEAPON_LICENSE_NAMES:
         # Weapon licenses are soft-gated client-side only (no apworld
         # rules reference them). Marking them progression makes fill
@@ -159,12 +133,6 @@ def create_item_with_correct_classification(world: MHRiseWorld, name: str) -> MH
         # produces FillError. `useful` keeps them prioritized for
         # placement without entering the progression-balancing math.
         classification = ItemClassification.useful
-    elif name in _QUEST_UNLOCK_NAMES:
-        # Quest unlocks are real apworld-level gates (unlike weapon
-        # licenses) — they restrict access to the Clear: <quest>
-        # locations. Classify as progression so fill respects the
-        # topology.
-        classification = ItemClassification.progression
     else:
         # Monster licenses are progression — each one gates the player's
         # access to its monster's hunt locations.
@@ -288,45 +256,25 @@ def _create_items_huntathon(world: MHRiseWorld) -> None:
 
 
 def _create_items_questrando(world: MHRiseWorld) -> None:
-    """Build the QuestRando item pool.
+    """Build the QuestRando item pool (swap-only design).
 
     Topology:
     - V village quests in `world.quest_pool` → V `Clear: <name>` locations.
     - Goal quest's Clear location is locked with Victory by
       `place_victory` → V-1 unfilled locations to fill.
-    - V `Unlock: <quest>` items created, including the goal unlock
-      (gates Comeuppance's Clear).
-    - Starter quest's unlock is precollected (handed to the player at
-      game start; does not consume an itempool slot).
-    - Remaining V-1 unlocks go into the itempool, exactly matching
-      V-1 unfilled locations.
+    - No `Unlock:` items, no progression layer in v1. Every unfilled
+      location gets a Poogie filler.
 
-    Zero spare slots, no Poogie filler in this mode. The goal Clear
-    location is marked EXCLUDED in locations.py for safety (AP fill
-    shouldn't strand progression items at the goal), but it has
-    Victory locked in place already so excluded-fill never runs there.
+    Vanilla engine progression drives village questboard visibility
+    (the player clears each tier's urgent to advance). AP
+    randomization is purely the boss-monster swap per village quest,
+    applied client-side at `initQuestDataDictionary` post-hook.
     """
     place_victory(world)
 
-    starter_quest_no = world.starting_quest_no
-
-    itempool: list[Item] = []
-    precollected: list[MHRiseItem] = []
-
-    for quest in world.quest_pool:
-        name = quest_unlock_item_name(quest)
-        item = create_item_with_correct_classification(world, name)
-        if quest["quest_no"] == starter_quest_no:
-            precollected.append(item)
-        else:
-            itempool.append(item)
-
     unfilled = len(world.multiworld.get_unfilled_locations(world.player))
-    assert unfilled == len(itempool), (
-        f"QuestRando itempool/location mismatch: "
-        f"unfilled={unfilled} pool={len(itempool)}"
-    )
-
+    itempool: list[Item] = [
+        create_item_with_correct_classification(world, FILLER_ITEM_NAME)
+        for _ in range(unfilled)
+    ]
     world.multiworld.itempool += itempool
-    for item in precollected:
-        world.push_precollected(item)

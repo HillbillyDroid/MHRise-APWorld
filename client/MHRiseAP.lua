@@ -18,7 +18,7 @@ local Tracker = require("AP_CLIENT/Tracker")
 -- connect against slot_data.world_version; mismatch surfaces a chat
 -- warning. Keep in sync with ap_world/archipelago.json's world_version
 -- (the release workflow's drift guard fails the build if they diverge).
-local APWORLD_VERSION = "0.0.4"
+local APWORLD_VERSION = "0.1.0"
 
 local function log_info(msg) log.info("[MHRiseAP] " .. msg) end
 
@@ -89,13 +89,11 @@ AP_REF.on_slot_connected = function(slot_data)
     if Lookups.mode == "quest_rando" then
         local n_swaps = 0
         for _ in pairs(Lookups.quest_swaps) do n_swaps = n_swaps + 1 end
-        local starter_name = Lookups.quest_names[tostring(Lookups.starting_quest)]
-            or tostring(Lookups.starting_quest)
         local goal_name = Lookups.quest_names[tostring(Lookups.goal_quest)]
             or tostring(Lookups.goal_quest)
         send_chat(string.format(
-            "[AP] Quest Randomizer mode — %d quests randomized. Starter: %s. Goal: %s.",
-            n_swaps, starter_name, goal_name))
+            "[AP] Quest Randomizer mode — %d quests randomized. Goal: %s.",
+            n_swaps, goal_name))
         Quests.InstallHooks()
     elseif Weapons.enabled and Weapons.starting_weapon then
         send_chat(string.format("[AP] Connected. Starter: %s. Goal: %s. Weapon: %s.",

@@ -1,36 +1,29 @@
--- Quest randomizer mode. Three hooks:
+-- Quest randomizer mode (swap-only design). Two hooks:
 --
 -- 1. snow.QuestManager.initQuestDataDictionary (post): walk
 --    Lookups.quest_swaps and mutate each affected QuestData's
 --    _BossEmType[0] / _TgtEmType[0] via array:call("Set", 0, em_type)
 --    (RiseQuestLoader idiom validated by Probe 3).
--- 2. snow.progress.quest.ProgressQuestManager.checkUnlockCondition
---    (pre+post): rewrite the bool return per the AP unlock state so
---    locked quests disappear from the village board.
--- 3. snow.QuestManager.setQuestClear (no args, post): on a successful
---    clear, send the matching `Clear: <name>` location to AP.
+-- 2. snow.QuestManager.setQuestClear (no args, pre): on a successful
+--    clear, send the matching `Clear: <name>` location to AP if the
+--    quest is in Lookups.quest_locations (the seed's village quest
+--    set). Hub / event / rampage clears fire the same hook but are
+--    silently dropped.
 --
--- All three are gated on Lookups.mode == "quest_rando".
---
--- See QUEST.md "Stage 1 spike — *" sections for the per-hook research
--- and QUEST_PLAN.md "Stage 2" for the integration plan.
+-- Vanilla engine progression drives village questboard visibility —
+-- this client doesn't try to gate per-quest visibility on AP items.
+-- See QUEST.md "Research: village quest visibility" for why the
+-- hard-gate approach was abandoned.
 local Quests = {}
 
 local Lookups = require("AP_CLIENT/Lookups")
-local Items = require("AP_CLIENT/Items")
 local Session = require("AP_CLIENT/Session")
 local Tracker = require("AP_CLIENT/Tracker")
 
 Quests.hooks_installed = false
 Quests.swaps_applied = false
 Quests.swap_attempts = 0
-Quests.last_swap_log = {}  -- recent (qn, em) entries, capped
-Quests.completion_log = {} -- recent cleared quest_nos, capped
-
--- checkUnlockCondition pre-hook captures the queried quest_no into
--- this slot; post-hook reads it. Same single-threaded UI path Probe 2b
--- used. Reset on each pre fire.
-local last_check_unlock_qn = nil
+Quests.last_swap_log = {}
 
 local function send_chat(text)
     local chatman = sdk.get_managed_singleton("snow.gui.ChatManager")
@@ -39,12 +32,9 @@ local function send_chat(text)
 end
 
 -- ---------------------------------------------------------------
--- Helpers
+-- Quest catalog walkers
 -- ---------------------------------------------------------------
 
--- Walk a NormalQuestData/Kohaku _Param array on QuestManager, calling
--- visitor(elem, quest_no) for every element. Stops early if visitor
--- returns true.
 local function visit_param_array(field_name, visitor)
     local qm = sdk.get_managed_singleton("snow.QuestManager")
     if not qm then return false end
@@ -82,26 +72,16 @@ local function apply_swap_to_param(param, em_type, quest_no)
     local ok_boss = pcall(function() boss:call("Set", 0, em_type) end)
     local ok_tgt = pcall(function() tgt:call("Set", 0, em_type) end)
     if not ok_boss or not ok_tgt then
-        -- Fallback to direct dword write (legacy path; Probe 3 noted
-        -- this isn't needed on current builds but keep as belt-and-
-        -- suspenders).
         pcall(function() boss:write_dword(0x20, em_type) end)
         pcall(function() tgt:write_dword(0x20, em_type) end)
     end
     return true
 end
 
--- Apply every (quest_no, em_type) in Lookups.quest_swaps to the
--- in-memory QuestData entries. Walks the normal catalog first
--- (base + HR), then Kohaku (MR) so quests from either source are
--- reachable.
 function Quests.ApplySwaps()
     if Lookups.mode ~= "quest_rando" then return 0 end
     Quests.swap_attempts = Quests.swap_attempts + 1
 
-    -- Build a lookup of quest_no -> em_type. quest_swaps is keyed by
-    -- string in slot_data; coerce keys to numbers once here so the
-    -- in-game _QuestNo number lookups land directly.
     local pending = {}
     local total = 0
     for qn_str, em in pairs(Lookups.quest_swaps or {}) do
@@ -143,10 +123,6 @@ function Quests.ApplySwaps()
     return applied
 end
 
--- Convenience for the catch-up flow: if the QuestManager singleton is
--- already initialized when we receive slot_data (typical case — slot
--- connect happens after the player has loaded a save), apply swaps
--- immediately instead of waiting for initQuestDataDictionary to refire.
 function Quests.ApplySwapsIfReady()
     local qm = sdk.get_managed_singleton("snow.QuestManager")
     if not qm then return end
@@ -154,13 +130,9 @@ function Quests.ApplySwapsIfReady()
 end
 
 -- ---------------------------------------------------------------
--- Completion -> AP location send
+-- Clear -> AP location send
 -- ---------------------------------------------------------------
 
--- Returns the current active quest's quest_no (the catalog _QuestNo
--- the slot_data quest_swaps and quest_unlocks tables are keyed by).
--- Probe 1b validated this matches the catalog. Returns nil if no
--- active quest.
 local function get_active_quest_no()
     local qm = sdk.get_managed_singleton("snow.QuestManager")
     if not qm then return nil end
@@ -175,8 +147,6 @@ end
 
 local function on_quest_cleared()
     if Lookups.mode ~= "quest_rando" then return end
-    -- Solo gate, same defensive check as Monsters.lua. Village quests
-    -- are solo by design so this should almost always be true.
     local solo, count = Session.IsSolo()
     if not solo then
         log.info(string.format(
@@ -191,15 +161,15 @@ local function on_quest_cleared()
         return
     end
 
-    -- Only quests in the seed have a Clear: <name> location. Hub /
-    -- rampage / event quests fire the same hook but aren't in
-    -- slot_data — silently drop.
-    local unlock_name = Lookups.quest_unlocks[tostring(qn)]
-    if not unlock_name then
+    -- Only quests in Lookups.quest_locations have a Clear: location
+    -- on the AP server. Hub / rampage / event / quest_no=0 fire the
+    -- same hook — silently drop.
+    if not Lookups.quest_locations[tostring(qn)] then
         log.info(string.format(
             "[Quests] cleared qn=%d not in seed — skipping", qn))
         return
     end
+
     local quest_display_name = Lookups.quest_names[tostring(qn)] or tostring(qn)
     local loc_name = "Clear: " .. quest_display_name
 
@@ -216,7 +186,6 @@ local function on_quest_cleared()
     local ok = AP_REF.APClient:LocationChecks({loc_id})
     if ok then
         Tracker.MarkQuestCleared(qn)
-        Quests.completion_log[#Quests.completion_log + 1] = qn
         send_chat(string.format("[AP] Sent check: Clear %s", quest_display_name))
         log.info(string.format(
             "[Quests] sent clear check for qn=%d (%s) id=%d",
@@ -251,45 +220,6 @@ local function install_init_dict_hook()
     return true
 end
 
-local function install_check_unlock_hook()
-    local td = sdk.find_type_definition("snow.progress.quest.ProgressQuestManager")
-    if not td then return false, "ProgressQuestManager type not found" end
-    local method = td:get_method("checkUnlockCondition(snow.quest.QuestNo)")
-    if not method then return false, "checkUnlockCondition not found" end
-    local ok, err = pcall(function()
-        sdk.hook(method,
-            function(args)
-                -- args[1]=this, args[2]=quest_no enum (i32-backed).
-                -- Coerce to Lua int IN the pre — the raw pointer
-                -- isn't safe across function return.
-                local qn = nil
-                pcall(function() qn = sdk.to_int64(args[3]) end)
-                last_check_unlock_qn = qn
-            end,
-            function(retval)
-                local qn = last_check_unlock_qn
-                if qn == nil or Lookups.mode ~= "quest_rando" then
-                    return retval
-                end
-                local unlock_name = Lookups.quest_unlocks[tostring(qn)]
-                if unlock_name == nil then
-                    -- Not in seed — let the engine answer normally.
-                    return retval
-                end
-                -- In-seed quest: visibility = unlock-item held OR
-                -- this is the precollected starter quest.
-                local held = Items.Has(unlock_name)
-                local is_starter = (qn == Lookups.starting_quest)
-                if held or is_starter then
-                    return sdk.to_ptr(1)
-                end
-                return sdk.to_ptr(0)
-            end)
-    end)
-    if not ok then return false, tostring(err) end
-    return true
-end
-
 local function install_completion_hook()
     local td = sdk.find_type_definition("snow.QuestManager")
     if not td then return false, "QuestManager type not found" end
@@ -316,21 +246,16 @@ function Quests.InstallHooks()
     log.info("[Quests] initQuestDataDictionary hook: " ..
         (ok1 and "ok" or ("fail — " .. tostring(err1))))
 
-    local ok2, err2 = install_check_unlock_hook()
-    log.info("[Quests] checkUnlockCondition hook: " ..
+    local ok2, err2 = install_completion_hook()
+    log.info("[Quests] setQuestClear hook: " ..
         (ok2 and "ok" or ("fail — " .. tostring(err2))))
 
-    local ok3, err3 = install_completion_hook()
-    log.info("[Quests] setQuestClear hook: " ..
-        (ok3 and "ok" or ("fail — " .. tostring(err3))))
+    Quests.hooks_installed = ok1 and ok2
 
-    Quests.hooks_installed = ok1 and ok2 and ok3
-
-    -- If the player is already in-game when slot connects (typical
-    -- flow — connect happens after save load), the
+    -- If the player is already in-game when slot connects, the
     -- initQuestDataDictionary hook won't fire again at load. Apply
-    -- swaps immediately so the player doesn't need to title-screen
-    -- back out.
+    -- swaps immediately so the player doesn't need a title-screen
+    -- bounce.
     Quests.ApplySwapsIfReady()
 end
 

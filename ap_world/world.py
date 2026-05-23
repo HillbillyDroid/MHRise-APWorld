@@ -16,8 +16,8 @@ from worlds.AutoWorld import World
 
 from . import items, locations, regions, rules
 from . import options as mhrise_options  # rename due to a name conflict with World.options
-from .data.monsters import MONSTERS
-from .data.quests import EnemyLv, QuestLevel, QUESTS
+from .data.monsters import MONSTERS, SUNBREAK_MONSTERS
+from .data.quests import EnemyLv, QuestType, QUESTS
 from .data.weapons import WEAPONS
 from .options import Mode
 from .web_world import MHRiseWebWorld
@@ -84,18 +84,18 @@ class MHRiseWorld(World):
     seed_monsters: list[dict]
 
     # Populated by generate_early (QuestRando only).
-    # quest_pool: village quests with a randomizable boss + the goal
-    # quest. Source of truth for "is this quest part of the seed?"
-    # downstream of generate_early.
+    # quest_pool: every EnemyLv.Village quest with a real boss (the
+    # universe of locations sent on clear). Source of truth for "is
+    # this quest part of the seed?" downstream of generate_early.
     quest_pool: list[dict]
-    # The goal quest (Comeuppance, quest_no=501). Boss NOT swapped.
+    # The goal quest (Comeuppance, quest_no=501). Boss NOT swapped;
+    # its Clear location is locked with Victory.
     goal_quest: dict
-    # Precollected starter quest's quest_no (so the player has at least
-    # one village quest available from t=0).
-    starting_quest_no: int
     # quest_no -> new boss em_type. The Lua client applies these by
     # mutating QuestData._BossEmType[0] / _TgtEmType[0] on the
-    # initQuestDataDictionary post-hook (Probe 3 idiom).
+    # initQuestDataDictionary post-hook (Probe 3 idiom). Training
+    # quests and the goal quest are NOT in this map (vanilla bosses
+    # preserved).
     quest_swaps: dict[int, int]
 
     def generate_early(self) -> None:
@@ -166,31 +166,46 @@ class MHRiseWorld(World):
             self.starting_weapon = self.random.choice(self.weapon_pool)
 
     def _generate_early_questrando(self) -> None:
-        """QuestRando mode setup.
+        """QuestRando mode (swap-only design).
 
-        - Quest pool: every `EnemyLv.Village` quest with a randomizable
-          large monster (`monster_bucket == "monster"`), plus the goal
-          quest Comeuppance (which keeps its vanilla Magnamalo boss —
-          not swapped).
-        - Swap pool: monsters that appear as the boss of some quest in
-          the pool, minus the `"non-randomizable"` set (engine-special
-          arena monsters that crash on spawn). The goal monster
-          (Magnamalo) is allowed as a swap target — only the goal
-          QUEST is fixed.
-        - For each non-goal quest: pick a random swap target from the
-          pool, deterministic from `world.random`.
-        - Starter: precollect one randomly-chosen QL1 village quest's
-          unlock so the player has something playable from t=0.
+        Vanilla village quest progression drives questboard visibility:
+        the engine handles tier unlocks as the player clears each
+        tier's urgent normally. AP randomization is **only** the boss
+        monster of each village quest — every quest with a randomizable
+        boss gets a random swap. Quest CLEARS send AP location checks.
 
-        IncludeSunbreak is silently ignored in this mode (the village
-        pool is empirically Rise-tier; even the Sunbreak-source village
-        quests reuse Rise monsters or LR-eligible Sunbreak ones).
+        Quest pool: every `EnemyLv.Village` quest with a real boss
+        (`monster_bucket == "monster"`, including training quests so
+        the player can clear them and advance to QL2). Goal is
+        Comeuppance (QL5 Magnamalo), not swapped.
+
+        Swap pool (which monsters can replace a quest's boss):
+        - All `MONSTERS` (Rise large monsters) by default.
+        - Plus `SUNBREAK_MONSTERS` when `IncludeSunbreak` is on.
+        - Plus Risen variants when `IncludeRisen` is on.
+        - Minus the `"non-randomizable"` set (engine-special arena
+          monsters that crash on spawn).
+
+        Training quests are in the pool (so the player gets an AP
+        check for clearing them, which they MUST do to advance the
+        engine's tier gating), but they are NOT swapped — their
+        clear logic is more than "kill the target", so a swap
+        soft-locks the tutorial.
+
+        No item/quest-unlock layer in this mode — visibility is
+        engine-driven. The itempool is filled with Poogie filler;
+        future work can layer rarity-license / crafting-material AP
+        items on top.
         """
         village_with_monster = [
             q for q in QUESTS
             if q["enemy_level"] == EnemyLv.Village
             and q["monster_bucket"] == "monster"
         ]
+        if not village_with_monster:
+            raise ValueError(
+                "QuestRando quest pool is empty — quest catalog out of sync"
+            )
 
         goal_quest = next(
             (q for q in village_with_monster if q["quest_no"] == items.COMEUPPANCE_QUEST_NO),
@@ -204,51 +219,34 @@ class MHRiseWorld(World):
         self.goal_quest = goal_quest
         self.quest_pool = list(village_with_monster)
 
-        # Build the swap-target pool from the empirical set of monsters
-        # that appear as bosses in our quest pool. This sidesteps the
-        # "what counts as same-DLC" question — any monster Capcom already
-        # placed in a village quest is known-safe at village rank.
-        em_to_monster = {
-            m["em_type"]: m
-            for m in MONSTERS
-            if "non-randomizable" not in m["tags"]
-        }
-        pool_em_types = {q["boss_em_type"] for q in self.quest_pool}
+        # Build the swap-target pool. Honour IncludeSunbreak / IncludeRisen
+        # so the option toggles are meaningful in QuestRando too. Skip
+        # `"non-randomizable"` engine-special monsters (Gaismagorm,
+        # Allmother, etc.) regardless of options.
+        candidates: list[dict] = list(MONSTERS)
+        if bool(self.options.include_sunbreak.value):
+            candidates.extend(SUNBREAK_MONSTERS)
         swap_pool = [
-            em_to_monster[em] for em in pool_em_types
-            if em in em_to_monster
+            m for m in candidates
+            if "non-randomizable" not in m["tags"]
+            and ("risen" not in m["tags"] or bool(self.options.include_risen.value))
         ]
         if not swap_pool:
             raise ValueError(
-                "QuestRando swap pool is empty — every village-quest boss "
-                "is missing from MONSTERS or tagged non-randomizable"
+                "QuestRando swap pool is empty after tag/option filtering"
             )
 
+        # Swap every non-goal, non-training quest. Training quests
+        # stay vanilla (their clear logic isn't a simple kill) — the
+        # engine still needs them cleared to advance tiers.
         self.quest_swaps = {}
         for quest in self.quest_pool:
             if quest["quest_no"] == goal_quest["quest_no"]:
                 continue
+            if QuestType.TRAINING in quest["quest_type"]:
+                continue
             target = self.random.choice(swap_pool)
             self.quest_swaps[quest["quest_no"]] = target["em_type"]
-
-        # Starter: a random QL1 quest from the pool. The QL1 pool is
-        # small (2 entries in current catalog) but stable; if the
-        # catalog ever loses all QL1 entries, fall back to the
-        # lowest-level quest available.
-        ql1_candidates = [
-            q for q in self.quest_pool
-            if q["quest_level"] == QuestLevel.QL1
-            and q["quest_no"] != goal_quest["quest_no"]
-        ]
-        if not ql1_candidates:
-            non_goal = [
-                q for q in self.quest_pool
-                if q["quest_no"] != goal_quest["quest_no"]
-            ]
-            non_goal.sort(key=lambda q: q["quest_level"].value)
-            ql1_candidates = non_goal[:max(1, len(non_goal) // 4)]
-        starter = self.random.choice(ql1_candidates)
-        self.starting_quest_no = starter["quest_no"]
 
     def create_regions(self) -> None:
         regions.create_and_connect_regions(self)
@@ -283,10 +281,6 @@ class MHRiseWorld(World):
             slot_data["quest_swaps"] = {
                 str(qn): em for qn, em in self.quest_swaps.items()
             }
-            slot_data["quest_unlocks"] = {
-                str(q["quest_no"]): items.quest_unlock_item_name(q)
-                for q in self.quest_pool
-            }
             # Display name (English where dumper resolved it) per
             # quest_no, so the client tracker / chat can show titles
             # without shipping the whole quests.py.
@@ -294,8 +288,16 @@ class MHRiseWorld(World):
                 str(q["quest_no"]): items.quest_display_name(q)
                 for q in self.quest_pool
             }
-            slot_data["starting_quest"] = self.starting_quest_no
+            # Set of village quest_nos that send AP location checks
+            # on clear. The client uses this to decide whether to
+            # send a check (or silently drop, for hub / event clears).
+            # Value is just `1` (placeholder) — only key membership matters.
+            slot_data["quest_locations"] = {
+                str(q["quest_no"]): 1 for q in self.quest_pool
+            }
             slot_data["goal_quest"] = self.goal_quest["quest_no"]
+            slot_data["include_sunbreak"] = bool(self.options.include_sunbreak.value)
+            slot_data["include_risen"] = bool(self.options.include_risen.value)
         else:
             # The critical piece is `monster_em_type_map`: a dict from
             # license item name to the in-game EmType integer the death
