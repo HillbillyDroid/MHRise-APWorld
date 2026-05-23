@@ -179,12 +179,23 @@ class MHRiseWorld(World):
         the player can clear them and advance to QL2). Goal is
         Comeuppance (QL5 Magnamalo), not swapped.
 
-        Swap pool (which monsters can replace a quest's boss):
-        - All `MONSTERS` (Rise large monsters) by default.
-        - Plus `SUNBREAK_MONSTERS` when `IncludeSunbreak` is on.
-        - Plus Risen variants when `IncludeRisen` is on.
-        - Minus the `"non-randomizable"` set (engine-special arena
-          monsters that crash on spawn).
+        Swap pool (which monsters can replace a quest's boss): the
+        per-host-quest set of monsters Capcom themselves placed as a
+        boss on **the host quest's map** in some vanilla quest (any
+        rank). The relevant compatibility axis is `(em_type, map_no)`,
+        not just em_type: live testing showed Barroth crash on
+        ShrineRuins and Zinogre crash on FrostCaverns even though
+        both are ordinary Rise village bosses — Barroth had never
+        been authored for ShrineRuins, Zinogre never for
+        FrostCaverns. The missing data is per-map (spawn nodes,
+        navmesh hookups, scripted intro camera) rather than per-rank
+        stat tables. Lunagaron-on-ShrineRuins worked because some MR
+        quest puts Lunagaron there.
+
+        `IncludeSunbreak` widens the per-map pool by allowing
+        Sunbreak-DLC monsters as swap targets; `IncludeRisen` is a
+        no-op for the current catalog (no vanilla quest uses a Risen
+        variant) but stays wired.
 
         Training quests are in the pool (so the player gets an AP
         check for clearing them, which they MUST do to advance the
@@ -219,22 +230,40 @@ class MHRiseWorld(World):
         self.goal_quest = goal_quest
         self.quest_pool = list(village_with_monster)
 
-        # Build the swap-target pool. Honour IncludeSunbreak / IncludeRisen
-        # so the option toggles are meaningful in QuestRando too. Skip
-        # `"non-randomizable"` engine-special monsters (Gaismagorm,
-        # Allmother, etc.) regardless of options.
-        candidates: list[dict] = list(MONSTERS)
-        if bool(self.options.include_sunbreak.value):
-            candidates.extend(SUNBREAK_MONSTERS)
-        swap_pool = [
-            m for m in candidates
+        # Per-map safe-swap pools: monsters Capcom placed as a boss
+        # on each map in any vanilla quest. Built from the full
+        # catalog (all ranks, all sources), then filtered by
+        # non-randomizable / DLC / Risen tags + options.
+        em_to_monster = {
+            m["em_type"]: m
+            for m in MONSTERS + SUNBREAK_MONSTERS
             if "non-randomizable" not in m["tags"]
-            and ("risen" not in m["tags"] or bool(self.options.include_risen.value))
-        ]
-        if not swap_pool:
-            raise ValueError(
-                "QuestRando swap pool is empty after tag/option filtering"
-            )
+        }
+        include_sunbreak = bool(self.options.include_sunbreak.value)
+        include_risen = bool(self.options.include_risen.value)
+
+        def _eligible(em: int) -> bool:
+            mon = em_to_monster.get(em)
+            if mon is None:
+                return False
+            if mon["dlc"] == "sunbreak" and not include_sunbreak:
+                return False
+            if "risen" in mon["tags"] and not include_risen:
+                return False
+            return True
+
+        map_to_safe_ems: dict[Any, list[int]] = {}
+        for q in QUESTS:
+            if q["boss_em_type"] == 0:
+                continue
+            if q["monster_bucket"] != "monster":
+                continue
+            if not _eligible(q["boss_em_type"]):
+                continue
+            map_to_safe_ems.setdefault(q["map_no"], set()).add(q["boss_em_type"])
+        # Convert sets to sorted lists so self.random.choice is
+        # deterministic given the seed.
+        map_to_safe_ems = {mp: sorted(s) for mp, s in map_to_safe_ems.items()}
 
         # Swap every non-goal, non-training quest. Training quests
         # stay vanilla (their clear logic isn't a simple kill) — the
@@ -245,8 +274,13 @@ class MHRiseWorld(World):
                 continue
             if QuestType.TRAINING in quest["quest_type"]:
                 continue
-            target = self.random.choice(swap_pool)
-            self.quest_swaps[quest["quest_no"]] = target["em_type"]
+            candidates = map_to_safe_ems.get(quest["map_no"])
+            if not candidates:
+                # No safe target authored for this map under current
+                # options — leave the quest vanilla rather than crash.
+                continue
+            target_em = self.random.choice(candidates)
+            self.quest_swaps[quest["quest_no"]] = target_em
 
     def create_regions(self) -> None:
         regions.create_and_connect_regions(self)
