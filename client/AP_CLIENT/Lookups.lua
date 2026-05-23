@@ -7,6 +7,7 @@ local Lookups = {}
 local Weapons = require("AP_CLIENT/Weapons")
 
 Lookups.connected = false
+Lookups.mode = "hunt_a_thon"  -- "hunt_a_thon" | "quest_rando"
 Lookups.starting_monster = nil
 Lookups.goal_monster = nil
 
@@ -21,12 +22,28 @@ Lookups.item_name_to_em_type = {}
 -- writes and reads sidesteps both bugs.
 Lookups.em_type_to_item_name = {}
 
+-- QuestRando fields (populated only when mode == "quest_rando").
+-- All quest_no keys are STRINGS for the same int-keyed-table reason
+-- (see Lookups.em_type_to_item_name above). JSON delivery naturally
+-- arrives string-keyed so this is just pass-through.
+Lookups.quest_swaps = {}     -- "quest_no" -> em_type (int)
+Lookups.quest_unlocks = {}   -- "quest_no" -> "Unlock: <name>" item name
+Lookups.quest_names = {}     -- "quest_no" -> display name
+Lookups.starting_quest = nil -- int (quest_no)
+Lookups.goal_quest = nil     -- int (quest_no)
+
 function Lookups.Reset()
     Lookups.connected = false
+    Lookups.mode = "hunt_a_thon"
     Lookups.starting_monster = nil
     Lookups.goal_monster = nil
     Lookups.item_name_to_em_type = {}
     Lookups.em_type_to_item_name = {}
+    Lookups.quest_swaps = {}
+    Lookups.quest_unlocks = {}
+    Lookups.quest_names = {}
+    Lookups.starting_quest = nil
+    Lookups.goal_quest = nil
     -- Reset Weapons cache too — kept on the Weapons module rather than
     -- here so Lookups stays monster-focused, but cleared in lockstep.
     Weapons.enabled = false
@@ -34,7 +51,14 @@ function Lookups.Reset()
     Weapons.starting_weapon = nil
 end
 
--- Called from the on_slot_connected callback. slot_data contains:
+-- Called from the on_slot_connected callback. slot_data shape depends
+-- on mode (see ap_world/world.py:fill_slot_data).
+--
+-- Common:
+--   mode:                       "hunt_a_thon" | "quest_rando"
+--   world_version:              string
+--
+-- HuntAThon:
 --   monster_em_type_map:        {[item_name]: em_type}
 --   starting_monster:           string
 --   goal_monster:               string
@@ -42,12 +66,51 @@ end
 --   include_weapons:            bool
 --   weapon_type_to_item_name:   {[weapon_type]: item_name}  (when enabled)
 --   starting_weapon:            string                        (when enabled)
+--
+-- QuestRando:
+--   quest_swaps:                {[quest_no_str]: em_type}
+--   quest_unlocks:              {[quest_no_str]: "Unlock: <name>"}
+--   quest_names:                {[quest_no_str]: display name}
+--   starting_quest:             int (quest_no)
+--   goal_quest:                 int (quest_no)
 function Lookups.Load(slot_data)
     Lookups.Reset()
     if type(slot_data) ~= "table" then
         return false, "slot_data is not a table"
     end
 
+    local mode = slot_data.mode
+    if mode == "quest_rando" then
+        Lookups.mode = "quest_rando"
+        local swaps = slot_data.quest_swaps
+        local unlocks = slot_data.quest_unlocks
+        local names = slot_data.quest_names
+        if type(swaps) ~= "table" or type(unlocks) ~= "table" then
+            return false, "quest_swaps / quest_unlocks missing"
+        end
+        for k, v in pairs(swaps) do
+            local em = type(v) == "number" and v or tonumber(v)
+            if em ~= nil then
+                Lookups.quest_swaps[tostring(k)] = em
+            end
+        end
+        for k, v in pairs(unlocks) do
+            Lookups.quest_unlocks[tostring(k)] = v
+        end
+        if type(names) == "table" then
+            for k, v in pairs(names) do
+                Lookups.quest_names[tostring(k)] = v
+            end
+        end
+        Lookups.starting_quest = tonumber(slot_data.starting_quest)
+        Lookups.goal_quest = tonumber(slot_data.goal_quest)
+
+        Lookups.connected = true
+        return true
+    end
+
+    -- HuntAThon (default if mode missing for back-compat).
+    Lookups.mode = "hunt_a_thon"
     local em_map = slot_data.monster_em_type_map
     if type(em_map) ~= "table" then
         return false, "slot_data.monster_em_type_map missing"

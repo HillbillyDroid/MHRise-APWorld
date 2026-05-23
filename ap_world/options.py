@@ -1,20 +1,42 @@
 """Per-slot options for the MH Rise apworld.
 
-v1 keeps the option surface minimal: just the include-Sunbreak toggle. The
-starting monster (the one whose license is precollected so the player can
-hunt from t=0) is chosen at random in `world.generate_early` from the world's
-in-pool monsters; there's no option to pick it.
+Two mutually-exclusive modes via the `mode` option:
+- HuntAThon (default): per-monster license soft-gate. All other options
+  (IncludeSunbreak / IncludeRisen / IncludeWeapons / WeaponPool /
+  MonsterCount) apply here.
+- QuestRando: per-quest unlock items hard-gate village quests; each quest's
+  spawned monster is randomly swapped. Goal = clearing "Comeuppance".
+  Other options are silently ignored in this mode.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-from Options import DefaultOnToggle, OptionSet, PerGameCommonOptions, Range, Toggle
+from Options import Choice, DefaultOnToggle, OptionSet, PerGameCommonOptions, Range, Toggle
 
 from .data.weapons import WEAPONS
 
 _WEAPON_NAMES = {w["name"] for w in WEAPONS}
+
+
+class Mode(Choice):
+    """Game mode.
+
+    - `hunt_a_thon` (default): hunting a large monster requires its license.
+      Licenses are scattered across the multiworld. Standard hunt-for-keys
+      loop. IncludeSunbreak / IncludeRisen / IncludeWeapons / WeaponPool /
+      MonsterCount all apply.
+    - `quest_rando`: per-quest unlocks hard-gate the village questboard;
+      each randomized village quest's boss monster is swapped to a random
+      other monster. Goal = clearing the final village urgent quest
+      "Comeuppance" (its boss stays as the intended Magnamalo). The other
+      options are silently ignored in this mode."""
+
+    display_name = "Mode"
+    option_hunt_a_thon = 0
+    option_quest_rando = 1
+    default = 0
 
 
 class IncludeSunbreak(DefaultOnToggle):
@@ -78,6 +100,7 @@ class MonsterCount(Range):
 
 @dataclass
 class MHRiseOptions(PerGameCommonOptions):
+    mode: Mode
     include_sunbreak: IncludeSunbreak
     include_risen: IncludeRisen
     include_weapons: IncludeWeapons

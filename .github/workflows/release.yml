@@ -54,6 +54,7 @@ jobs:
               "client/AP_CLIENT/Items.lua",
               "client/AP_CLIENT/Lookups.lua",
               "client/AP_CLIENT/Monsters.lua",
+              "client/AP_CLIENT/Quests.lua",
               "client/AP_CLIENT/Session.lua",
               "client/AP_CLIENT/Tracker.lua",
               "client/AP_CLIENT/Weapons.lua",

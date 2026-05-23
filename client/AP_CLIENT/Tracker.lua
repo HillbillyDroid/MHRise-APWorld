@@ -1,6 +1,9 @@
--- In-game tracker UI. Imgui window divided into four sections:
---   Available Monsters / Available Weapons (when enabled) /
---   Hunted Monsters / Locked Monsters.
+-- In-game tracker UI. Mode-aware: HuntAThon renders four monster /
+-- weapon sections; QuestRando renders three quest sections.
+--
+-- HuntAThon: Available Monsters / Available Weapons (when enabled) /
+--            Hunted Monsters / Locked Monsters.
+-- QuestRando: Available Quests / Cleared Quests / Locked Quests.
 --
 -- Visibility is owned by Tracker.visible. Auto-flipped to true on
 -- successful slot_connect (see MHRiseAP.lua), reset to false on
@@ -36,6 +39,11 @@ Tracker.visible = false
 -- CLAUDE.md.)
 Tracker.checked = {}
 
+-- QuestRando ledger: string(quest_no) -> true when the quest's
+-- Clear: location has been sent (locally) or confirmed via
+-- on_location_checked (server echo). One-way move.
+Tracker.quest_cleared = {}
+
 local function license_to_name(item_name)
     return item_name:match("^(.*) License$") or item_name
 end
@@ -65,7 +73,21 @@ function Tracker.NoteLocationChecked(loc_id)
     end)
     if not ok or type(loc_name) ~= "string" then return end
     local monster, slot = loc_name:match("^Hunt (.*) %((%d+)/%d+%)$")
-    if monster and slot then note_check(monster, slot) end
+    if monster and slot then
+        note_check(monster, slot)
+        return
+    end
+    -- QuestRando: Clear: <name> location. Cross-reference against
+    -- Lookups.quest_names to find the matching quest_no.
+    local quest_name = loc_name:match("^Clear: (.*)$")
+    if quest_name then
+        for qn_str, name in pairs(Lookups.quest_names) do
+            if name == quest_name then
+                Tracker.quest_cleared[qn_str] = true
+                return
+            end
+        end
+    end
 end
 
 function Tracker.MarkHunted(monster_name)
@@ -76,8 +98,16 @@ function Tracker.MarkHunted(monster_name)
     note_check(monster_name, "2")
 end
 
+-- QuestRando: called from Quests.lua after a successful clear-check
+-- LocationChecks send. Idempotent.
+function Tracker.MarkQuestCleared(quest_no)
+    if type(quest_no) ~= "number" then return end
+    Tracker.quest_cleared[tostring(quest_no)] = true
+end
+
 function Tracker.Reset()
     Tracker.checked = {}
+    Tracker.quest_cleared = {}
     Tracker.visible = false
 end
 
@@ -129,6 +159,31 @@ local function build_sections()
     return available_monsters, available_weapons, hunted, locked
 end
 
+-- QuestRando sections.
+-- Available = unlock held (or starter) AND not yet cleared.
+-- Cleared = cleared (one-way).
+-- Locked = no unlock held, not the starter, not yet cleared.
+local function build_quest_sections()
+    local available = {}
+    local cleared = {}
+    local locked = {}
+    local starter_qn_str = tostring(Lookups.starting_quest)
+    for qn_str, unlock_name in pairs(Lookups.quest_unlocks) do
+        local display = Lookups.quest_names[qn_str] or qn_str
+        if Tracker.quest_cleared[qn_str] then
+            cleared[#cleared + 1] = display
+        elseif Items.Has(unlock_name) or qn_str == starter_qn_str then
+            available[#available + 1] = display
+        else
+            locked[#locked + 1] = display
+        end
+    end
+    table.sort(available)
+    table.sort(cleared)
+    table.sort(locked)
+    return available, cleared, locked
+end
+
 local function draw_section(label, items)
     imgui.text(label)
     imgui.separator()
@@ -152,9 +207,14 @@ function Tracker.Draw()
 
     -- Build sections OUTSIDE the imgui begin/end pair so a bad table
     -- iteration can't leave imgui in a half-open state.
-    local av_m, av_w, hu, lo
+    local available_monsters, available_weapons, hunted_monsters, locked_monsters
+    local available_quests, cleared_quests, locked_quests
     local build_ok, build_err = pcall(function()
-        av_m, av_w, hu, lo = build_sections()
+        if Lookups.mode == "quest_rando" then
+            available_quests, cleared_quests, locked_quests = build_quest_sections()
+        else
+            available_monsters, available_weapons, hunted_monsters, locked_monsters = build_sections()
+        end
     end)
     if not build_ok then
         if not logged_draw_error then
@@ -168,12 +228,18 @@ function Tracker.Draw()
         imgui.set_next_window_size(Vector2f.new(320, 500), 4)
         Tracker.visible = imgui.begin_window("MH Rise AP Tracker", Tracker.visible, nil)
         if Tracker.visible then
-            draw_section("Available Monsters", av_m)
-            if Weapons.enabled then
-                draw_section("Available Weapons", av_w)
+            if Lookups.mode == "quest_rando" then
+                draw_section("Available Quests", available_quests)
+                draw_section("Cleared Quests", cleared_quests)
+                draw_section("Locked Quests", locked_quests)
+            else
+                draw_section("Available Monsters", available_monsters)
+                if Weapons.enabled then
+                    draw_section("Available Weapons", available_weapons)
+                end
+                draw_section("Hunted Monsters", hunted_monsters)
+                draw_section("Locked Monsters", locked_monsters)
             end
-            draw_section("Hunted Monsters", hu)
-            draw_section("Locked Monsters", lo)
         end
         imgui.end_window()
     end)

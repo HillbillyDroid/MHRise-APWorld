@@ -105,12 +105,20 @@ Rise" YAML. The available options are:
 - `IncludeRisen` (default off) — include the five Risen elder dragons.
 - `IncludeWeapons` (default on) — add weapon-type licenses to the pool
   and require the current weapon's license to land checks.
+- `WeaponPool` — subset of weapons allowed when `IncludeWeapons` is on.
 - `MonsterCount` (range 3–72, default 15) — number of monsters drawn
   into the world.
 
 Drop the YAML into `<Archipelago install>/Players/`, run
 `ArchipelagoGenerate`, then host the resulting room (or upload the
 output zip to [archipelago.gg](https://archipelago.gg/) for hosting).
+
+> **Quest Randomizer mode is upcoming.** A second game mode that
+> hard-gates the village questboard with per-quest unlock items and
+> swaps the boss monster of every village quest is in development
+> (see `Mode` option). It will land in a future release; until then,
+> the only shipping mode is the per-monster license hunt-a-thon
+> described above.
 
 ## Connecting in-game
 

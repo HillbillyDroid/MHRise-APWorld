@@ -25,6 +25,7 @@ WEAPON_NAMES = [w["name"] for w in WEAPONS]
 GAME_NAME = "Monster Hunter Rise"
 
 DEFAULT_CONFIG: dict[str, Any] = {
+    "mode": "hunt_a_thon",
     "include_sunbreak": True,
     "include_risen": False,
     "include_weapons": True,
@@ -32,8 +33,14 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "monster_count": 15,
 }
 
+QUEST_RANDO_CONFIG: dict[str, Any] = {
+    **DEFAULT_CONFIG,
+    "mode": "quest_rando",
+}
+
 
 def random_config(rng: random.Random) -> dict[str, Any]:
+    mode = rng.choice(["hunt_a_thon", "quest_rando"])
     include_weapons = rng.random() < 0.7
     if include_weapons:
         pool_size = rng.randint(1, len(WEAPON_NAMES))
@@ -42,6 +49,7 @@ def random_config(rng: random.Random) -> dict[str, Any]:
         weapon_pool = list(WEAPON_NAMES)
 
     return {
+        "mode": mode,
         "include_sunbreak": rng.random() < 0.7,
         "include_risen": rng.random() < 0.3,
         "include_weapons": include_weapons,
@@ -61,6 +69,12 @@ EDGE_CONFIGS: list[dict[str, Any]] = [
     {**DEFAULT_CONFIG, "include_sunbreak": False, "monster_count": 60},
     {**DEFAULT_CONFIG, "weapon_pool": [WEAPON_NAMES[0]]},
     {**DEFAULT_CONFIG, "include_sunbreak": False, "include_risen": False, "monster_count": 32},
+    # QuestRando: option toggles other than `mode` are silently ignored,
+    # but exercise the combinations anyway to confirm they don't break gen.
+    QUEST_RANDO_CONFIG,
+    {**QUEST_RANDO_CONFIG, "include_sunbreak": False},
+    {**QUEST_RANDO_CONFIG, "include_risen": True},
+    {**QUEST_RANDO_CONFIG, "include_weapons": False},
 ]
 
 

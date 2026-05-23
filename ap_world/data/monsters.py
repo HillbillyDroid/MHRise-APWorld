@@ -13,9 +13,14 @@ Each entry is a dict with keys:
 - em_type: in-game enum value (snow.enemy.EnemyDef.EmTypes)
 - enum_name: original enum field name; kept for debugging
 - dlc: "rise" or "sunbreak"
-- tags: list of strings, currently empty. Reserved for future categorisation
-  (e.g. "endgame", "elder-dragon", "title-update"). Consumers should treat
-  tags as additive — match by `"foo" in m["tags"]`, never by equality.
+- tags: list of strings used for additive categorisation. Consumers should
+  match by `"foo" in m["tags"]`, never by equality. Current tags in use:
+    - "elder-dragon": for HuntAThon goal selection.
+    - "risen": Risen variant; gated by the IncludeRisen option.
+    - "non-randomizable": engine-special monsters with bespoke arena
+      setup (Ibushi, Narwa, Gaismagorm, Narwa the Allmother). Excluded
+      from BOTH swap-source and swap-target pools in QuestRando mode
+      because they crash on spawn in non-bespoke quest contexts.
 
 Curation decisions for v1:
 - Placeholder enum slots (display_name = "未指定") dropped.
@@ -60,10 +65,10 @@ RISE_MONSTERS: tuple[dict[str, Any], ...] = (
     {"name": "Somnacanth",             "em_type":  93, "enum_name": "EmType093_00", "dlc": "rise", "tags": []},
     {"name": "Rakna-Kadaki",           "em_type":  94, "enum_name": "EmType094_00", "dlc": "rise", "tags": []},
     {"name": "Almudron",               "em_type":  95, "enum_name": "EmType095_00", "dlc": "rise", "tags": []},
-    {"name": "Wind Serpent Ibushi",    "em_type":  96, "enum_name": "EmType096_00", "dlc": "rise", "tags": ["elder-dragon"]},
+    {"name": "Wind Serpent Ibushi",    "em_type":  96, "enum_name": "EmType096_00", "dlc": "rise", "tags": ["elder-dragon", "non-randomizable"]},
     {"name": "Goss Harag",             "em_type":  97, "enum_name": "EmType097_00", "dlc": "rise", "tags": []},
     {"name": "Great Izuchi",           "em_type":  98, "enum_name": "EmType098_00", "dlc": "rise", "tags": []},
-    {"name": "Thunder Serpent Narwa",  "em_type":  99, "enum_name": "EmType099_00", "dlc": "rise", "tags": ["elder-dragon"]},
+    {"name": "Thunder Serpent Narwa",  "em_type":  99, "enum_name": "EmType099_00", "dlc": "rise", "tags": ["elder-dragon", "non-randomizable"]},
 )
 
 # Large monsters added or returning in Sunbreak. Includes new species,
@@ -82,7 +87,7 @@ SUNBREAK_MONSTERS: tuple[dict[str, Any], ...] = (
     {"name": "Malzeno",                "em_type": 132, "enum_name": "EmType132_00", "dlc": "sunbreak", "tags": ["elder-dragon"]},
     {"name": "Lunagaron",              "em_type": 133, "enum_name": "EmType133_00", "dlc": "sunbreak", "tags": []},
     {"name": "Garangolm",              "em_type": 134, "enum_name": "EmType134_00", "dlc": "sunbreak", "tags": []},
-    {"name": "Gaismagorm",             "em_type": 135, "enum_name": "EmType135_00", "dlc": "sunbreak", "tags": ["elder-dragon"]},
+    {"name": "Gaismagorm",             "em_type": 135, "enum_name": "EmType135_00", "dlc": "sunbreak", "tags": ["elder-dragon", "non-randomizable"]},
     {"name": "Espinas",                "em_type": 136, "enum_name": "EmType136_00", "dlc": "sunbreak", "tags": []},
     {"name": "Seregios",               "em_type":  77, "enum_name": "EmType077_00", "dlc": "sunbreak", "tags": []},
     {"name": "Astalos",                "em_type":  81, "enum_name": "EmType081_00", "dlc": "sunbreak", "tags": []},
@@ -106,7 +111,7 @@ SUNBREAK_MONSTERS: tuple[dict[str, Any], ...] = (
     {"name": "Chaotic Gore Magala",    "em_type": 1351, "enum_name": "EmType071_05", "dlc": "sunbreak", "tags": []},
     {"name": "Crimson Glow Valstrax",  "em_type": 1366, "enum_name": "EmType086_05", "dlc": "sunbreak", "tags": ["elder-dragon"]},
     {"name": "Scorned Magnamalo",      "em_type": 1369, "enum_name": "EmType089_05", "dlc": "sunbreak", "tags": []},
-    {"name": "Narwa the Allmother",    "em_type": 1379, "enum_name": "EmType099_05", "dlc": "sunbreak", "tags": ["elder-dragon"]},
+    {"name": "Narwa the Allmother",    "em_type": 1379, "enum_name": "EmType099_05", "dlc": "sunbreak", "tags": ["elder-dragon", "non-randomizable"]},
     {"name": "Seething Bazelgeuse",    "em_type": 1398, "enum_name": "EmType118_05", "dlc": "sunbreak", "tags": []},
     {"name": "Primordial Malzeno",     "em_type": 1412, "enum_name": "EmType132_05", "dlc": "sunbreak", "tags": ["elder-dragon"]},
 

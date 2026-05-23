@@ -11,6 +11,7 @@ local Lookups = require("AP_CLIENT/Lookups")
 local Items = require("AP_CLIENT/Items")
 local Monsters = require("AP_CLIENT/Monsters")
 local Weapons = require("AP_CLIENT/Weapons")
+local Quests = require("AP_CLIENT/Quests")
 local Tracker = require("AP_CLIENT/Tracker")
 
 -- Apworld version this client was built against. Compared on slot
@@ -85,7 +86,18 @@ AP_REF.on_slot_connected = function(slot_data)
         tostring(Lookups.goal_monster)
     ))
     Tracker.visible = true
-    if Weapons.enabled and Weapons.starting_weapon then
+    if Lookups.mode == "quest_rando" then
+        local n_swaps = 0
+        for _ in pairs(Lookups.quest_swaps) do n_swaps = n_swaps + 1 end
+        local starter_name = Lookups.quest_names[tostring(Lookups.starting_quest)]
+            or tostring(Lookups.starting_quest)
+        local goal_name = Lookups.quest_names[tostring(Lookups.goal_quest)]
+            or tostring(Lookups.goal_quest)
+        send_chat(string.format(
+            "[AP] Quest Randomizer mode — %d quests randomized. Starter: %s. Goal: %s.",
+            n_swaps, starter_name, goal_name))
+        Quests.InstallHooks()
+    elseif Weapons.enabled and Weapons.starting_weapon then
         send_chat(string.format("[AP] Connected. Starter: %s. Goal: %s. Weapon: %s.",
             tostring(Lookups.starting_monster),
             tostring(Lookups.goal_monster),

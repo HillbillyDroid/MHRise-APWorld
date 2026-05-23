@@ -17,7 +17,9 @@ from worlds.AutoWorld import World
 from . import items, locations, regions, rules
 from . import options as mhrise_options  # rename due to a name conflict with World.options
 from .data.monsters import MONSTERS
+from .data.quests import EnemyLv, QuestLevel, QUESTS
 from .data.weapons import WEAPONS
+from .options import Mode
 from .web_world import MHRiseWebWorld
 
 # Read world_version from the manifest via pkgutil so this works whether
@@ -76,13 +78,33 @@ class MHRiseWorld(World):
     # contains them).
     weapon_pool: list[dict]
 
-    # Populated by generate_early. The randomly-chosen subset of monsters
-    # this seed actually uses — drives location creation, item pool,
-    # rules, and the slot_data em_type map. Source of truth for "is this
-    # monster part of the seed?" downstream of generate_early.
+    # Populated by generate_early (HuntAThon only). The randomly-chosen
+    # subset of monsters this seed actually uses — drives location
+    # creation, item pool, rules, and the slot_data em_type map.
     seed_monsters: list[dict]
 
+    # Populated by generate_early (QuestRando only).
+    # quest_pool: village quests with a randomizable boss + the goal
+    # quest. Source of truth for "is this quest part of the seed?"
+    # downstream of generate_early.
+    quest_pool: list[dict]
+    # The goal quest (Comeuppance, quest_no=501). Boss NOT swapped.
+    goal_quest: dict
+    # Precollected starter quest's quest_no (so the player has at least
+    # one village quest available from t=0).
+    starting_quest_no: int
+    # quest_no -> new boss em_type. The Lua client applies these by
+    # mutating QuestData._BossEmType[0] / _TgtEmType[0] on the
+    # initQuestDataDictionary post-hook (Probe 3 idiom).
+    quest_swaps: dict[int, int]
+
     def generate_early(self) -> None:
+        if self.options.mode.value == Mode.option_quest_rando:
+            self._generate_early_questrando()
+        else:
+            self._generate_early_huntathon()
+
+    def _generate_early_huntathon(self) -> None:
         available = [m for m in MONSTERS if self._monster_allowed(m)]
         if not available:
             raise ValueError(
@@ -143,6 +165,91 @@ class MHRiseWorld(World):
             )
             self.starting_weapon = self.random.choice(self.weapon_pool)
 
+    def _generate_early_questrando(self) -> None:
+        """QuestRando mode setup.
+
+        - Quest pool: every `EnemyLv.Village` quest with a randomizable
+          large monster (`monster_bucket == "monster"`), plus the goal
+          quest Comeuppance (which keeps its vanilla Magnamalo boss —
+          not swapped).
+        - Swap pool: monsters that appear as the boss of some quest in
+          the pool, minus the `"non-randomizable"` set (engine-special
+          arena monsters that crash on spawn). The goal monster
+          (Magnamalo) is allowed as a swap target — only the goal
+          QUEST is fixed.
+        - For each non-goal quest: pick a random swap target from the
+          pool, deterministic from `world.random`.
+        - Starter: precollect one randomly-chosen QL1 village quest's
+          unlock so the player has something playable from t=0.
+
+        IncludeSunbreak is silently ignored in this mode (the village
+        pool is empirically Rise-tier; even the Sunbreak-source village
+        quests reuse Rise monsters or LR-eligible Sunbreak ones).
+        """
+        village_with_monster = [
+            q for q in QUESTS
+            if q["enemy_level"] == EnemyLv.Village
+            and q["monster_bucket"] == "monster"
+        ]
+
+        goal_quest = next(
+            (q for q in village_with_monster if q["quest_no"] == items.COMEUPPANCE_QUEST_NO),
+            None,
+        )
+        if goal_quest is None:
+            raise ValueError(
+                f"goal quest (quest_no={items.COMEUPPANCE_QUEST_NO}, Comeuppance) "
+                "not found in village-with-monster pool — quest catalog out of sync"
+            )
+        self.goal_quest = goal_quest
+        self.quest_pool = list(village_with_monster)
+
+        # Build the swap-target pool from the empirical set of monsters
+        # that appear as bosses in our quest pool. This sidesteps the
+        # "what counts as same-DLC" question — any monster Capcom already
+        # placed in a village quest is known-safe at village rank.
+        em_to_monster = {
+            m["em_type"]: m
+            for m in MONSTERS
+            if "non-randomizable" not in m["tags"]
+        }
+        pool_em_types = {q["boss_em_type"] for q in self.quest_pool}
+        swap_pool = [
+            em_to_monster[em] for em in pool_em_types
+            if em in em_to_monster
+        ]
+        if not swap_pool:
+            raise ValueError(
+                "QuestRando swap pool is empty — every village-quest boss "
+                "is missing from MONSTERS or tagged non-randomizable"
+            )
+
+        self.quest_swaps = {}
+        for quest in self.quest_pool:
+            if quest["quest_no"] == goal_quest["quest_no"]:
+                continue
+            target = self.random.choice(swap_pool)
+            self.quest_swaps[quest["quest_no"]] = target["em_type"]
+
+        # Starter: a random QL1 quest from the pool. The QL1 pool is
+        # small (2 entries in current catalog) but stable; if the
+        # catalog ever loses all QL1 entries, fall back to the
+        # lowest-level quest available.
+        ql1_candidates = [
+            q for q in self.quest_pool
+            if q["quest_level"] == QuestLevel.QL1
+            and q["quest_no"] != goal_quest["quest_no"]
+        ]
+        if not ql1_candidates:
+            non_goal = [
+                q for q in self.quest_pool
+                if q["quest_no"] != goal_quest["quest_no"]
+            ]
+            non_goal.sort(key=lambda q: q["quest_level"].value)
+            ql1_candidates = non_goal[:max(1, len(non_goal) // 4)]
+        starter = self.random.choice(ql1_candidates)
+        self.starting_quest_no = starter["quest_no"]
+
     def create_regions(self) -> None:
         regions.create_and_connect_regions(self)
         locations.create_all_locations(self)
@@ -160,40 +267,59 @@ class MHRiseWorld(World):
         return items.get_filler_item_name()
 
     def fill_slot_data(self) -> Mapping[str, Any]:
-        """Send client-side config to the in-game Lua plugin.
-
-        The critical piece is `monster_em_type_map`: a dict from license
-        item name (e.g. "Rathian License") to the in-game EmType integer
-        the death hook reads off `<EnemyType>k__BackingField`. The client
-        uses it to map a hunted monster's EmType back to a license, and
-        from there to the AP location ID it needs to send.
-        """
-        em_type_map = {
-            items.license_item_name(m): m["em_type"]
-            for m in self.seed_monsters
-        }
-
+        """Send client-side config to the in-game Lua plugin."""
+        mode_str = (
+            "quest_rando"
+            if self.options.mode.value == Mode.option_quest_rando
+            else "hunt_a_thon"
+        )
         slot_data: dict[str, Any] = {
             "world_version": WORLD_VERSION,
-            "monster_em_type_map": em_type_map,
-            "include_sunbreak": bool(self.options.include_sunbreak.value),
-            "starting_monster": self.starting_monster["name"],
-            "goal_monster": self.goal_monster["name"],
-            "include_weapons": bool(self.options.include_weapons.value),
-            "monster_count": len(self.seed_monsters),
+            "mode": mode_str,
         }
-
-        if bool(self.options.include_weapons.value):
-            # weapon_type (int enum) -> license item name. The Lua client
-            # reads the current player's _playerWeaponType field and uses
-            # this to look up the license name to check against Items.held.
-            slot_data["weapon_type_to_item_name"] = {
-                w["weapon_type"]: items.weapon_license_item_name(w)
-                for w in WEAPONS
+        if self.options.mode.value == Mode.option_quest_rando:
+            # quest_no keys MUST be strings — REFramework's Lua VM
+            # mishandles int-keyed tables (see CLAUDE.md gotcha).
+            slot_data["quest_swaps"] = {
+                str(qn): em for qn, em in self.quest_swaps.items()
             }
-            slot_data["starting_weapon"] = (
-                self.starting_weapon["name"] if self.starting_weapon else None
-            )
+            slot_data["quest_unlocks"] = {
+                str(q["quest_no"]): items.quest_unlock_item_name(q)
+                for q in self.quest_pool
+            }
+            # Display name (English where dumper resolved it) per
+            # quest_no, so the client tracker / chat can show titles
+            # without shipping the whole quests.py.
+            slot_data["quest_names"] = {
+                str(q["quest_no"]): items.quest_display_name(q)
+                for q in self.quest_pool
+            }
+            slot_data["starting_quest"] = self.starting_quest_no
+            slot_data["goal_quest"] = self.goal_quest["quest_no"]
+        else:
+            # The critical piece is `monster_em_type_map`: a dict from
+            # license item name to the in-game EmType integer the death
+            # hook reads off `<EnemyType>k__BackingField`.
+            em_type_map = {
+                items.license_item_name(m): m["em_type"]
+                for m in self.seed_monsters
+            }
+            slot_data.update({
+                "monster_em_type_map": em_type_map,
+                "include_sunbreak": bool(self.options.include_sunbreak.value),
+                "starting_monster": self.starting_monster["name"],
+                "goal_monster": self.goal_monster["name"],
+                "include_weapons": bool(self.options.include_weapons.value),
+                "monster_count": len(self.seed_monsters),
+            })
+            if bool(self.options.include_weapons.value):
+                slot_data["weapon_type_to_item_name"] = {
+                    w["weapon_type"]: items.weapon_license_item_name(w)
+                    for w in WEAPONS
+                }
+                slot_data["starting_weapon"] = (
+                    self.starting_weapon["name"] if self.starting_weapon else None
+                )
 
         return slot_data
 
