@@ -85,20 +85,24 @@ TIER_URGENT_QUEST_NOS: dict[QuestLevel, int] = {
 }
 
 
+_HUNTING_QUEST_TYPES = QuestType.HUNTING | QuestType.KILL | QuestType.CAPTURE
+
+
 def _in_questrando_pool(quest: dict) -> bool:
     """Filter used identically by items, locations, and generate_early
     so static IDs stay aligned with the dynamic seed's quest_pool.
 
-    Pool: every Village quest with a real boss-monster bucket, no
-    training, no rampage (Hyakuryu), and no QL5/QL6 entries except
-    the goal itself (quest_no=501)."""
+    Pool: every Village quest with a real boss-monster bucket, whose
+    quest_type is one of HUNTING / KILL / CAPTURE (so gather quests
+    like 'Plump and Juicy' and arena chains like 'Third Wheel' are
+    excluded — clearing those doesn't reduce to 'kill the swapped
+    boss'), and no QL5/QL6 entries except the goal itself
+    (quest_no=501)."""
     if quest["enemy_level"] != EnemyLv.Village:
         return False
     if quest["monster_bucket"] != "monster":
         return False
-    if QuestType.TRAINING in quest["quest_type"]:
-        return False
-    if QuestType.HYAKURYU in quest["quest_type"]:
+    if not (quest["quest_type"] & _HUNTING_QUEST_TYPES):
         return False
     if quest["quest_level"] in (QuestLevel.QL5, QuestLevel.QL6):
         return quest["quest_no"] == COMEUPPANCE_QUEST_NO
@@ -364,7 +368,6 @@ def _create_items_questrando(world: MHRiseWorld) -> None:
     place_victory(world)
 
     starter_quest_name = quest_display_name(world.starting_quest)
-    starter_unlock = unlock_item_name(world.starting_quest)
 
     # Precollect the starter (qn=202) PLUS 3 random other QL2 unlocks.
     # The QuestRando rule chain (QL3 urgent + HasAll QL2 unlocks)
@@ -441,4 +444,3 @@ def _create_items_questrando(world: MHRiseWorld) -> None:
     world.multiworld.itempool += itempool
     for item in precollected:
         world.push_precollected(item)
-    _ = starter_unlock  # silence linter: precollected via the loop above

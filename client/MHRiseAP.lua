@@ -120,16 +120,35 @@ AP_REF.on_slot_refused = function(reasons)
     log_info("Slot refused: " .. table.concat(reasons or {}, ", "))
 end
 
+local function send_victory_if_held(silent)
+    if not (Items.has_victory and AP_REF.APClient) then return end
+    local ok = pcall(function()
+        AP_REF.APClient:StatusUpdate(AP_REF.AP.ClientStatus.GOAL)
+    end)
+    if ok and not silent then send_chat("[AP] Victory sent.") end
+end
+
 AP_REF.on_items_received = function(items)
     local silent = os.clock() < items_silent_until
     local n = Items.Receive(items, AP_REF.APClient, silent)
     log_info(string.format("Items received: %d resolved (Victory=%s, silent=%s)",
         n, tostring(Items.has_victory), tostring(silent)))
-    if Items.has_victory and AP_REF.APClient then
-        local ok = pcall(function()
-            AP_REF.APClient:StatusUpdate(AP_REF.AP.ClientStatus.GOAL)
-        end)
-        if ok and not silent then send_chat("[AP] Victory sent.") end
+    send_victory_if_held(silent)
+end
+
+-- Fires when APClientPP finishes syncing the data package. The very
+-- first batch of items the server delivers post-slot-connect (which
+-- includes precollected items like the starter quest unlock) can land
+-- BEFORE the package sync, so ids resolve to "Unknown" and get
+-- deferred in Items.pending_ids. Re-resolve them now that the package
+-- is here so the tracker actually sees the starter / extras.
+AP_REF.on_data_package_changed = function(_data_package)
+    if not AP_REF.APClient then return end
+    local silent = os.clock() < items_silent_until
+    local n = Items.ResolvePending(AP_REF.APClient, silent)
+    if n > 0 then
+        log_info(string.format("Data package synced: %d deferred item(s) resolved", n))
+        send_victory_if_held(silent)
     end
 end
 

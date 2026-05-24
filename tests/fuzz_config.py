@@ -30,6 +30,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "include_risen": False,
     "include_weapons": True,
     "weapon_pool": list(WEAPON_NAMES),
+    "randomize_quest_monsters": True,
     "monster_count": 15,
 }
 
@@ -54,6 +55,7 @@ def random_config(rng: random.Random) -> dict[str, Any]:
         "include_risen": rng.random() < 0.3,
         "include_weapons": include_weapons,
         "weapon_pool": weapon_pool,
+        "randomize_quest_monsters": rng.random() < 0.7,
         "monster_count": rng.randint(3, 72),
     }
 
@@ -78,6 +80,7 @@ EDGE_CONFIGS: list[dict[str, Any]] = [
     {**QUEST_RANDO_CONFIG, "include_sunbreak": False, "include_weapons": False},
     {**QUEST_RANDO_CONFIG, "weapon_pool": [WEAPON_NAMES[0]]},
     {**QUEST_RANDO_CONFIG, "weapon_pool": WEAPON_NAMES[:3]},
+    {**QUEST_RANDO_CONFIG, "randomize_quest_monsters": False},
 ]
 
 

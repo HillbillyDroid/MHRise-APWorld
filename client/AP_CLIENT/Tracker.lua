@@ -193,6 +193,35 @@ local function build_quest_sections()
     return available, locked, cleared
 end
 
+-- QuestRando weapons section: list of held weapon-license names plus
+-- the precollected starter weapon (which doesn't arrive via
+-- items_received). Identifies weapon licenses by absence from
+-- Lookups.quest_unlocks — in QuestRando the only non-quest items the
+-- player can hold are weapon licenses, Victory, and Poogie filler;
+-- Victory is tracked separately and Poogie isn't put in Items.held by
+-- name. Mirrors the HuntAThon `build_sections` weapon path.
+local function build_quest_weapon_section()
+    local weapons = {}
+    if not Weapons.enabled then return weapons end
+    -- Build a quick reverse-set of unlock item names for the
+    -- not-a-quest-unlock test below.
+    local unlock_names = {}
+    for _, name in pairs(Lookups.quest_unlocks) do unlock_names[name] = true end
+    local saw_starter = false
+    for license_name, _ in pairs(Items.held) do
+        if not unlock_names[license_name] then
+            local name = license_to_name(license_name)
+            if name == Weapons.starting_weapon then saw_starter = true end
+            weapons[#weapons + 1] = name
+        end
+    end
+    if Weapons.starting_weapon and not saw_starter then
+        weapons[#weapons + 1] = Weapons.starting_weapon
+    end
+    table.sort(weapons)
+    return weapons
+end
+
 local function draw_section(label, items)
     imgui.text(label)
     imgui.separator()
@@ -217,10 +246,11 @@ function Tracker.Draw()
     -- Build sections OUTSIDE the imgui begin/end pair so a bad table
     -- iteration can't leave imgui in a half-open state.
     local available_monsters, available_weapons, hunted_monsters, locked_monsters
-    local available_quests, locked_quests, cleared_quests
+    local available_quests, locked_quests, cleared_quests, quest_weapons
     local build_ok, build_err = pcall(function()
         if Lookups.mode == "quest_rando" then
             available_quests, locked_quests, cleared_quests = build_quest_sections()
+            quest_weapons = build_quest_weapon_section()
         else
             available_monsters, available_weapons, hunted_monsters, locked_monsters = build_sections()
         end
@@ -239,6 +269,9 @@ function Tracker.Draw()
         if Tracker.visible then
             if Lookups.mode == "quest_rando" then
                 draw_section("Available Quests", available_quests)
+                if Weapons.enabled then
+                    draw_section("Available Weapons", quest_weapons)
+                end
                 draw_section("Cleared Quests", cleared_quests)
                 draw_section("Locked Quests", locked_quests)
             else

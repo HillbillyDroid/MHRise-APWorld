@@ -96,6 +96,16 @@ class WeaponPool(OptionSet):
     default = _WEAPON_NAMES
 
 
+class RandomizeQuestMonsters(DefaultOnToggle):
+    """QuestRando only: when enabled (default), every pool quest's
+    boss monster is randomly swapped (within per-map compatibility).
+    When disabled, quests keep their vanilla boss — the rando reduces
+    to gating clear checks on the per-quest `Unlock:` items without
+    altering the in-game fight. No effect in HuntAThon."""
+
+    display_name = "Randomize Quest Monsters"
+
+
 class MonsterCount(Range):
     """Number of monsters randomly drawn into the world. Determines how
     many hunts are randomized. Clamped to the available pool size at
@@ -116,4 +126,5 @@ class MHRiseOptions(PerGameCommonOptions):
     include_risen: IncludeRisen
     include_weapons: IncludeWeapons
     weapon_pool: WeaponPool
+    randomize_quest_monsters: RandomizeQuestMonsters
     monster_count: MonsterCount

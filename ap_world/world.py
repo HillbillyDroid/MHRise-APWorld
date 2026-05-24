@@ -266,20 +266,23 @@ class MHRiseWorld(World):
         # deterministic given the seed.
         map_to_safe_ems = {mp: sorted(s) for mp, s in map_to_safe_ems.items()}
 
-        # Swap every non-goal quest. Training and rampage quests are
-        # already filtered out of `quest_pool` by `_in_questrando_pool`,
-        # so we don't need to re-check them here.
+        # Swap every quest in the pool, including the goal
+        # (Comeuppance). Training and rampage quests are already
+        # filtered out of `quest_pool` by `_in_questrando_pool`. The
+        # `randomize_quest_monsters` option short-circuits the loop
+        # — quest unlocks / clear locations / rules still apply, but
+        # bosses stay vanilla.
         self.quest_swaps = {}
-        for quest in self.quest_pool:
-            if quest["quest_no"] == goal_quest["quest_no"]:
-                continue
-            candidates = map_to_safe_ems.get(quest["map_no"])
-            if not candidates:
-                # No safe target authored for this map under current
-                # options — leave the quest vanilla rather than crash.
-                continue
-            target_em = self.random.choice(candidates)
-            self.quest_swaps[quest["quest_no"]] = target_em
+        if bool(self.options.randomize_quest_monsters.value):
+            for quest in self.quest_pool:
+                candidates = map_to_safe_ems.get(quest["map_no"])
+                if not candidates:
+                    # No safe target authored for this map under
+                    # current options — leave the quest vanilla
+                    # rather than crash.
+                    continue
+                target_em = self.random.choice(candidates)
+                self.quest_swaps[quest["quest_no"]] = target_em
 
         # Weapon licenses (when enabled). Same shape as HuntAThon: a
         # random WeaponPool subset, one precollected starter, the
@@ -359,6 +362,8 @@ class MHRiseWorld(World):
             slot_data["include_sunbreak"] = bool(self.options.include_sunbreak.value)
             slot_data["include_risen"] = bool(self.options.include_risen.value)
             slot_data["include_weapons"] = bool(self.options.include_weapons.value)
+            slot_data["randomize_quest_monsters"] = bool(
+                self.options.randomize_quest_monsters.value)
             if bool(self.options.include_weapons.value):
                 slot_data["weapon_type_to_item_name"] = {
                     w["weapon_type"]: items.weapon_license_item_name(w)
