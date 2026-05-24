@@ -29,7 +29,9 @@ Lookups.em_type_to_item_name = {}
 Lookups.quest_swaps = {}     -- "quest_no" -> em_type (int)
 Lookups.quest_names = {}     -- "quest_no" -> display name
 Lookups.quest_locations = {} -- "quest_no" -> 1 (set membership)
+Lookups.quest_unlocks = {}   -- "quest_no" -> "Unlock: <name>" item name
 Lookups.goal_quest = nil     -- int (quest_no)
+Lookups.starting_quest = nil -- int (quest_no)
 
 function Lookups.Reset()
     Lookups.connected = false
@@ -41,7 +43,9 @@ function Lookups.Reset()
     Lookups.quest_swaps = {}
     Lookups.quest_names = {}
     Lookups.quest_locations = {}
+    Lookups.quest_unlocks = {}
     Lookups.goal_quest = nil
+    Lookups.starting_quest = nil
     -- Reset Weapons cache too — kept on the Weapons module rather than
     -- here so Lookups stays monster-focused, but cleared in lockstep.
     Weapons.enabled = false
@@ -70,7 +74,12 @@ end
 --   quest_names:                {[quest_no_str]: display name}
 --   quest_locations:            {[quest_no_str]: 1}  (set membership —
 --                               quests that send AP Clear checks)
+--   quest_unlocks:              {[quest_no_str]: "Unlock: <name>"}
 --   goal_quest:                 int (quest_no)
+--   starting_quest:             int (quest_no, precollected)
+--   include_weapons:            bool
+--   weapon_type_to_item_name:   {[weapon_type]: item_name}  (when enabled)
+--   starting_weapon:            string                        (when enabled)
 function Lookups.Load(slot_data)
     Lookups.Reset()
     if type(slot_data) ~= "table" then
@@ -83,6 +92,7 @@ function Lookups.Load(slot_data)
         local swaps = slot_data.quest_swaps
         local locations = slot_data.quest_locations
         local names = slot_data.quest_names
+        local unlocks = slot_data.quest_unlocks
         if type(swaps) ~= "table" or type(locations) ~= "table" then
             return false, "quest_swaps / quest_locations missing"
         end
@@ -100,7 +110,26 @@ function Lookups.Load(slot_data)
                 Lookups.quest_names[tostring(k)] = v
             end
         end
+        if type(unlocks) == "table" then
+            for k, v in pairs(unlocks) do
+                Lookups.quest_unlocks[tostring(k)] = v
+            end
+        end
         Lookups.goal_quest = tonumber(slot_data.goal_quest)
+        Lookups.starting_quest = tonumber(slot_data.starting_quest)
+
+        -- Weapons cache (same shape as HuntAThon branch below). The
+        -- weapon gate at quest-clear time reads these.
+        if slot_data.include_weapons then
+            Weapons.enabled = true
+            local wmap = slot_data.weapon_type_to_item_name
+            if type(wmap) == "table" then
+                for k, v in pairs(wmap) do
+                    Weapons.weapon_type_to_item_name[tostring(k)] = v
+                end
+            end
+            Weapons.starting_weapon = slot_data.starting_weapon
+        end
 
         Lookups.connected = true
         return true

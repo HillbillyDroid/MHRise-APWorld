@@ -7,8 +7,10 @@ Two modes, two location families (see options.py:Mode):
   — the two-slot structure exists purely to double the multiworld item
   slots per monster.
 
-- QuestRando: one location per village quest, `f"Clear: {quest.name}"`.
-  Fires once when the quest is cleared.
+- QuestRando: two locations per village quest in the active pool,
+  `f"Clear: {quest.name} (1/2)"` and `f"Clear: {quest.name} (2/2)"`.
+  Both fire on the same quest-clear event (same two-slot design as
+  HuntAThon).
 
 IDs are static and known at module import time (same stability story as
 items.py) so the datapackage stays frozen across seeds and option/mode
@@ -18,10 +20,11 @@ ID layout:
 - 1..(2N): monster hunt locations. Order matches items.py
   (`MONSTERS + APEX_MONSTERS + SMALL_MONSTERS`); each monster reserves
   two consecutive IDs (`(1/2)` then `(2/2)`).
-- 2000..2999: per-village-quest clear locations. One per
-  `EnemyLv.Village` entry in QUESTS, parallel to the matching unlock
-  item ID. Reserved unconditionally so the datapackage stays frozen
-  across modes.
+- 2000..2999: per-village-quest clear locations. Two consecutive IDs
+  per entry in `QUESTRANDO_VILLAGE_QUESTS` (filtered identically to
+  items.py via `_in_questrando_pool`), `(1/2)` then `(2/2)`. Items
+  and locations live in separate AP namespaces, so the 2000+ id range
+  is shared with the `Unlock:` item ids without collision.
 
 Only locations the active mode uses get added to the multiworld; the
 rest sit in the static map for datapackage stability.
@@ -33,7 +36,11 @@ from typing import TYPE_CHECKING
 
 from BaseClasses import Location, LocationProgressType
 
-from .items import ALL_CURATED_MONSTERS, VILLAGE_QUESTS, quest_display_name
+from .items import (
+    ALL_CURATED_MONSTERS,
+    QUESTRANDO_VILLAGE_QUESTS,
+    quest_display_name,
+)
 from .options import Mode
 
 if TYPE_CHECKING:
@@ -42,6 +49,7 @@ if TYPE_CHECKING:
 
 LOCATION_ID_BASE = 0
 LOCATIONS_PER_MONSTER = 2
+LOCATIONS_PER_QUEST = 2
 QUEST_CLEAR_ID_BASE = 2000
 
 LOCATION_NAME_TO_ID: dict[str, int] = {}
@@ -53,12 +61,13 @@ for _i, _monster in enumerate(ALL_CURATED_MONSTERS):
         assert _name not in LOCATION_NAME_TO_ID, f"duplicate location name {_name}"
         LOCATION_NAME_TO_ID[_name] = _id
 
-for _i, _quest in enumerate(VILLAGE_QUESTS):
-    _id = QUEST_CLEAR_ID_BASE + _i
-    assert _id < 9000, "village quest count overflowed reserved range"
-    _name = f"Clear: {quest_display_name(_quest)}"
-    assert _name not in LOCATION_NAME_TO_ID, f"duplicate location name {_name}"
-    LOCATION_NAME_TO_ID[_name] = _id
+for _i, _quest in enumerate(QUESTRANDO_VILLAGE_QUESTS):
+    for _slot in range(LOCATIONS_PER_QUEST):
+        _id = QUEST_CLEAR_ID_BASE + _i * LOCATIONS_PER_QUEST + _slot
+        assert _id < 9000, "QuestRando village quest count overflowed reserved range"
+        _name = f"Clear: {quest_display_name(_quest)} ({_slot + 1}/{LOCATIONS_PER_QUEST})"
+        assert _name not in LOCATION_NAME_TO_ID, f"duplicate location name {_name}"
+        LOCATION_NAME_TO_ID[_name] = _id
 
 
 def hunt_location_names(monster: dict) -> list[str]:
@@ -70,9 +79,13 @@ def hunt_location_names(monster: dict) -> list[str]:
     ]
 
 
-def quest_clear_location_name(quest: dict) -> str:
-    """AP location name for clearing a village quest."""
-    return f"Clear: {quest_display_name(quest)}"
+def quest_clear_location_names(quest: dict) -> list[str]:
+    """Return the AP location names for clearing a quest — both slots.
+    Both fire on the same in-game quest-clear event."""
+    return [
+        f"Clear: {quest_display_name(quest)} ({slot + 1}/{LOCATIONS_PER_QUEST})"
+        for slot in range(LOCATIONS_PER_QUEST)
+    ]
 
 
 class MHRiseLocation(Location):
@@ -113,20 +126,21 @@ def _create_locations_huntathon(world: MHRiseWorld) -> None:
 
 
 def _create_locations_questrando(world: MHRiseWorld) -> None:
-    """Add one Clear-location per village quest in the active pool."""
+    """Add two Clear-locations per village quest in the active pool."""
     from .regions import ORIGIN_REGION_NAME
 
     origin = world.get_region(ORIGIN_REGION_NAME)
 
     location_map: dict[str, int] = {}
     for quest in world.quest_pool:
-        name = quest_clear_location_name(quest)
-        location_map[name] = LOCATION_NAME_TO_ID[name]
+        for name in quest_clear_location_names(quest):
+            location_map[name] = LOCATION_NAME_TO_ID[name]
 
     origin.add_locations(location_map, MHRiseLocation)
 
-    # Goal quest's clear location is EXCLUDED so AP fill doesn't strand
-    # progression items at it. place_locked_item bypasses the
-    # progress_type flag, so the Victory lock still works.
-    goal_loc = quest_clear_location_name(world.goal_quest)
-    world.get_location(goal_loc).progress_type = LocationProgressType.EXCLUDED
+    # Both goal quest clear locations are EXCLUDED so AP fill doesn't
+    # strand progression items at the run-ending clear. (2/2) is locked
+    # with Victory in items.place_victory; place_locked_item bypasses
+    # progress_type, so the lock still works.
+    for name in quest_clear_location_names(world.goal_quest):
+        world.get_location(name).progress_type = LocationProgressType.EXCLUDED

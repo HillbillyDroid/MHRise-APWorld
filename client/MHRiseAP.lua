@@ -91,9 +91,19 @@ AP_REF.on_slot_connected = function(slot_data)
         for _ in pairs(Lookups.quest_swaps) do n_swaps = n_swaps + 1 end
         local goal_name = Lookups.quest_names[tostring(Lookups.goal_quest)]
             or tostring(Lookups.goal_quest)
-        send_chat(string.format(
-            "[AP] Quest Randomizer mode — %d quests randomized. Goal: %s.",
-            n_swaps, goal_name))
+        local starter_name = Lookups.quest_names[tostring(Lookups.starting_quest)]
+            or tostring(Lookups.starting_quest)
+        local banner
+        if Weapons.enabled and Weapons.starting_weapon then
+            banner = string.format(
+                "[AP] Quest Randomizer mode — %d quests randomized. Starter: %s. Goal: %s. Weapon: %s.",
+                n_swaps, starter_name, goal_name, tostring(Weapons.starting_weapon))
+        else
+            banner = string.format(
+                "[AP] Quest Randomizer mode — %d quests randomized. Starter: %s. Goal: %s.",
+                n_swaps, starter_name, goal_name)
+        end
+        send_chat(banner)
         Quests.InstallHooks()
     elseif Weapons.enabled and Weapons.starting_weapon then
         send_chat(string.format("[AP] Connected. Starter: %s. Goal: %s. Weapon: %s.",

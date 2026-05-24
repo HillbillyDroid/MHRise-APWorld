@@ -1,14 +1,21 @@
--- Quest randomizer mode (swap-only design). Two hooks:
+-- Quest randomizer mode. Two hooks:
 --
 -- 1. snow.QuestManager.initQuestDataDictionary (post): walk
 --    Lookups.quest_swaps and mutate each affected QuestData's
 --    _BossEmType[0] / _TgtEmType[0] via array:call("Set", 0, em_type)
 --    (RiseQuestLoader idiom validated by Probe 3).
 -- 2. snow.QuestManager.setQuestClear (no args, pre): on a successful
---    clear, send the matching `Clear: <name>` location to AP if the
---    quest is in Lookups.quest_locations (the seed's village quest
---    set). Hub / event / rampage clears fire the same hook but are
---    silently dropped.
+--    clear, send BOTH `Clear: <name> (1/2)` + `(2/2)` locations to
+--    AP if the quest is in Lookups.quest_locations (the seed's
+--    village quest set) AND the player holds:
+--    - the matching `Unlock: <name>` item (always required), and
+--    - the license for their currently-equipped weapon (when
+--      `include_weapons` is on).
+--    Hub / event / rampage clears fire the same hook but are
+--    silently dropped (not in Lookups.quest_locations). Re-clears
+--    of the same quest re-fire the hook; AP server dedupes location
+--    IDs at its layer, so re-clearing after picking up the unlock
+--    later is the correct way to claim a missed check.
 --
 -- Vanilla engine progression drives village questboard visibility —
 -- this client doesn't try to gate per-quest visibility on AP items.
@@ -17,8 +24,10 @@
 local Quests = {}
 
 local Lookups = require("AP_CLIENT/Lookups")
+local Items = require("AP_CLIENT/Items")
 local Session = require("AP_CLIENT/Session")
 local Tracker = require("AP_CLIENT/Tracker")
+local Weapons = require("AP_CLIENT/Weapons")
 
 Quests.hooks_installed = false
 Quests.swaps_applied = false
@@ -145,6 +154,15 @@ local function get_active_quest_no()
     return nil
 end
 
+-- Build the two Clear: location names for a quest. Mirror of
+-- locations.py:quest_clear_location_names.
+local function clear_locations_for(quest_display_name)
+    return {
+        string.format("Clear: %s (1/2)", quest_display_name),
+        string.format("Clear: %s (2/2)", quest_display_name),
+    }
+end
+
 local function on_quest_cleared()
     if Lookups.mode ~= "quest_rando" then return end
     local solo, count = Session.IsSolo()
@@ -171,25 +189,62 @@ local function on_quest_cleared()
     end
 
     local quest_display_name = Lookups.quest_names[tostring(qn)] or tostring(qn)
-    local loc_name = "Clear: " .. quest_display_name
+
+    -- Soft gate: require the matching Unlock: <name> item. The
+    -- starter (qn == Lookups.starting_quest) is precollected, so
+    -- Items.Has() returns true for it after slot_connect. Other
+    -- unlocks must arrive from the multiworld.
+    local unlock_name = Lookups.quest_unlocks[tostring(qn)]
+    if unlock_name and not Items.Has(unlock_name) then
+        send_chat(string.format(
+            "[AP] Cleared %s but unlock not yet held — re-clear once unlocked",
+            quest_display_name))
+        log.info(string.format(
+            "[Quests] qn=%d cleared without unlock %q — dropping",
+            qn, unlock_name))
+        return
+    end
+
+    -- Weapon gate (when enabled): same soft-gate shape as Monsters.lua
+    -- uses for hunts. The wielded weapon's license must be held; the
+    -- precollected starter weapon is treated as always held by
+    -- Weapons.HasLicenseForCurrent().
+    if Weapons.enabled and not Weapons.HasLicenseForCurrent() then
+        local wname = Weapons.GetCurrentName() or "?"
+        send_chat(string.format(
+            "[AP] Cleared %s but %s license not held — re-clear once licensed",
+            quest_display_name, wname))
+        log.info(string.format(
+            "[Quests] qn=%d cleared without weapon license (%s) — dropping",
+            qn, wname))
+        return
+    end
 
     local AP_REF = _G.AP_REF
     if not AP_REF or not AP_REF.APClient then return end
     local game = AP_REF.APClient:get_game()
-    local loc_id = AP_REF.APClient:get_location_id(loc_name, game)
-    if not loc_id or loc_id <= 0 then
-        log.info(string.format(
-            "[Quests] no location id for '%s'", loc_name))
-        return
-    end
 
-    local ok = AP_REF.APClient:LocationChecks({loc_id})
+    local ids = {}
+    for _, loc_name in ipairs(clear_locations_for(quest_display_name)) do
+        local id = AP_REF.APClient:get_location_id(loc_name, game)
+        if id and id > 0 then
+            ids[#ids + 1] = id
+        else
+            log.info(string.format(
+                "[Quests] no location id for '%s'", loc_name))
+        end
+    end
+    if #ids == 0 then return end
+
+    local ok = AP_REF.APClient:LocationChecks(ids)
     if ok then
         Tracker.MarkQuestCleared(qn)
         send_chat(string.format("[AP] Sent check: Clear %s", quest_display_name))
         log.info(string.format(
-            "[Quests] sent clear check for qn=%d (%s) id=%d",
-            qn, quest_display_name, loc_id))
+            "[Quests] sent clear checks for qn=%d (%s) ids=%s",
+            qn, quest_display_name, table.concat(
+                (function() local s = {} for _, v in ipairs(ids) do s[#s+1] = tostring(v) end return s end)(), ","
+            )))
     else
         log.info(string.format(
             "[Quests] LocationChecks failed for qn=%d", qn))

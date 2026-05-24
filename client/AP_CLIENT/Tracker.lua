@@ -3,7 +3,8 @@
 --
 -- HuntAThon: Available Monsters / Available Weapons (when enabled) /
 --            Hunted Monsters / Locked Monsters.
--- QuestRando: Available Quests / Cleared Quests / Locked Quests.
+-- QuestRando: Available Quests (unlock held, not yet cleared) /
+--             Cleared Quests / Locked Quests (unlock NOT held).
 --
 -- Visibility is owned by Tracker.visible. Auto-flipped to true on
 -- successful slot_connect (see MHRiseAP.lua), reset to false on
@@ -77,9 +78,11 @@ function Tracker.NoteLocationChecked(loc_id)
         note_check(monster, slot)
         return
     end
-    -- QuestRando: Clear: <name> location. Cross-reference against
-    -- Lookups.quest_names to find the matching quest_no.
-    local quest_name = loc_name:match("^Clear: (.*)$")
+    -- QuestRando: `Clear: <name> (n/2)` location. Cross-reference
+    -- against Lookups.quest_names to find the matching quest_no.
+    -- Either slot maps back to the same quest_no (both fire on the
+    -- same in-game clear event).
+    local quest_name = loc_name:match("^Clear: (.*) %(%d+/%d+%)$")
     if quest_name then
         for qn_str, name in pairs(Lookups.quest_names) do
             if name == quest_name then
@@ -159,25 +162,35 @@ local function build_sections()
     return available_monsters, available_weapons, hunted, locked
 end
 
--- QuestRando sections (swap-only design).
+-- QuestRando sections.
 -- Cleared = AP Clear: check has been sent (one-way).
--- Available = every other quest in the seed. Vanilla engine
---            progression decides which are actually visible /
---            acceptable in-game; we don't model that here.
+-- Available = unlock held + not yet cleared.
+-- Locked = unlock NOT held + not yet cleared. (Mirrors HuntAThon's
+--          Locked Monsters section.) Vanilla engine progression
+--          decides which Available quests are actually visible /
+--          acceptable in-game; we don't model that here.
 local function build_quest_sections()
     local available = {}
+    local locked = {}
     local cleared = {}
     for qn_str, _ in pairs(Lookups.quest_locations) do
         local display = Lookups.quest_names[qn_str] or qn_str
         if Tracker.quest_cleared[qn_str] then
             cleared[#cleared + 1] = display
         else
-            available[#available + 1] = display
+            local unlock_name = Lookups.quest_unlocks[qn_str]
+            local held = unlock_name == nil or Items.Has(unlock_name)
+            if held then
+                available[#available + 1] = display
+            else
+                locked[#locked + 1] = display
+            end
         end
     end
     table.sort(available)
+    table.sort(locked)
     table.sort(cleared)
-    return available, cleared
+    return available, locked, cleared
 end
 
 local function draw_section(label, items)
@@ -204,10 +217,10 @@ function Tracker.Draw()
     -- Build sections OUTSIDE the imgui begin/end pair so a bad table
     -- iteration can't leave imgui in a half-open state.
     local available_monsters, available_weapons, hunted_monsters, locked_monsters
-    local available_quests, cleared_quests
+    local available_quests, locked_quests, cleared_quests
     local build_ok, build_err = pcall(function()
         if Lookups.mode == "quest_rando" then
-            available_quests, cleared_quests = build_quest_sections()
+            available_quests, locked_quests, cleared_quests = build_quest_sections()
         else
             available_monsters, available_weapons, hunted_monsters, locked_monsters = build_sections()
         end
@@ -227,6 +240,7 @@ function Tracker.Draw()
             if Lookups.mode == "quest_rando" then
                 draw_section("Available Quests", available_quests)
                 draw_section("Cleared Quests", cleared_quests)
+                draw_section("Locked Quests", locked_quests)
             else
                 draw_section("Available Monsters", available_monsters)
                 if Weapons.enabled then

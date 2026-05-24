@@ -17,8 +17,9 @@ from worlds.AutoWorld import World
 from . import items, locations, regions, rules
 from . import options as mhrise_options  # rename due to a name conflict with World.options
 from .data.monsters import MONSTERS, SUNBREAK_MONSTERS
-from .data.quests import EnemyLv, QuestType, QUESTS
+from .data.quests import QUESTS
 from .data.weapons import WEAPONS
+from .items import _in_questrando_pool, STARTER_QUEST_NO
 from .options import Mode
 from .web_world import MHRiseWebWorld
 
@@ -84,18 +85,22 @@ class MHRiseWorld(World):
     seed_monsters: list[dict]
 
     # Populated by generate_early (QuestRando only).
-    # quest_pool: every EnemyLv.Village quest with a real boss (the
-    # universe of locations sent on clear). Source of truth for "is
-    # this quest part of the seed?" downstream of generate_early.
+    # quest_pool: the village quests in this seed's randomizer scope
+    # (filtered by items._in_questrando_pool — no training, no
+    # rampage, no QL5/QL6 except goal). Source of truth for "is this
+    # quest part of the seed?" downstream of generate_early.
     quest_pool: list[dict]
     # The goal quest (Comeuppance, quest_no=501). Boss NOT swapped;
-    # its Clear location is locked with Victory.
+    # its Clear (2/2) location is locked with Victory.
     goal_quest: dict
+    # The starter quest (quest_no=202, Great Izuchi, Great Pain). Its
+    # `Unlock:` item is precollected so the player can send checks
+    # from t=0.
+    starting_quest: dict
     # quest_no -> new boss em_type. The Lua client applies these by
     # mutating QuestData._BossEmType[0] / _TgtEmType[0] on the
-    # initQuestDataDictionary post-hook (Probe 3 idiom). Training
-    # quests and the goal quest are NOT in this map (vanilla bosses
-    # preserved).
+    # initQuestDataDictionary post-hook (Probe 3 idiom). The goal
+    # quest is NOT in this map (vanilla Magnamalo preserved).
     quest_swaps: dict[int, int]
 
     def generate_early(self) -> None:
@@ -166,18 +171,12 @@ class MHRiseWorld(World):
             self.starting_weapon = self.random.choice(self.weapon_pool)
 
     def _generate_early_questrando(self) -> None:
-        """QuestRando mode (swap-only design).
+        """QuestRando mode.
 
-        Vanilla village quest progression drives questboard visibility:
-        the engine handles tier unlocks as the player clears each
-        tier's urgent normally. AP randomization is **only** the boss
-        monster of each village quest — every quest with a randomizable
-        boss gets a random swap. Quest CLEARS send AP location checks.
-
-        Quest pool: every `EnemyLv.Village` quest with a real boss
-        (`monster_bucket == "monster"`, including training quests so
-        the player can clear them and advance to QL2). Goal is
-        Comeuppance (QL5 Magnamalo), not swapped.
+        Quest pool: village quests passing `_in_questrando_pool` —
+        QL2 + QL3 + QL4 hunting quests plus the QL5 goal (Comeuppance).
+        Training quests, rampage quests, and other QL5/QL6 entries are
+        excluded. Goal is Comeuppance (QL5 Magnamalo), not swapped.
 
         Swap pool (which monsters can replace a quest's boss): the
         per-host-quest set of monsters Capcom themselves placed as a
@@ -197,22 +196,13 @@ class MHRiseWorld(World):
         no-op for the current catalog (no vanilla quest uses a Risen
         variant) but stays wired.
 
-        Training quests are in the pool (so the player gets an AP
-        check for clearing them, which they MUST do to advance the
-        engine's tier gating), but they are NOT swapped — their
-        clear logic is more than "kill the target", so a swap
-        soft-locks the tutorial.
-
-        No item/quest-unlock layer in this mode — visibility is
-        engine-driven. The itempool is filled with Poogie filler;
-        future work can layer rarity-license / crafting-material AP
-        items on top.
+        Items: one `Unlock: <name>` per pool quest. Starter
+        (quest_no=202, Great Izuchi, Great Pain) precollected.
+        `Unlock: Comeuppance` is the run-ending progression item.
+        Weapon licenses honored when `IncludeWeapons` is on (mirrors
+        HuntAThon), pool drawn from `WeaponPool`.
         """
-        village_with_monster = [
-            q for q in QUESTS
-            if q["enemy_level"] == EnemyLv.Village
-            and q["monster_bucket"] == "monster"
-        ]
+        village_with_monster = [q for q in QUESTS if _in_questrando_pool(q)]
         if not village_with_monster:
             raise ValueError(
                 "QuestRando quest pool is empty — quest catalog out of sync"
@@ -225,9 +215,20 @@ class MHRiseWorld(World):
         if goal_quest is None:
             raise ValueError(
                 f"goal quest (quest_no={items.COMEUPPANCE_QUEST_NO}, Comeuppance) "
-                "not found in village-with-monster pool — quest catalog out of sync"
+                "not found in QuestRando pool — quest catalog out of sync"
+            )
+        starter_quest = next(
+            (q for q in village_with_monster if q["quest_no"] == STARTER_QUEST_NO),
+            None,
+        )
+        if starter_quest is None:
+            raise ValueError(
+                f"starter quest (quest_no={STARTER_QUEST_NO}, Great Izuchi, "
+                "Great Pain) not found in QuestRando pool — quest catalog "
+                "out of sync"
             )
         self.goal_quest = goal_quest
+        self.starting_quest = starter_quest
         self.quest_pool = list(village_with_monster)
 
         # Per-map safe-swap pools: monsters Capcom placed as a boss
@@ -265,14 +266,12 @@ class MHRiseWorld(World):
         # deterministic given the seed.
         map_to_safe_ems = {mp: sorted(s) for mp, s in map_to_safe_ems.items()}
 
-        # Swap every non-goal, non-training quest. Training quests
-        # stay vanilla (their clear logic isn't a simple kill) — the
-        # engine still needs them cleared to advance tiers.
+        # Swap every non-goal quest. Training and rampage quests are
+        # already filtered out of `quest_pool` by `_in_questrando_pool`,
+        # so we don't need to re-check them here.
         self.quest_swaps = {}
         for quest in self.quest_pool:
             if quest["quest_no"] == goal_quest["quest_no"]:
-                continue
-            if QuestType.TRAINING in quest["quest_type"]:
                 continue
             candidates = map_to_safe_ems.get(quest["map_no"])
             if not candidates:
@@ -281,6 +280,25 @@ class MHRiseWorld(World):
                 continue
             target_em = self.random.choice(candidates)
             self.quest_swaps[quest["quest_no"]] = target_em
+
+        # Weapon licenses (when enabled). Same shape as HuntAThon: a
+        # random WeaponPool subset, one precollected starter, the
+        # rest dropped into the itempool by create_items.
+        if bool(self.options.include_weapons.value):
+            allowed_weapon_names = set(self.options.weapon_pool.value)
+            if not allowed_weapon_names:
+                raise ValueError(
+                    "weapon_pool must contain at least one weapon name "
+                    "when include_weapons is enabled."
+                )
+            self.weapon_pool = [
+                w for w in WEAPONS if w["name"] in allowed_weapon_names
+            ]
+            assert self.weapon_pool, (
+                "weapon_pool resolved to empty after filtering — "
+                "OptionSet.valid_keys should have caught unknown names."
+            )
+            self.starting_weapon = self.random.choice(self.weapon_pool)
 
     def create_regions(self) -> None:
         regions.create_and_connect_regions(self)
@@ -329,9 +347,26 @@ class MHRiseWorld(World):
             slot_data["quest_locations"] = {
                 str(q["quest_no"]): 1 for q in self.quest_pool
             }
+            # quest_no -> matching `Unlock: <name>` item name. The Lua
+            # client consults Items.held[unlock_name] at clear time to
+            # decide whether to send the AP check.
+            slot_data["quest_unlocks"] = {
+                str(q["quest_no"]): items.unlock_item_name(q)
+                for q in self.quest_pool
+            }
             slot_data["goal_quest"] = self.goal_quest["quest_no"]
+            slot_data["starting_quest"] = self.starting_quest["quest_no"]
             slot_data["include_sunbreak"] = bool(self.options.include_sunbreak.value)
             slot_data["include_risen"] = bool(self.options.include_risen.value)
+            slot_data["include_weapons"] = bool(self.options.include_weapons.value)
+            if bool(self.options.include_weapons.value):
+                slot_data["weapon_type_to_item_name"] = {
+                    w["weapon_type"]: items.weapon_license_item_name(w)
+                    for w in WEAPONS
+                }
+                slot_data["starting_weapon"] = (
+                    self.starting_weapon["name"] if self.starting_weapon else None
+                )
         else:
             # The critical piece is `monster_em_type_map`: a dict from
             # license item name to the in-game EmType integer the death

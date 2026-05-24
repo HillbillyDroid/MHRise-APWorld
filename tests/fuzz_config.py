@@ -69,12 +69,15 @@ EDGE_CONFIGS: list[dict[str, Any]] = [
     {**DEFAULT_CONFIG, "include_sunbreak": False, "monster_count": 60},
     {**DEFAULT_CONFIG, "weapon_pool": [WEAPON_NAMES[0]]},
     {**DEFAULT_CONFIG, "include_sunbreak": False, "include_risen": False, "monster_count": 32},
-    # QuestRando: option toggles other than `mode` are silently ignored,
-    # but exercise the combinations anyway to confirm they don't break gen.
+    # QuestRando: now honors include_weapons / weapon_pool too. Exercise
+    # the toggles and weapon-pool truncation.
     QUEST_RANDO_CONFIG,
     {**QUEST_RANDO_CONFIG, "include_sunbreak": False},
     {**QUEST_RANDO_CONFIG, "include_risen": True},
     {**QUEST_RANDO_CONFIG, "include_weapons": False},
+    {**QUEST_RANDO_CONFIG, "include_sunbreak": False, "include_weapons": False},
+    {**QUEST_RANDO_CONFIG, "weapon_pool": [WEAPON_NAMES[0]]},
+    {**QUEST_RANDO_CONFIG, "weapon_pool": WEAPON_NAMES[:3]},
 ]
 
 

@@ -1,12 +1,21 @@
 """Per-slot options for the MH Rise apworld.
 
 Two mutually-exclusive modes via the `mode` option:
-- HuntAThon (default): per-monster license soft-gate. All other options
-  (IncludeSunbreak / IncludeRisen / IncludeWeapons / WeaponPool /
-  MonsterCount) apply here.
-- QuestRando: per-quest unlock items hard-gate village quests; each quest's
-  spawned monster is randomly swapped. Goal = clearing "Comeuppance".
-  Other options are silently ignored in this mode.
+- HuntAThon (default): per-monster license soft-gate.
+- QuestRando: per-quest `Unlock:` items soft-gate clear checks; each
+  pool quest's spawned monster is randomly swapped. Goal = clearing
+  "Comeuppance".
+
+Options that apply per mode:
+- IncludeSunbreak: both modes.
+- IncludeRisen: HuntAThon only (no Risen variant currently appears in
+  any vanilla quest, so a no-op in QuestRando — wired anyway).
+- IncludeWeapons / WeaponPool: both modes. In QuestRando the gate
+  fires at clear time (same soft-gate shape as HuntAThon's hunt
+  gate); weapon licenses fill spare itempool slots and one is
+  precollected as the starter.
+- MonsterCount: HuntAThon only — QuestRando's pool size is derived
+  from the village quest catalog.
 """
 
 from __future__ import annotations
@@ -23,15 +32,16 @@ _WEAPON_NAMES = {w["name"] for w in WEAPONS}
 class Mode(Choice):
     """Game mode.
 
-    - `hunt_a_thon` (default): hunting a large monster requires its license.
-      Licenses are scattered across the multiworld. Standard hunt-for-keys
-      loop. IncludeSunbreak / IncludeRisen / IncludeWeapons / WeaponPool /
-      MonsterCount all apply.
-    - `quest_rando`: per-quest unlocks hard-gate the village questboard;
-      each randomized village quest's boss monster is swapped to a random
-      other monster. Goal = clearing the final village urgent quest
-      "Comeuppance" (its boss stays as the intended Magnamalo). The other
-      options are silently ignored in this mode."""
+    - `hunt_a_thon` (default): hunting a large monster requires its
+      license. Licenses are scattered across the multiworld. Standard
+      hunt-for-keys loop.
+    - `quest_rando`: each village quest's boss monster is randomly
+      swapped (within per-map compatibility). Clearing a quest sends
+      AP checks when the matching `Unlock: <quest>` and — if weapons
+      are enabled — the wielded weapon's license are held. Goal =
+      clearing the final village urgent "Comeuppance" (its boss stays
+      as the intended Magnamalo). MonsterCount is ignored in this
+      mode; the rest of the options apply."""
 
     display_name = "Mode"
     option_hunt_a_thon = 0
@@ -57,10 +67,10 @@ class IncludeRisen(Toggle):
 
 class IncludeWeapons(DefaultOnToggle):
     """Add weapon-type licenses to the pool. When enabled, weapon
-    licenses fill the spare itempool slots (after monster licenses);
-    the player needs the license for their currently-equipped weapon to
-    complete a hunt (client-side soft gate). One random weapon license
-    is always precollected."""
+    licenses fill the spare itempool slots; the player needs the
+    license for their currently-equipped weapon to complete a hunt
+    (HuntAThon) or send a quest-clear check (QuestRando). One random
+    weapon license is always precollected. Applies to both modes."""
 
     display_name = "Include Weapons"
 
@@ -78,7 +88,8 @@ class WeaponPool(OptionSet):
 
     Must contain at least one valid weapon name. Names are
     case-sensitive and must match the entries in `data/weapons.py`.
-    No effect when `include_weapons` is disabled."""
+    No effect when `include_weapons` is disabled. Applies to both
+    modes."""
 
     display_name = "Weapon Pool"
     valid_keys = _WEAPON_NAMES
