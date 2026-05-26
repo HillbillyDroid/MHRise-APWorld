@@ -33,6 +33,16 @@ jobs:
             exit 1
           fi
 
+      - name: Verify archipelago.json has compatible_version (APContainer schema int)
+        run: |
+          python <<'PY'
+          import json, sys
+          cv = json.load(open('ap_world/archipelago.json')).get('compatible_version')
+          if not isinstance(cv, int):
+              print("::error::archipelago.json missing 'compatible_version' (int APContainer schema version, not semver). Expected: 7.")
+              sys.exit(1)
+          PY
+
       - name: Build mhrise.apworld
         run: python ap_world/build_apworld.py
 
