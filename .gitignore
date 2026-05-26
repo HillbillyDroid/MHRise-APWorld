@@ -15,6 +15,7 @@ __pycache__/
 # Build outputs
 mhrise.apworld
 mhrise-client.zip
+debug_tools/*.json
 
 # Agent context — not sure whether upstream Archipelago commits these
 CLAUDE.md
