@@ -16,7 +16,7 @@ WORLD_NAME = "mhrise"
 # Paths/files that should never be packaged.
 EXCLUDE_DIRS = {"__pycache__", ".git", ".idea", ".vscode", ".mypy_cache", ".pytest_cache"}
 EXCLUDE_SUFFIXES = {".pyc", ".pyo"}
-EXCLUDE_FILES = {"build_apworld.py"}
+EXCLUDE_FILES = {"build_apworld.py", "ARCHITECTURE.md"}
 
 
 def should_skip(path: Path) -> bool:

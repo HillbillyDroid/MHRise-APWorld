@@ -21,4 +21,6 @@ debug_tools/*.json
 CLAUDE.md
 *PLAN.md
 QUEST.md
+ap_world/ARCHITECTURE.md
+client/ARCHITECTURE.md
 
