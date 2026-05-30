@@ -41,10 +41,24 @@ Tracker.visible = false
 -- CLAUDE.md.)
 Tracker.checked = {}
 
--- QuestRando ledger: string(quest_no) -> true when the quest's
--- Clear: location has been sent (locally) or confirmed via
--- on_location_checked (server echo). One-way move.
+-- QuestRando ledger: string(quest_no) -> { ["1"] = true, ["2"] = true }.
+-- Mirrors Tracker.checked: a quest has TWO Clear: locations — Clear X
+-- (1/2) and (2/2) — and only counts as cleared when BOTH slots are
+-- present. A single slot arriving (e.g. another world releasing one of
+-- our two Clear: locations) must NOT mark the quest cleared (gh #18).
+--
+-- Two populate paths, same shape as the monster ledger:
+--   1. Self-clears: Tracker.MarkQuestCleared(quest_no) marks BOTH slots
+--      at once (a self-clear sends both ids in one LocationChecks call).
+--      Also flags self_cleared so the tracker can distinguish a quest
+--      the player actually cleared from one completed only by releases.
+--   2. Other-world releases: Tracker.NoteLocationChecked(loc_id) marks
+--      one slot at a time via the (n/2) suffix.
 Tracker.quest_cleared = {}
+-- string(quest_no) -> true when the player cleared the quest in-game
+-- themselves (vs the two Clear: locations being filled only by external
+-- releases). Drives the "(via release)" annotation in the tracker.
+Tracker.quest_self_cleared = {}
 
 local function license_to_name(item_name)
     return item_name:match("^(.*) License$") or item_name
@@ -66,6 +80,22 @@ local function is_fully_hunted(monster)
     return entry ~= nil and entry["1"] == true and entry["2"] == true
 end
 
+local function note_quest_slot(qn_str, slot)
+    if type(qn_str) ~= "string" or qn_str == "" then return end
+    if type(slot) ~= "string" or slot == "" then return end
+    local entry = Tracker.quest_cleared[qn_str]
+    if not entry then
+        entry = {}
+        Tracker.quest_cleared[qn_str] = entry
+    end
+    entry[slot] = true
+end
+
+local function is_fully_cleared(qn_str)
+    local entry = Tracker.quest_cleared[qn_str]
+    return entry ~= nil and entry["1"] == true and entry["2"] == true
+end
+
 function Tracker.NoteLocationChecked(loc_id)
     local AP_REF = _G.AP_REF
     if not AP_REF or not AP_REF.APClient then return end
@@ -80,14 +110,15 @@ function Tracker.NoteLocationChecked(loc_id)
         return
     end
     -- QuestRando: `Clear: <name> (n/2)` location. Cross-reference
-    -- against Lookups.quest_names to find the matching quest_no.
-    -- Either slot maps back to the same quest_no (both fire on the
-    -- same in-game clear event).
-    local quest_name = loc_name:match("^Clear: (.*) %(%d+/%d+%)$")
-    if quest_name then
+    -- against Lookups.quest_names to find the matching quest_no, then
+    -- mark only THAT slot — the quest is cleared only once both slots
+    -- arrive (gh #18). AP doesn't reliably echo our own self-clear
+    -- sends, so this path normally fires only for external releases.
+    local q_name, q_slot = loc_name:match("^Clear: (.*) %((%d+)/%d+%)$")
+    if q_name and q_slot then
         for qn_str, name in pairs(Lookups.quest_names) do
-            if name == quest_name then
-                Tracker.quest_cleared[qn_str] = true
+            if name == q_name then
+                note_quest_slot(qn_str, q_slot)
                 return
             end
         end
@@ -103,15 +134,21 @@ function Tracker.MarkHunted(monster_name)
 end
 
 -- QuestRando: called from Quests.lua after a successful clear-check
--- LocationChecks send. Idempotent.
+-- LocationChecks send. A self-clear sends both (1/2) and (2/2) in the
+-- same LocationChecks call, so mark both slots at once and flag the
+-- quest as self-cleared. Idempotent.
 function Tracker.MarkQuestCleared(quest_no)
     if type(quest_no) ~= "number" then return end
-    Tracker.quest_cleared[tostring(quest_no)] = true
+    local qn_str = tostring(quest_no)
+    note_quest_slot(qn_str, "1")
+    note_quest_slot(qn_str, "2")
+    Tracker.quest_self_cleared[qn_str] = true
 end
 
 function Tracker.Reset()
     Tracker.checked = {}
     Tracker.quest_cleared = {}
+    Tracker.quest_self_cleared = {}
     Tracker.visible = false
 end
 
@@ -170,7 +207,10 @@ local function build_sections()
 end
 
 -- QuestRando sections.
--- Cleared = AP Clear: check has been sent (one-way).
+-- Cleared = BOTH Clear: locations registered (self-clear or external
+--   release). A quest cleared only by external releases (not by the
+--   player in-game) is suffixed " (via release)" so it's distinguished
+--   from a quest the player actually cleared (gh #18).
 -- Available = unlock held + all prereqs held + not yet cleared.
 -- Inaccessible = unlock held + some prereq unlock NOT held (tier not
 --   reached yet). Prereqs come from Lookups.quest_prereqs (slot_data).
@@ -192,7 +232,10 @@ local function build_quest_sections()
     end
     for qn_str, _ in pairs(Lookups.quest_locations) do
         local display = Lookups.quest_names[qn_str] or qn_str
-        if Tracker.quest_cleared[qn_str] then
+        if is_fully_cleared(qn_str) then
+            if not Tracker.quest_self_cleared[qn_str] then
+                display = display .. " (via release)"
+            end
             cleared[#cleared + 1] = display
         else
             local unlock_name = Lookups.quest_unlocks[qn_str]
