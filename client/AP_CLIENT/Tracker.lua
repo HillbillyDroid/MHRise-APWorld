@@ -1,9 +1,10 @@
 -- In-game tracker UI. Mode-aware: HuntAThon renders four monster /
--- weapon sections; QuestRando renders three quest sections.
+-- weapon sections; QuestRando renders four quest sections.
 --
 -- HuntAThon: Available Monsters / Available Weapons (when enabled) /
 --            Hunted Monsters / Locked Monsters.
--- QuestRando: Available Quests (unlock held, not yet cleared) /
+-- QuestRando: Available Quests (unlock held + prereqs met) /
+--             Inaccessible Quests (unlock held, prereqs unmet) /
 --             Cleared Quests / Locked Quests (unlock NOT held).
 --
 -- Visibility is owned by Tracker.visible. Auto-flipped to true on
@@ -164,15 +165,25 @@ end
 
 -- QuestRando sections.
 -- Cleared = AP Clear: check has been sent (one-way).
--- Available = unlock held + not yet cleared.
--- Locked = unlock NOT held + not yet cleared. (Mirrors HuntAThon's
---          Locked Monsters section.) Vanilla engine progression
---          decides which Available quests are actually visible /
---          acceptable in-game; we don't model that here.
+-- Available = unlock held + all prereqs held + not yet cleared.
+-- Inaccessible = unlock held + some prereq unlock NOT held (tier not
+--   reached yet). Prereqs come from Lookups.quest_prereqs (slot_data).
+--   If quest_prereqs is absent (older seed), treated as Available
+--   (back-compat).
+-- Locked = unlock NOT held + not yet cleared.
 local function build_quest_sections()
     local available = {}
+    local inaccessible = {}
     local locked = {}
     local cleared = {}
+    local function prereqs_met(qn_str)
+        local prereqs = Lookups.quest_prereqs[qn_str]
+        if prereqs == nil then return true end   -- back-compat: old seed
+        for _, item_name in ipairs(prereqs) do
+            if not Items.Has(item_name) then return false end
+        end
+        return true
+    end
     for qn_str, _ in pairs(Lookups.quest_locations) do
         local display = Lookups.quest_names[qn_str] or qn_str
         if Tracker.quest_cleared[qn_str] then
@@ -180,17 +191,20 @@ local function build_quest_sections()
         else
             local unlock_name = Lookups.quest_unlocks[qn_str]
             local held = unlock_name == nil or Items.Has(unlock_name)
-            if held then
+            if not held then
+                locked[#locked + 1] = display
+            elseif prereqs_met(qn_str) then
                 available[#available + 1] = display
             else
-                locked[#locked + 1] = display
+                inaccessible[#inaccessible + 1] = display
             end
         end
     end
     table.sort(available)
+    table.sort(inaccessible)
     table.sort(locked)
     table.sort(cleared)
-    return available, locked, cleared
+    return available, inaccessible, locked, cleared
 end
 
 -- QuestRando weapons section: list of held weapon-license names plus
@@ -246,10 +260,10 @@ function Tracker.Draw()
     -- Build sections OUTSIDE the imgui begin/end pair so a bad table
     -- iteration can't leave imgui in a half-open state.
     local available_monsters, available_weapons, hunted_monsters, locked_monsters
-    local available_quests, locked_quests, cleared_quests, quest_weapons
+    local available_quests, inaccessible_quests, locked_quests, cleared_quests, quest_weapons
     local build_ok, build_err = pcall(function()
         if Lookups.mode == "quest_rando" then
-            available_quests, locked_quests, cleared_quests = build_quest_sections()
+            available_quests, inaccessible_quests, locked_quests, cleared_quests = build_quest_sections()
             quest_weapons = build_quest_weapon_section()
         else
             available_monsters, available_weapons, hunted_monsters, locked_monsters = build_sections()
@@ -272,6 +286,7 @@ function Tracker.Draw()
                 if Weapons.enabled then
                     draw_section("Available Weapons", quest_weapons)
                 end
+                draw_section("Inaccessible Quests", inaccessible_quests)
                 draw_section("Cleared Quests", cleared_quests)
                 draw_section("Locked Quests", locked_quests)
             else

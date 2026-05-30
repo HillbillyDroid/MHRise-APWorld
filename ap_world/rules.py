@@ -49,6 +49,49 @@ _PRIOR_TIER_FOR_URGENT: dict[QuestLevel, QuestLevel] = {
 }
 
 
+def quest_prerequisite_unlock_names(quest_pool: list[dict]) -> dict[int, list[str]]:
+    """quest_no -> sorted prerequisite Unlock item names: everything the
+    quest's Clear rule requires EXCEPT its own unlock. Mirrors the rule
+    shape in _set_rules_questrando so the tracker can model engine-tier
+    accessibility client-side. QL2 (and any no-urgent tier) -> []."""
+    quest_by_no = {q["quest_no"]: q for q in quest_pool}
+    by_tier: dict[QuestLevel, list[dict]] = defaultdict(list)
+    for q in quest_pool:
+        by_tier[q["quest_level"]].append(q)
+
+    # For each urgent tier, build the sorted list of prior-tier unlock names.
+    urgent_prereqs_by_tier: dict[QuestLevel, list[str]] = {}
+    for tier in TIER_URGENT_QUEST_NOS:
+        prior_tier = _PRIOR_TIER_FOR_URGENT.get(tier)
+        if prior_tier is not None:
+            prior_names = sorted(
+                unlock_item_name(q) for q in by_tier.get(prior_tier, [])
+            )
+        else:
+            prior_names = []
+        urgent_prereqs_by_tier[tier] = prior_names
+
+    urgent_quest_nos = set(TIER_URGENT_QUEST_NOS.values())
+    result: dict[int, list[str]] = {}
+    for quest in quest_pool:
+        qn = quest["quest_no"]
+        tier = quest["quest_level"]
+        if qn in urgent_quest_nos:
+            prereqs = urgent_prereqs_by_tier.get(tier, [])
+        elif tier in TIER_URGENT_QUEST_NOS:
+            urgent_qn = TIER_URGENT_QUEST_NOS[tier]
+            urgent_quest = quest_by_no.get(urgent_qn)
+            if urgent_quest is not None:
+                own_urgent = unlock_item_name(urgent_quest)
+                prereqs = sorted(set([own_urgent] + urgent_prereqs_by_tier.get(tier, [])))
+            else:
+                prereqs = []
+        else:
+            prereqs = []
+        result[qn] = prereqs
+    return result
+
+
 def set_all_rules(world: MHRiseWorld) -> None:
     if world.options.mode.value == Mode.option_hunt_a_thon:
         _set_rules_huntathon(world)
@@ -86,42 +129,12 @@ def _set_rules_questrando(world: MHRiseWorld) -> None:
     QL2 quest just requires its own unlock. The precollected
     starter (qn=202) seeds sphere 0.
     """
-    quest_by_no = {q["quest_no"]: q for q in world.quest_pool}
-    by_tier: dict[QuestLevel, list[dict]] = defaultdict(list)
-    for q in world.quest_pool:
-        by_tier[q["quest_level"]].append(q)
-
-    # Build the urgent's rule for each tier first, then non-urgents
-    # in that tier chain off it.
-    urgent_rule_by_tier: dict[QuestLevel, object] = {}
-    for tier, qn in TIER_URGENT_QUEST_NOS.items():
-        urgent_quest = quest_by_no.get(qn)
-        if urgent_quest is None:
-            continue
-        own = Has(unlock_item_name(urgent_quest))
-        prior_tier = _PRIOR_TIER_FOR_URGENT.get(tier)
-        if prior_tier is not None:
-            prior_unlocks = [
-                unlock_item_name(q) for q in by_tier.get(prior_tier, [])
-            ]
-            if prior_unlocks:
-                urgent_rule_by_tier[tier] = own & HasAll(*prior_unlocks)
-                continue
-        urgent_rule_by_tier[tier] = own
-
-    urgent_quest_nos = set(TIER_URGENT_QUEST_NOS.values())
+    prereqs_by_no = quest_prerequisite_unlock_names(world.quest_pool)
 
     for quest in world.quest_pool:
         own = Has(unlock_item_name(quest))
-        if quest["quest_no"] in urgent_quest_nos:
-            rule = urgent_rule_by_tier.get(quest["quest_level"], own)
-        else:
-            urgent_rule = urgent_rule_by_tier.get(quest["quest_level"])
-            if urgent_rule is not None:
-                rule = own & urgent_rule
-            else:
-                # No urgent for this tier (QL2 — no chain).
-                rule = own
+        prereq_names = prereqs_by_no.get(quest["quest_no"], [])
+        rule = own & HasAll(*prereq_names) if prereq_names else own
         for loc_name in quest_clear_location_names(quest):
             world.set_rule(world.get_location(loc_name), rule)
 

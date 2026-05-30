@@ -357,6 +357,17 @@ class MHRiseWorld(World):
                 str(q["quest_no"]): items.unlock_item_name(q)
                 for q in self.quest_pool
             }
+            # quest_no -> list of prerequisite `Unlock: X` item names
+            # (the quest's tier-progression deps, excluding its own
+            # unlock). The tracker uses this to split held-unlock quests
+            # into Available (prereqs met) vs Inaccessible (prereqs unmet).
+            # Same source of truth as the AP fill rules. quest_no keys
+            # string-coerced (int-keyed-table gotcha).
+            slot_data["quest_prereqs"] = {
+                str(qn): names
+                for qn, names in rules.quest_prerequisite_unlock_names(
+                    self.quest_pool).items()
+            }
             slot_data["goal_quest"] = self.goal_quest["quest_no"]
             slot_data["starting_quest"] = self.starting_quest["quest_no"]
             slot_data["include_sunbreak"] = bool(self.options.include_sunbreak.value)

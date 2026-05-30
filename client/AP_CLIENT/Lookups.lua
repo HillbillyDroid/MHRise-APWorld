@@ -30,6 +30,7 @@ Lookups.quest_swaps = {}     -- "quest_no" -> em_type (int)
 Lookups.quest_names = {}     -- "quest_no" -> display name
 Lookups.quest_locations = {} -- "quest_no" -> 1 (set membership)
 Lookups.quest_unlocks = {}   -- "quest_no" -> "Unlock: <name>" item name
+Lookups.quest_prereqs = {}   -- "quest_no" -> { "Unlock: X", ... } (prereq unlock names)
 Lookups.goal_quest = nil     -- int (quest_no)
 Lookups.starting_quest = nil -- int (quest_no)
 
@@ -44,6 +45,7 @@ function Lookups.Reset()
     Lookups.quest_names = {}
     Lookups.quest_locations = {}
     Lookups.quest_unlocks = {}
+    Lookups.quest_prereqs = {}
     Lookups.goal_quest = nil
     Lookups.starting_quest = nil
     -- Reset Weapons cache too — kept on the Weapons module rather than
@@ -75,6 +77,8 @@ end
 --   quest_locations:            {[quest_no_str]: 1}  (set membership —
 --                               quests that send AP Clear checks)
 --   quest_unlocks:              {[quest_no_str]: "Unlock: <name>"}
+--   quest_prereqs:              {[quest_no_str]: ["Unlock: X", ...]}  (prereq
+--                               unlock names; absent on older seeds)
 --   goal_quest:                 int (quest_no)
 --   starting_quest:             int (quest_no, precollected)
 --   include_weapons:            bool
@@ -113,6 +117,16 @@ function Lookups.Load(slot_data)
         if type(unlocks) == "table" then
             for k, v in pairs(unlocks) do
                 Lookups.quest_unlocks[tostring(k)] = v
+            end
+        end
+        local prereqs = slot_data.quest_prereqs
+        if type(prereqs) == "table" then
+            for k, v in pairs(prereqs) do
+                if type(v) == "table" then
+                    local list = {}
+                    for _, name in ipairs(v) do list[#list + 1] = name end
+                    Lookups.quest_prereqs[tostring(k)] = list
+                end
             end
         end
         Lookups.goal_quest = tonumber(slot_data.goal_quest)
