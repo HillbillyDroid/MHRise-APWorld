@@ -139,13 +139,19 @@ local function build_sections()
     end
 
     if Weapons.enabled then
-        -- Iterate the string-keyed Items.held set. Anything in there
-        -- that isn't a known monster license is a weapon license.
-        -- Then add the precollected starter weapon (which doesn't
-        -- arrive via items_received).
+        -- Identify weapon licenses by POSITIVE membership in the
+        -- weapon-license name set (from slot_data) — not by exclusion.
+        -- Exclusion ("anything not a monster license") wrongly swept up
+        -- non-license items like the Poogie filler (gh #16). Then add
+        -- the precollected starter weapon (which doesn't arrive via
+        -- items_received).
+        local weapon_license_names = {}
+        for _, name in pairs(Weapons.weapon_type_to_item_name) do
+            weapon_license_names[name] = true
+        end
         local saw_starter = false
         for license_name, _ in pairs(Items.held) do
-            if Lookups.item_name_to_em_type[license_name] == nil then
+            if weapon_license_names[license_name] then
                 local name = license_to_name(license_name)
                 if name == Weapons.starting_weapon then saw_starter = true end
                 available_weapons[#available_weapons + 1] = name
@@ -209,21 +215,21 @@ end
 
 -- QuestRando weapons section: list of held weapon-license names plus
 -- the precollected starter weapon (which doesn't arrive via
--- items_received). Identifies weapon licenses by absence from
--- Lookups.quest_unlocks — in QuestRando the only non-quest items the
--- player can hold are weapon licenses, Victory, and Poogie filler;
--- Victory is tracked separately and Poogie isn't put in Items.held by
--- name. Mirrors the HuntAThon `build_sections` weapon path.
+-- items_received). Identifies weapon licenses by POSITIVE membership in
+-- the weapon-license name set (from slot_data), not by exclusion — the
+-- old "not a quest unlock" test wrongly swept up the Poogie filler item
+-- (gh #16). Mirrors the HuntAThon `build_sections` weapon path.
 local function build_quest_weapon_section()
     local weapons = {}
     if not Weapons.enabled then return weapons end
-    -- Build a quick reverse-set of unlock item names for the
-    -- not-a-quest-unlock test below.
-    local unlock_names = {}
-    for _, name in pairs(Lookups.quest_unlocks) do unlock_names[name] = true end
+    -- Reverse-set of weapon-license item names for the membership test.
+    local weapon_license_names = {}
+    for _, name in pairs(Weapons.weapon_type_to_item_name) do
+        weapon_license_names[name] = true
+    end
     local saw_starter = false
     for license_name, _ in pairs(Items.held) do
-        if not unlock_names[license_name] then
+        if weapon_license_names[license_name] then
             local name = license_to_name(license_name)
             if name == Weapons.starting_weapon then saw_starter = true end
             weapons[#weapons + 1] = name
