@@ -101,6 +101,14 @@ local function debug_print(str)
 	end
 end
 
+-- Append a plain line to the AP client's ImGui text log. Unlike the game's
+-- snow.gui.ChatManager (which silently drops messages sent before the chat
+-- HUD is live, e.g. at slot-connect), this surface always renders. Used for
+-- connect-time notices that must not be lost (gh #17).
+function AP_REF.LogToClient(text)
+	table.insert(textLog, {{text = tostring(text)}})
+end
+
 local function callback_passthrough()
 	a = 1 + 1
 end
