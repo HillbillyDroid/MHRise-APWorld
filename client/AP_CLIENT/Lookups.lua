@@ -27,6 +27,7 @@ Lookups.em_type_to_item_name = {}
 -- (see Lookups.em_type_to_item_name above). JSON delivery naturally
 -- arrives string-keyed so this is just pass-through.
 Lookups.quest_swaps = {}     -- "quest_no" -> em_type (int)
+Lookups.quest_swap_names = {} -- "quest_no" -> swapped-in monster display name (gh #22)
 Lookups.quest_names = {}     -- "quest_no" -> display name
 Lookups.quest_locations = {} -- "quest_no" -> 1 (set membership)
 Lookups.quest_unlocks = {}   -- "quest_no" -> "Unlock: <name>" item name
@@ -42,6 +43,7 @@ function Lookups.Reset()
     Lookups.item_name_to_em_type = {}
     Lookups.em_type_to_item_name = {}
     Lookups.quest_swaps = {}
+    Lookups.quest_swap_names = {}
     Lookups.quest_names = {}
     Lookups.quest_locations = {}
     Lookups.quest_unlocks = {}
@@ -73,6 +75,8 @@ end
 --
 -- QuestRando:
 --   quest_swaps:                {[quest_no_str]: em_type}
+--   quest_swap_names:           {[quest_no_str]: monster display name}
+--                               (swapped-in monster; absent on older seeds)
 --   quest_names:                {[quest_no_str]: display name}
 --   quest_locations:            {[quest_no_str]: 1}  (set membership —
 --                               quests that send AP Clear checks)
@@ -117,6 +121,14 @@ function Lookups.Load(slot_data)
         if type(unlocks) == "table" then
             for k, v in pairs(unlocks) do
                 Lookups.quest_unlocks[tostring(k)] = v
+            end
+        end
+        local swap_names = slot_data.quest_swap_names
+        if type(swap_names) == "table" then
+            for k, v in pairs(swap_names) do
+                if type(v) == "string" then
+                    Lookups.quest_swap_names[tostring(k)] = v
+                end
             end
         end
         local prereqs = slot_data.quest_prereqs

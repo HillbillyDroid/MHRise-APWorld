@@ -339,6 +339,22 @@ class MHRiseWorld(World):
             slot_data["quest_swaps"] = {
                 str(qn): em for qn, em in self.quest_swaps.items()
             }
+            # Per-swapped-quest display name of the monster the boss was
+            # swapped TO, so the client tracker can show what the player
+            # actually fought on cleared quests (gh #22). Resolved here
+            # (Python owns the master monster table) rather than shipping
+            # a raw em->name map for the client to resolve. Only quests
+            # that were actually swapped appear; an em_type with no table
+            # entry is skipped (defensive — shouldn't happen).
+            _em_to_monster_name = {
+                m["em_type"]: m["name"]
+                for m in MONSTERS + SUNBREAK_MONSTERS
+            }
+            slot_data["quest_swap_names"] = {
+                str(qn): _em_to_monster_name[em]
+                for qn, em in self.quest_swaps.items()
+                if em in _em_to_monster_name
+            }
             # Display name (English where dumper resolved it) per
             # quest_no, so the client tracker / chat can show titles
             # without shipping the whole quests.py.

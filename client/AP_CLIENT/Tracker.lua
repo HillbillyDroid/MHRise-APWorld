@@ -211,6 +211,9 @@ end
 --   release). A quest cleared only by external releases (not by the
 --   player in-game) is suffixed " (via release)" so it's distinguished
 --   from a quest the player actually cleared (gh #18).
+--   For a swapped quest the fought monster's name is appended as
+--   " - <monster>" (gh #22); unswapped quests / older seeds show no
+--   suffix.
 -- Available = unlock held + engine reports accessible + not yet cleared.
 -- Inaccessible = unlock held + engine reports NOT accessible (tier not
 --   reached yet in vanilla progression). Accessibility is read live from
@@ -240,6 +243,10 @@ local function build_quest_sections()
     for qn_str, _ in pairs(Lookups.quest_locations) do
         local display = Lookups.quest_names[qn_str] or qn_str
         if is_fully_cleared(qn_str) then
+            local fought = Lookups.quest_swap_names[qn_str]
+            if fought then
+                display = display .. " - " .. fought
+            end
             if not Tracker.quest_self_cleared[qn_str] then
                 display = display .. " (via release)"
             end
