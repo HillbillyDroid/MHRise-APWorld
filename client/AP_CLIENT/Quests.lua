@@ -68,6 +68,49 @@ local function visit_param_array(field_name, visitor)
     return false
 end
 
+-- Read the engine's per-quest visibility/accessibility oracle.
+-- checkUnlockCondition(quest_no) returns true when the village
+-- questboard considers the quest accessible NOW, false when it's
+-- gated behind unreached tier progression. Probe 2b
+-- (debug_tools/QuestRandoSpike.lua) confirmed true=visible/
+-- false=hidden, per-quest. Read-only — no UI side effects.
+--
+-- Returns:
+--   true  -> engine says accessible
+--   false -> engine says NOT accessible
+--   nil   -> couldn't read (singleton not loaded, not in a save,
+--            method unresolved, or call threw) — caller decides
+--            the fallback.
+-- quest_no is an integer.
+local _check_unlock_method = nil
+local _check_unlock_resolved = false
+local function resolve_check_unlock()
+    if _check_unlock_resolved then return _check_unlock_method end
+    _check_unlock_resolved = true
+    local td = sdk.find_type_definition("snow.progress.quest.ProgressQuestManager")
+    if not td then return nil end
+    pcall(function()
+        _check_unlock_method = td:get_method("checkUnlockCondition(snow.quest.QuestNo)")
+    end)
+    return _check_unlock_method
+end
+
+function Quests.EngineQuestAccessible(quest_no)
+    local method = resolve_check_unlock()
+    if not method then return nil end
+    local pqm = sdk.get_managed_singleton("snow.progress.quest.ProgressQuestManager")
+    if not pqm then return nil end
+    local result = nil
+    local ok = pcall(function()
+        result = method:call(pqm, quest_no)
+    end)
+    if not ok then return nil end
+    if type(result) == "boolean" then return result end
+    -- Some REFramework builds return the bool as 0/1.
+    if type(result) == "number" then return result ~= 0 end
+    return nil
+end
+
 local function apply_swap_to_param(param, em_type, quest_no)
     local boss = nil
     local tgt = nil

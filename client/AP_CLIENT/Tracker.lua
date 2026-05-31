@@ -3,8 +3,8 @@
 --
 -- HuntAThon: Available Monsters / Available Weapons (when enabled) /
 --            Hunted Monsters / Locked Monsters.
--- QuestRando: Available Quests (unlock held + prereqs met) /
---             Inaccessible Quests (unlock held, prereqs unmet) /
+-- QuestRando: Available Quests (unlock held + engine-accessible) /
+--             Inaccessible Quests (unlock held, engine-gated) /
 --             Cleared Quests / Locked Quests (unlock NOT held).
 --
 -- Visibility is owned by Tracker.visible. Auto-flipped to true on
@@ -211,24 +211,31 @@ end
 --   release). A quest cleared only by external releases (not by the
 --   player in-game) is suffixed " (via release)" so it's distinguished
 --   from a quest the player actually cleared (gh #18).
--- Available = unlock held + all prereqs held + not yet cleared.
--- Inaccessible = unlock held + some prereq unlock NOT held (tier not
---   reached yet). Prereqs come from Lookups.quest_prereqs (slot_data).
---   If quest_prereqs is absent (older seed), treated as Available
---   (back-compat).
+-- Available = unlock held + engine reports accessible + not yet cleared.
+-- Inaccessible = unlock held + engine reports NOT accessible (tier not
+--   reached yet in vanilla progression). Accessibility is read live from
+--   the engine's own questboard oracle via
+--   Quests.EngineQuestAccessible (checkUnlockCondition) rather than the
+--   AP fill heuristic — so it reflects the actual game, not the
+--   over-approximated fill rule. If the engine read is unavailable
+--   (nil — not in a save yet), the quest is treated as Available (no
+--   false "inaccessible" claim).
 -- Locked = unlock NOT held + not yet cleared.
 local function build_quest_sections()
+    local Quests = require("AP_CLIENT/Quests")
     local available = {}
     local inaccessible = {}
     local locked = {}
     local cleared = {}
-    local function prereqs_met(qn_str)
-        local prereqs = Lookups.quest_prereqs[qn_str]
-        if prereqs == nil then return true end   -- back-compat: old seed
-        for _, item_name in ipairs(prereqs) do
-            if not Items.Has(item_name) then return false end
-        end
-        return true
+    -- Engine-accurate accessibility: ask the village questboard's own
+    -- visibility oracle (checkUnlockCondition) per quest, rather than
+    -- modelling tier progression from held unlocks. nil (engine
+    -- unreadable — not in a save yet, singleton not loaded) -> treat as
+    -- accessible so we never show a false "Inaccessible" claim.
+    local function engine_accessible(qn_str)
+        local v = Quests.EngineQuestAccessible(tonumber(qn_str))
+        if v == nil then return true end
+        return v
     end
     for qn_str, _ in pairs(Lookups.quest_locations) do
         local display = Lookups.quest_names[qn_str] or qn_str
@@ -242,7 +249,7 @@ local function build_quest_sections()
             local held = unlock_name == nil or Items.Has(unlock_name)
             if not held then
                 locked[#locked + 1] = display
-            elseif prereqs_met(qn_str) then
+            elseif engine_accessible(qn_str) then
                 available[#available + 1] = display
             else
                 inaccessible[#inaccessible + 1] = display
