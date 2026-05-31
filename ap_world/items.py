@@ -87,6 +87,15 @@ TIER_URGENT_QUEST_NOS: dict[QuestLevel, int] = {
 
 _HUNTING_QUEST_TYPES = QuestType.HUNTING | QuestType.KILL | QuestType.CAPTURE
 
+# em_types of the large, randomizable monsters. A quest only belongs in
+# the QuestRando pool if BOTH its boss AND its clear-target are large —
+# some "hunt a large boss" village quests actually clear on a SMALL
+# monster (e.g. Ladies of the Lake clears on Ludroth, THE BEST Quest on
+# Rachnoid). Swapping the boss on those breaks completion (gh #19), so
+# they're filtered out. monster_bucket alone misses them because it's
+# derived from boss_em_type, not target_em_type.
+_LARGE_MONSTER_EM_TYPES: frozenset[int] = frozenset(m["em_type"] for m in MONSTERS)
+
 
 def _in_questrando_pool(quest: dict) -> bool:
     """Filter used identically by items, locations, and generate_early
@@ -97,10 +106,19 @@ def _in_questrando_pool(quest: dict) -> bool:
     like 'Plump and Juicy' and arena chains like 'Third Wheel' are
     excluded — clearing those doesn't reduce to 'kill the swapped
     boss'), and no QL5/QL6 entries except the goal itself
-    (quest_no=501)."""
+    (quest_no=501). Quests whose boss OR clear-target is a small
+    monster are excluded (gh #19) — swapping their boss makes them
+    uncompletable."""
     if quest["enemy_level"] != EnemyLv.Village:
         return False
     if quest["monster_bucket"] != "monster":
+        return False
+    # Both the spawned boss AND the clear-target must be large monsters.
+    # Some village "hunt" quests clear on a small monster (gh #19) — the
+    # boss swap would make them uncompletable, so exclude them.
+    if quest["boss_em_type"] not in _LARGE_MONSTER_EM_TYPES:
+        return False
+    if quest["target_em_type"] not in _LARGE_MONSTER_EM_TYPES:
         return False
     if not (quest["quest_type"] & _HUNTING_QUEST_TYPES):
         return False

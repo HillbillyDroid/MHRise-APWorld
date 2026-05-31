@@ -272,6 +272,9 @@ class MHRiseWorld(World):
         # `randomize_quest_monsters` option short-circuits the loop
         # — quest unlocks / clear locations / rules still apply, but
         # bosses stay vanilla.
+        # Every pool quest is guaranteed (by `_in_questrando_pool`) to
+        # have a LARGE boss AND a LARGE clear-target, so swapping the
+        # boss can't strand a small-monster clear condition (gh #19).
         self.quest_swaps = {}
         if bool(self.options.randomize_quest_monsters.value):
             for quest in self.quest_pool:
