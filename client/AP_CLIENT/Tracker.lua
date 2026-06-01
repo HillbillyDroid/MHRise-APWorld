@@ -50,15 +50,9 @@ Tracker.checked = {}
 -- Two populate paths, same shape as the monster ledger:
 --   1. Self-clears: Tracker.MarkQuestCleared(quest_no) marks BOTH slots
 --      at once (a self-clear sends both ids in one LocationChecks call).
---      Also flags self_cleared so the tracker can distinguish a quest
---      the player actually cleared from one completed only by releases.
 --   2. Other-world releases: Tracker.NoteLocationChecked(loc_id) marks
 --      one slot at a time via the (n/2) suffix.
 Tracker.quest_cleared = {}
--- string(quest_no) -> true when the player cleared the quest in-game
--- themselves (vs the two Clear: locations being filled only by external
--- releases). Drives the "(via release)" annotation in the tracker.
-Tracker.quest_self_cleared = {}
 
 local function license_to_name(item_name)
     return item_name:match("^(.*) License$") or item_name
@@ -135,20 +129,17 @@ end
 
 -- QuestRando: called from Quests.lua after a successful clear-check
 -- LocationChecks send. A self-clear sends both (1/2) and (2/2) in the
--- same LocationChecks call, so mark both slots at once and flag the
--- quest as self-cleared. Idempotent.
+-- same LocationChecks call, so mark both slots at once. Idempotent.
 function Tracker.MarkQuestCleared(quest_no)
     if type(quest_no) ~= "number" then return end
     local qn_str = tostring(quest_no)
     note_quest_slot(qn_str, "1")
     note_quest_slot(qn_str, "2")
-    Tracker.quest_self_cleared[qn_str] = true
 end
 
 function Tracker.Reset()
     Tracker.checked = {}
     Tracker.quest_cleared = {}
-    Tracker.quest_self_cleared = {}
     Tracker.visible = false
 end
 
@@ -208,9 +199,7 @@ end
 
 -- QuestRando sections.
 -- Cleared = BOTH Clear: locations registered (self-clear or external
---   release). A quest cleared only by external releases (not by the
---   player in-game) is suffixed " (via release)" so it's distinguished
---   from a quest the player actually cleared (gh #18).
+--   release).
 --   For a swapped quest the fought monster's name is appended as
 --   " - <monster>" (gh #22); unswapped quests / older seeds show no
 --   suffix.
@@ -250,9 +239,6 @@ local function build_quest_sections()
             local fought = Lookups.quest_swap_names[qn_str]
             if fought then
                 display = display .. " - " .. fought
-            end
-            if not Tracker.quest_self_cleared[qn_str] then
-                display = display .. " (via release)"
             end
             cleared[#cleared + 1] = display
         else
