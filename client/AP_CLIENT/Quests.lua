@@ -68,47 +68,91 @@ local function visit_param_array(field_name, visitor)
     return false
 end
 
--- Read the engine's per-quest visibility/accessibility oracle.
--- checkUnlockCondition(quest_no) returns true when the village
--- questboard considers the quest accessible NOW, false when it's
--- gated behind unreached tier progression. Probe 2b
--- (debug_tools/QuestRandoSpike.lua) confirmed true=visible/
--- false=hidden, per-quest. Read-only — no UI side effects.
+-- Engine-sourced quest accessibility (gh #23). Two orthogonal gates,
+-- both read from snow.progress.quest.ProgressQuestManager (read-only):
 --
--- Returns:
---   true  -> engine says accessible
---   false -> engine says NOT accessible
---   nil   -> couldn't read (singleton not loaded, not in a save,
---            method unresolved, or call threw) — caller decides
---            the fallback.
--- quest_no is an integer.
-local _check_unlock_method = nil
-local _check_unlock_resolved = false
-local function resolve_check_unlock()
-    if _check_unlock_resolved then return _check_unlock_method end
-    _check_unlock_resolved = true
+--   * Tier gate (per QuestLevel): is this quest's tier reached?
+--       - URGENT quest (qn == its tier's urgent): isUnlockUrgent(Village,
+--         QL) — flips true the moment the urgent becomes takeable.
+--       - NON-URGENT quest: isClearUrgent(Village, QL) — flips true once
+--         the tier's urgent is CLEARED (then the rest of the tier opens).
+--   * Per-quest intra-tier gate: checkUnlockCondition(qn) — story/NPC
+--     gating WITHIN an already-reached tier (e.g. talk-to-NPC quests).
+--
+-- A quest is accessible iff BOTH gates pass. Probe 4
+-- (debug_tools/QuestRandoSpike.lua) characterized this across three
+-- save states; checkUnlockCondition alone was wrong (true for gated
+-- quests in an unreached tier — the #23 bug). QuestCategory.Village = 0.
+--
+-- All method handles cached on first use (resolve-once idiom). Bool
+-- reads accept boolean or 0/1 number (some REFramework builds box bools).
+local _pqm_methods = nil          -- { check_unlock, unlock_urgent, clear_urgent }
+local _pqm_resolved = false
+local QUEST_CATEGORY_VILLAGE = 0
+
+local function resolve_pqm_methods()
+    if _pqm_resolved then return _pqm_methods end
+    _pqm_resolved = true
     local td = sdk.find_type_definition("snow.progress.quest.ProgressQuestManager")
     if not td then return nil end
+    local m = {}
     pcall(function()
-        _check_unlock_method = td:get_method("checkUnlockCondition(snow.quest.QuestNo)")
+        m.check_unlock = td:get_method("checkUnlockCondition(snow.quest.QuestNo)")
     end)
-    return _check_unlock_method
+    pcall(function()
+        m.unlock_urgent = td:get_method(
+            "isUnlockUrgent(snow.quest.QuestCategory, snow.quest.QuestLevel)")
+    end)
+    pcall(function()
+        m.clear_urgent = td:get_method(
+            "isClearUrgent(snow.quest.QuestCategory, snow.quest.QuestLevel)")
+    end)
+    _pqm_methods = m
+    return m
 end
 
-function Quests.EngineQuestAccessible(quest_no)
-    local method = resolve_check_unlock()
+-- a1/a2 are the (optional) call args. checkUnlockCondition takes one
+-- (quest_no); isUnlockUrgent/isClearUrgent take two (category, level).
+-- Packed explicitly rather than via `...` — a `...` forward into the
+-- pcall closure is illegal (varargs can't be an upvalue).
+local function call_bool(method, pqm, a1, a2)
     if not method then return nil end
-    local pqm = sdk.get_managed_singleton("snow.progress.quest.ProgressQuestManager")
-    if not pqm then return nil end
     local result = nil
     local ok = pcall(function()
-        result = method:call(pqm, quest_no)
+        if a2 == nil then
+            result = method:call(pqm, a1)
+        else
+            result = method:call(pqm, a1, a2)
+        end
     end)
     if not ok then return nil end
     if type(result) == "boolean" then return result end
-    -- Some REFramework builds return the bool as 0/1.
     if type(result) == "number" then return result ~= 0 end
     return nil
+end
+
+-- Returns:
+--   true  -> engine says accessible (both gates pass)
+--   false -> engine says NOT accessible
+--   nil   -> couldn't read (singleton not loaded, not in a save, method
+--            unresolved, or a call threw) — caller decides the fallback.
+-- quest_no / quest_level are integers; is_urgent is a bool (quest is its
+-- tier's urgent).
+function Quests.EngineQuestAccessible(quest_no, quest_level, is_urgent)
+    local m = resolve_pqm_methods()
+    if not m then return nil end
+    local pqm = sdk.get_managed_singleton("snow.progress.quest.ProgressQuestManager")
+    if not pqm then return nil end
+
+    local cu = call_bool(m.check_unlock, pqm, quest_no)
+    local tier
+    if is_urgent then
+        tier = call_bool(m.unlock_urgent, pqm, QUEST_CATEGORY_VILLAGE, quest_level)
+    else
+        tier = call_bool(m.clear_urgent, pqm, QUEST_CATEGORY_VILLAGE, quest_level)
+    end
+    if cu == nil or tier == nil then return nil end
+    return (tier == true) and (cu == true)
 end
 
 local function apply_swap_to_param(param, em_type, quest_no)

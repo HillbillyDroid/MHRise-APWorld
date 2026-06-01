@@ -385,7 +385,18 @@ end
 -- system and is per-quest, not per-level. If it doesn't reveal 303,
 -- we know there's a secondary level gate to dig into next.
 
-local PROBE2_VISIBLE_QUEST_NO = 202
+-- gh #23 characterization: compare checkUnlockCondition for two QL3
+-- quests on a repro save where the tracker mislabels accessibility.
+--   311 = Faceless Foe (QL3, Furfur) — tracker WRONGLY shows Available.
+--   303 = Feathered Frenzy (QL3, Aknosom) — tracker CORRECTLY shows
+--         Inaccessible.
+-- Both QL3, so if the oracle returns the same value for both, it can't
+-- be carrying tier accessibility (the production read trusts a signal
+-- that doesn't distinguish them). "READ visible" reads 311 (the buggy
+-- case); "READ hidden" reads 303 (the correct case). Rabid Rabbit (207,
+-- QL2, correctly Available) is a third reference — temporarily point a
+-- slot at it if you want the known-good baseline too.
+local PROBE2_VISIBLE_QUEST_NO = 311
 local PROBE2_HIDDEN_QUEST_NO  = 303
 
 local probe2 = {
@@ -1023,6 +1034,309 @@ local function probe3_dump()
 end
 
 -- =====================================================================
+-- Probe 4 — per-tier urgent unlock/clear oracle (gh #23).
+-- =====================================================================
+--
+-- Goal: find an ENGINE-sourced, per-TIER accessibility signal to replace
+-- the per-quest checkUnlockCondition (gh #23: it returns true for the
+-- gated QL3 quest 311 but false for the equally-gated QL3 quest 303 —
+-- it does not carry tier accessibility).
+--
+-- The ProgressQuestManager type dump exposes per-tier accessors that
+-- TAKE a QuestLevel arg (the earlier research dismissed them as a WRITE
+-- lever; here we use them READ-only):
+--   isUnlockUrgent(QuestCategory, QuestLevel) : Bool
+--   isClearUrgent (QuestCategory, QuestLevel) : Bool
+--   getQuestNo_Urgent(QuestCategory, QuestLevel) : QuestNo
+--   calcVillageProgress() : VillageProgress  (NONE=0, PROGRESS_0..6=1..7)
+--
+-- Hypothesis: a quest at tier QL_n is accessible iff
+-- isUnlockUrgent(Village, QL_n) is true (and/or the prior tier's urgent
+-- is cleared). On the repro save (QL2 accessible, QL3+ not) we expect
+-- isUnlockUrgent(Village,QL2)=true, isUnlockUrgent(Village,QL3)=false —
+-- the SAME answer for both QL3 quests, which is what we want.
+--
+-- QuestCategory's int value isn't in the repo, so resolve the enum
+-- literals live and sweep EVERY category against the QL2..QL5 levels.
+-- QuestLevel ints (from ap_world/data/quests.py): QL2=1 QL3=2 QL4=3 QL5=4.
+
+local PROBE4_LEVELS = {
+    { name = "QL2", value = 1 },
+    { name = "QL3", value = 2 },
+    { name = "QL4", value = 3 },
+    { name = "QL5", value = 4 },
+}
+
+-- All QL3 Village quests (from ap_world/data/quests.py). Used to compare
+-- per-quest checkUnlockCondition against the per-tier flag across an
+-- ENTIRE tier (gh #23 follow-up: is checkUnlockCondition consistent
+-- within a tier?). 304 is the excluded rampage/Hyakuryu urgent — the
+-- intra-tier story-gate example. On the current save QL3 is locked, so
+-- ground truth = every one of these is inaccessible.
+local PROBE4_QL3_QUESTS = {
+    { qn = 301, name = "A Tour of the Plains" },
+    { qn = 302, name = "A Tour of the Forest" },
+    { qn = 303, name = "Feathered Frenzy" },
+    { qn = 304, name = "The Rampage Approaches (rampage)" },
+    { qn = 305, name = "Walking on Eggshells" },
+    { qn = 307, name = "Obnoxious Lord, Noxious Monster" },
+    { qn = 309, name = "Spongy Oasis" },
+    { qn = 310, name = "Supply Run" },
+    { qn = 311, name = "Faceless Foe" },
+    { qn = 312, name = "The Cactus Diet" },
+    { qn = 313, name = "A Sandy Cabal" },
+    { qn = 314, name = "Breath of the Past" },
+    { qn = 315, name = "Ladies of the Lake" },
+}
+
+local probe4 = {
+    resolved = false,
+    install_log = {},
+    -- Resolved method handles.
+    calc_village_progress = nil,   -- () : VillageProgress
+    is_unlock_urgent = nil,        -- (QuestCategory, QuestLevel) : Bool
+    is_clear_urgent = nil,         -- (QuestCategory, QuestLevel) : Bool
+    get_quest_no_urgent = nil,     -- (QuestCategory, QuestLevel) : QuestNo
+    get_quest_clear_count = nil,   -- () : Int32
+    check_unlock = nil,            -- (QuestNo) : Bool  (per-quest oracle, for comparison)
+    categories = {},               -- { {name, value}, ... } resolved literals
+    last_result = nil,             -- last swept payload (for UI + dump)
+}
+
+local function probe4_push_install(s)
+    probe4.install_log[#probe4.install_log + 1] = s
+    log_info(s)
+end
+
+local function probe4_resolve_categories()
+    -- Walk snow.quest.QuestCategory literal fields -> {name,value}.
+    probe4.categories = {}
+    local td = sdk.find_type_definition("snow.quest.QuestCategory")
+    if not td then
+        probe4_push_install("  QuestCategory type not found — will sweep raw 0..3 as fallback")
+        for v = 0, 3 do
+            probe4.categories[#probe4.categories + 1] =
+                { name = "raw" .. v, value = v }
+        end
+        return
+    end
+    local fields = nil
+    pcall(function() fields = td:get_fields() end)
+    if fields then
+        for _, f in ipairs(fields) do
+            local is_lit = false
+            pcall(function() is_lit = f:is_literal() end)
+            if is_lit then
+                local fname, fval = nil, nil
+                pcall(function() fname = f:get_name() end)
+                pcall(function() fval = f:get_data(nil) end)
+                if type(fval) == "number" then
+                    probe4.categories[#probe4.categories + 1] =
+                        { name = fname or "?", value = fval }
+                end
+            end
+        end
+    end
+    if #probe4.categories == 0 then
+        probe4_push_install("  QuestCategory had no readable literals — fallback raw 0..3")
+        for v = 0, 3 do
+            probe4.categories[#probe4.categories + 1] =
+                { name = "raw" .. v, value = v }
+        end
+    else
+        local names = {}
+        for _, c in ipairs(probe4.categories) do
+            names[#names + 1] = string.format("%s=%d", c.name, c.value)
+        end
+        probe4_push_install("  QuestCategory: " .. table.concat(names, " "))
+    end
+end
+
+local function probe4_resolve()
+    if probe4.resolved then return true end
+    local td = sdk.find_type_definition("snow.progress.quest.ProgressQuestManager")
+    if not td then
+        probe4_push_install("  [skip] ProgressQuestManager — type not found")
+        return false
+    end
+    pcall(function()
+        probe4.calc_village_progress = td:get_method("calcVillageProgress")
+    end)
+    pcall(function()
+        probe4.is_unlock_urgent = td:get_method(
+            "isUnlockUrgent(snow.quest.QuestCategory, snow.quest.QuestLevel)")
+    end)
+    pcall(function()
+        probe4.is_clear_urgent = td:get_method(
+            "isClearUrgent(snow.quest.QuestCategory, snow.quest.QuestLevel)")
+    end)
+    pcall(function()
+        probe4.get_quest_no_urgent = td:get_method(
+            "getQuestNo_Urgent(snow.quest.QuestCategory, snow.quest.QuestLevel)")
+    end)
+    pcall(function()
+        probe4.get_quest_clear_count = td:get_method("getQuestClearCount")
+    end)
+    pcall(function()
+        probe4.check_unlock = td:get_method("checkUnlockCondition(snow.quest.QuestNo)")
+    end)
+    probe4_push_install(string.format(
+        "ProgressQuestManager: calcVillageProgress=%s isUnlockUrgent=%s isClearUrgent=%s getQuestNo_Urgent=%s clearCount=%s checkUnlock=%s",
+        tostring(probe4.calc_village_progress ~= nil),
+        tostring(probe4.is_unlock_urgent ~= nil),
+        tostring(probe4.is_clear_urgent ~= nil),
+        tostring(probe4.get_quest_no_urgent ~= nil),
+        tostring(probe4.get_quest_clear_count ~= nil),
+        tostring(probe4.check_unlock ~= nil)))
+    probe4_resolve_categories()
+    probe4.resolved = true
+    return true
+end
+
+local function probe4_call_b(method, pqm, cat, lvl)
+    if not method then return nil end
+    local v = nil
+    local ok = pcall(function() v = method:call(pqm, cat, lvl) end)
+    if not ok then return nil end
+    if type(v) == "boolean" then return v end
+    if type(v) == "number" then return v ~= 0 end
+    return nil
+end
+
+local function probe4_call_i(method, pqm, cat, lvl)
+    if not method then return nil end
+    local v = nil
+    local ok = pcall(function() v = method:call(pqm, cat, lvl) end)
+    if not ok then return nil end
+    if type(v) == "number" then return v end
+    return nil
+end
+
+local function probe4_sweep()
+    if not probe4_resolve() then return end
+    local pqm = sdk.get_managed_singleton("snow.progress.quest.ProgressQuestManager")
+    if not pqm then
+        log_info("probe4: ProgressQuestManager singleton not available (load a save)")
+        return
+    end
+
+    local village_progress = nil
+    if probe4.calc_village_progress then
+        pcall(function()
+            village_progress = probe4.calc_village_progress:call(pqm)
+        end)
+    end
+    local clear_count = nil
+    if probe4.get_quest_clear_count then
+        pcall(function()
+            clear_count = probe4.get_quest_clear_count:call(pqm)
+        end)
+    end
+
+    -- rows[category_name] = { [QLname] = {unlock,clear,urgent_qn} }
+    local rows = {}
+    for _, cat in ipairs(probe4.categories) do
+        local per_level = {}
+        for _, lvl in ipairs(PROBE4_LEVELS) do
+            per_level[lvl.name] = {
+                is_unlock_urgent = probe4_call_b(probe4.is_unlock_urgent, pqm, cat.value, lvl.value),
+                is_clear_urgent  = probe4_call_b(probe4.is_clear_urgent,  pqm, cat.value, lvl.value),
+                urgent_quest_no  = probe4_call_i(probe4.get_quest_no_urgent, pqm, cat.value, lvl.value),
+            }
+        end
+        rows[cat.name .. "(" .. cat.value .. ")"] = per_level
+    end
+
+    -- Per-quest checkUnlockCondition across the whole QL3 tier, compared
+    -- against the QL3 Village tier flag. Reveals whether the per-quest
+    -- oracle is consistent within a tier (gh #23). Ground truth on a
+    -- QL3-locked save: every entry should be inaccessible.
+    local ql3_tier_unlock = probe4_call_b(
+        probe4.is_unlock_urgent, pqm, 0 --[[Village]], 2 --[[QL3]])
+    local ql3_quests = {}
+    for _, q in ipairs(PROBE4_QL3_QUESTS) do
+        local cu = nil
+        if probe4.check_unlock then
+            local ok = pcall(function() cu = probe4.check_unlock:call(pqm, q.qn) end)
+            if not ok then cu = nil
+            elseif type(cu) == "number" then cu = cu ~= 0 end
+        end
+        ql3_quests[#ql3_quests + 1] = {
+            qn = q.qn, name = q.name, check_unlock = cu,
+        }
+    end
+
+    probe4.last_result = {
+        village_progress = village_progress,
+        quest_clear_count = clear_count,
+        categories = rows,
+        ql3_tier_unlock_urgent = ql3_tier_unlock,
+        ql3_quests = ql3_quests,
+    }
+    log_info(string.format(
+        "probe4 sweep: villageProgress=%s clearCount=%s (see UI / dump)",
+        tostring(village_progress), tostring(clear_count)))
+end
+
+local function probe4_dump()
+    if not probe4.last_result then
+        log_info("probe4: nothing swept yet — press Sweep first")
+        return false
+    end
+    local payload = {
+        source = "QuestRandoSpike.lua / Probe 4 (per-tier urgent oracle, gh #23)",
+        captured_at = os.date("%Y-%m-%dT%H:%M:%S"),
+        note = "QuestLevel ints: QL2=1 QL3=2 QL4=3 QL5=4. VillageProgress: NONE=0 PROGRESS_0..6=1..7.",
+        install_log = probe4.install_log,
+        result = probe4.last_result,
+    }
+    local ok = json.dump_file("quest_rando_spike_probe4.json", payload, 4)
+    if ok then
+        log_info("dumped Probe 4 -> quest_rando_spike_probe4.json")
+    else
+        log_info("json.dump_file failed for Probe 4")
+    end
+    return ok
+end
+
+local function probe4_result_text()
+    local r = probe4.last_result
+    if not r then return "(no sweep yet)" end
+    local lines = {}
+    lines[#lines + 1] = string.format(
+        "villageProgress=%s  questClearCount=%s",
+        tostring(r.village_progress), tostring(r.quest_clear_count))
+    -- Sort category keys for stable display.
+    local cat_keys = {}
+    for k, _ in pairs(r.categories) do cat_keys[#cat_keys + 1] = k end
+    table.sort(cat_keys)
+    for _, ck in ipairs(cat_keys) do
+        lines[#lines + 1] = "  " .. ck .. ":"
+        for _, lvl in ipairs(PROBE4_LEVELS) do
+            local cell = r.categories[ck][lvl.name]
+            lines[#lines + 1] = string.format(
+                "    %-4s unlockUrgent=%-5s clearUrgent=%-5s urgentQN=%s",
+                lvl.name,
+                tostring(cell.is_unlock_urgent),
+                tostring(cell.is_clear_urgent),
+                tostring(cell.urgent_quest_no))
+        end
+    end
+    if r.ql3_quests then
+        lines[#lines + 1] = ""
+        lines[#lines + 1] = string.format(
+            "QL3 tier unlockUrgent(Village)=%s  -- per-quest checkUnlock below:",
+            tostring(r.ql3_tier_unlock_urgent))
+        for _, q in ipairs(r.ql3_quests) do
+            lines[#lines + 1] = string.format(
+                "    %-5d checkUnlock=%-5s  %s",
+                q.qn, tostring(q.check_unlock), q.name)
+        end
+    end
+    return table.concat(lines, "\n")
+end
+
+-- =====================================================================
 -- UI
 -- =====================================================================
 
@@ -1289,6 +1603,38 @@ local function draw_window()
             if imgui.button("Dump Probe 3 JSON") then
                 probe3_dump()
             end
+        end
+
+        imgui.text("")
+        if imgui.collapsing_header("Probe 4 — per-tier urgent oracle (gh #23)") then
+            imgui.text("Goal: engine-sourced PER-TIER accessibility to replace")
+            imgui.text("the per-quest checkUnlockCondition (which mislabels 311).")
+            imgui.text("Sweeps isUnlockUrgent / isClearUrgent / getQuestNo_Urgent")
+            imgui.text("over every QuestCategory x {QL2,QL3,QL4,QL5}.")
+            imgui.text("On the repro save expect: QL2 unlockUrgent=true,")
+            imgui.text("QL3 unlockUrgent=false (same answer for 311 AND 303).")
+
+            imgui.text("")
+            if imgui.button("Sweep tiers") then
+                probe4_sweep()
+            end
+            imgui.same_line()
+            if imgui.button("Dump Probe 4 JSON") then
+                probe4_dump()
+            end
+
+            imgui.text("")
+            imgui.text("Install / resolve log:")
+            for _, line in ipairs(probe4.install_log) do
+                imgui.text(line)
+            end
+
+            imgui.text("")
+            imgui.text("Result:")
+            imgui.begin_child_window("probe4_result",
+                Vector2f.new(0, 240), true)
+            imgui.text(probe4_result_text())
+            imgui.end_child_window()
         end
 
         imgui.end_window()

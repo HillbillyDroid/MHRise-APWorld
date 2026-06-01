@@ -376,16 +376,23 @@ class MHRiseWorld(World):
                 str(q["quest_no"]): items.unlock_item_name(q)
                 for q in self.quest_pool
             }
-            # quest_no -> list of prerequisite `Unlock: X` item names
-            # (the quest's tier-progression deps, excluding its own
-            # unlock). The tracker uses this to split held-unlock quests
-            # into Available (prereqs met) vs Inaccessible (prereqs unmet).
-            # Same source of truth as the AP fill rules. quest_no keys
-            # string-coerced (int-keyed-table gotcha).
-            slot_data["quest_prereqs"] = {
-                str(qn): names
-                for qn, names in rules.quest_prerequisite_unlock_names(
-                    self.quest_pool).items()
+            # quest_no -> QuestLevel int (QL2=1 QL3=2 QL4=3 QL5=4). The
+            # tracker pairs this with the engine's per-tier urgent oracle
+            # (isUnlockUrgent / isClearUrgent) to decide Available vs
+            # Inaccessible (gh #23). quest_no keys string-coerced
+            # (int-keyed-table gotcha).
+            slot_data["quest_levels"] = {
+                str(q["quest_no"]): int(q["quest_level"])
+                for q in self.quest_pool
+            }
+            # QuestLevel int (str) -> that tier's urgent quest_no. Lets the
+            # client identify each pool quest as its tier's urgent (which
+            # gates on isUnlockUrgent) vs a non-urgent (gates on
+            # isClearUrgent). QL2's urgent (202) is the precollected
+            # starter and absent here — fine, 202 reads accessible anyway.
+            slot_data["tier_urgents"] = {
+                str(int(ql)): qn
+                for ql, qn in items.TIER_URGENT_QUEST_NOS.items()
             }
             slot_data["goal_quest"] = self.goal_quest["quest_no"]
             slot_data["starting_quest"] = self.starting_quest["quest_no"]

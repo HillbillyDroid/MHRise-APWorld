@@ -31,7 +31,8 @@ Lookups.quest_swap_names = {} -- "quest_no" -> swapped-in monster display name (
 Lookups.quest_names = {}     -- "quest_no" -> display name
 Lookups.quest_locations = {} -- "quest_no" -> 1 (set membership)
 Lookups.quest_unlocks = {}   -- "quest_no" -> "Unlock: <name>" item name
-Lookups.quest_prereqs = {}   -- "quest_no" -> { "Unlock: X", ... } (prereq unlock names)
+Lookups.quest_levels = {}    -- "quest_no" -> QuestLevel int (QL2=1 QL3=2 QL4=3 QL5=4)
+Lookups.tier_urgents = {}    -- "QL int str" -> that tier's urgent quest_no (int)
 Lookups.goal_quest = nil     -- int (quest_no)
 Lookups.starting_quest = nil -- int (quest_no)
 
@@ -47,7 +48,8 @@ function Lookups.Reset()
     Lookups.quest_names = {}
     Lookups.quest_locations = {}
     Lookups.quest_unlocks = {}
-    Lookups.quest_prereqs = {}
+    Lookups.quest_levels = {}
+    Lookups.tier_urgents = {}
     Lookups.goal_quest = nil
     Lookups.starting_quest = nil
     -- Reset Weapons cache too — kept on the Weapons module rather than
@@ -81,8 +83,10 @@ end
 --   quest_locations:            {[quest_no_str]: 1}  (set membership —
 --                               quests that send AP Clear checks)
 --   quest_unlocks:              {[quest_no_str]: "Unlock: <name>"}
---   quest_prereqs:              {[quest_no_str]: ["Unlock: X", ...]}  (prereq
---                               unlock names; absent on older seeds)
+--   quest_levels:               {[quest_no_str]: QuestLevel int}  (QL2=1
+--                               QL3=2 QL4=3 QL5=4; absent on older seeds)
+--   tier_urgents:               {[QL_int_str]: urgent quest_no}  (QL3/4/5;
+--                               absent on older seeds)
 --   goal_quest:                 int (quest_no)
 --   starting_quest:             int (quest_no, precollected)
 --   include_weapons:            bool
@@ -131,13 +135,21 @@ function Lookups.Load(slot_data)
                 end
             end
         end
-        local prereqs = slot_data.quest_prereqs
-        if type(prereqs) == "table" then
-            for k, v in pairs(prereqs) do
-                if type(v) == "table" then
-                    local list = {}
-                    for _, name in ipairs(v) do list[#list + 1] = name end
-                    Lookups.quest_prereqs[tostring(k)] = list
+        local levels = slot_data.quest_levels
+        if type(levels) == "table" then
+            for k, v in pairs(levels) do
+                local ql = type(v) == "number" and v or tonumber(v)
+                if ql ~= nil then
+                    Lookups.quest_levels[tostring(k)] = ql
+                end
+            end
+        end
+        local urgents = slot_data.tier_urgents
+        if type(urgents) == "table" then
+            for k, v in pairs(urgents) do
+                local qn = type(v) == "number" and v or tonumber(v)
+                if qn ~= nil then
+                    Lookups.tier_urgents[tostring(k)] = qn
                 end
             end
         end

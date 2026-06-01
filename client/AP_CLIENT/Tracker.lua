@@ -215,14 +215,15 @@ end
 --   " - <monster>" (gh #22); unswapped quests / older seeds show no
 --   suffix.
 -- Available = unlock held + engine reports accessible + not yet cleared.
--- Inaccessible = unlock held + engine reports NOT accessible (tier not
---   reached yet in vanilla progression). Accessibility is read live from
---   the engine's own questboard oracle via
---   Quests.EngineQuestAccessible (checkUnlockCondition) rather than the
---   AP fill heuristic — so it reflects the actual game, not the
---   over-approximated fill rule. If the engine read is unavailable
---   (nil — not in a save yet), the quest is treated as Available (no
---   false "inaccessible" claim).
+-- Inaccessible = unlock held + engine reports NOT accessible. Accessibility
+--   is read live from the engine via Quests.EngineQuestAccessible, which
+--   ANDs two gates: the per-tier urgent oracle (isUnlockUrgent for a tier's
+--   own urgent quest, isClearUrgent for the tier's non-urgents) and the
+--   per-quest intra-tier oracle (checkUnlockCondition, for story/NPC gates).
+--   This reflects the actual game, not the over-approximated fill rule
+--   (gh #23). If the engine read is unavailable (nil — not in a save yet),
+--   or the seed predates quest_levels, the quest is treated as Available
+--   (no false "Inaccessible" claim).
 -- Locked = unlock NOT held + not yet cleared.
 local function build_quest_sections()
     local Quests = require("AP_CLIENT/Quests")
@@ -230,13 +231,16 @@ local function build_quest_sections()
     local inaccessible = {}
     local locked = {}
     local cleared = {}
-    -- Engine-accurate accessibility: ask the village questboard's own
-    -- visibility oracle (checkUnlockCondition) per quest, rather than
-    -- modelling tier progression from held unlocks. nil (engine
-    -- unreadable — not in a save yet, singleton not loaded) -> treat as
-    -- accessible so we never show a false "Inaccessible" claim.
+    -- Engine-accurate accessibility: pair the quest's tier (quest_levels)
+    -- and urgent-status (tier_urgents) with the engine's per-tier + per-
+    -- quest oracles. Missing tier data (old seed) or an unreadable engine
+    -- (nil — not in a save, singleton not loaded) -> treat as accessible so
+    -- we never show a false "Inaccessible" claim.
     local function engine_accessible(qn_str)
-        local v = Quests.EngineQuestAccessible(tonumber(qn_str))
+        local ql = Lookups.quest_levels[qn_str]
+        if ql == nil then return true end   -- back-compat: old seed
+        local is_urgent = Lookups.tier_urgents[tostring(ql)] == tonumber(qn_str)
+        local v = Quests.EngineQuestAccessible(tonumber(qn_str), ql, is_urgent)
         if v == nil then return true end
         return v
     end
