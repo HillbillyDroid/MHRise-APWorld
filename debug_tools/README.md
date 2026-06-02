@@ -94,3 +94,17 @@ substring match would hit the cap instantly with useless output).
   above into `ap_world/data/quests.py` (572 quests + the four
   in-game enums). Run with `AP_GAME_INSTALL=<path>` set, or pass
   the JSON path as the first arg. Re-run after a DLC patch.
+- **`QuestRandoSpike.lua`** — Stage-1 QuestRando research spike (4
+  probes: completion hook, setUnlock/checkUnlockCondition gates, EmType
+  swap rewrite, per-tier urgent oracle). Trigger: "MHRise Quest Rando
+  Spike". See `QUEST.md`.
+- **`MRSpike.lua`** — Sunbreak (Master Rank) accessibility spike (gh
+  #24). Four probes: (A) read-only baseline state dump of
+  `ProgressEventFlag` / `ProgressQuestManager` / candidate area managers
+  for fresh-vs-progressed diffing; (B) the Silvris HR→MR unlock writes
+  (`setClear(QN010702)` + `_VillageEndStoryFlag`/`_HallEndStoryFlag`);
+  (C) Elgado/area-access drilldown + generic flag write (the main
+  unknown); (D) MR quest-clear hook + `_nomalQuestDataKohaku`
+  populated-check. **Probes B/C WRITE engine state — throwaway save
+  only.** Output: `mr_spike_*.json`. Trigger: "MHRise MR Spike". See
+  `QUEST.md`.
